@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../configs/database.js";
+import { sequelize } from "../configs/sequelize.js";
 
 const Department = sequelize.define(
   "Department",
