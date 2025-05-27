@@ -17,6 +17,12 @@ const User = sequelize.define(
       type: DataTypes.ENUM("admin", "staff"),
       defaultValue: "staff",
       allowNull: false,
+      validate: {
+        isIn: {
+          args: [["admin", "staff"]],
+          msg: "Role must be either 'admin' or 'staff'",
+        },
+      },
     },
     uid: {
       type: DataTypes.STRING,
@@ -30,6 +36,14 @@ const User = sequelize.define(
         key: "id",
       },
       allowNull: false,
+      validate: {
+        async isExistingDepartment(value) {
+          const department = await Department.findByPk(value);
+          if (!department) {
+            throw new Error(`Department with ID ${value} does not exist`);
+          }
+        },
+      },
     },
     name: {
       type: DataTypes.STRING(400),
