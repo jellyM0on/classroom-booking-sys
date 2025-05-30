@@ -2,6 +2,8 @@ import { FaHome, FaUserPlus } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 
 export default function Navigation() {
+  const role = sessionStorage.getItem("role");
+
   return (
     <nav>
       <ul>
@@ -14,15 +16,18 @@ export default function Navigation() {
             Home
           </NavLink>
         </li>
-        <li>
-          <NavLink
-            to="/register"
-            className={({ isActive }) => (isActive ? "active-link" : "")}
-          >
-            <FaUserPlus />
-            Register Users
-          </NavLink>
-        </li>
+
+        {role === "admin" && (
+          <li>
+            <NavLink
+              to="/register"
+              className={({ isActive }) => (isActive ? "active-link" : "")}
+            >
+              <FaUserPlus />
+              Register Users
+            </NavLink>
+          </li>
+        )}
       </ul>
     </nav>
   );
