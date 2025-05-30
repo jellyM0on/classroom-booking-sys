@@ -13,6 +13,11 @@ export const useAuthToken = (setLoading) => {
       try {
         if (user) {
           const newToken = await user.getIdToken();
+          const customAttributes = JSON.parse(
+            user.reloadUserInfo?.customAttributes
+          );
+          const role = customAttributes.role;
+          sessionStorage.setItem("role", role);
           sessionStorage.setItem("token", newToken);
           console.log(newToken);
           setToken(newToken);

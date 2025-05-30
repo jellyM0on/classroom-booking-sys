@@ -9,11 +9,11 @@ import {
 import "./App.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-
-// TODO: Replace placeholder code
+import RegistrationContainer from "./pages/Registration";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-function App() {
+function AppContent() {
   const [loading, setLoading] = useState(true);
   const token = useAuthToken(setLoading);
 
@@ -42,24 +42,29 @@ function App() {
   return (
     <>
       <Header />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={token ? <Home /> : <Login />} />
-
-          <Route
-            path="/test"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+      {token && <Navigation />}
+      <Routes>
+        <Route path="/" element={token ? <Home /> : <Login />} />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute>
+              <RegistrationContainer/>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
       <Footer />
     </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 
