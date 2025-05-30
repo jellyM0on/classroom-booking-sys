@@ -31,7 +31,6 @@ function ProtectedRoute({ children }) {
 }
 
 function AppContent() {
-  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const token = useAuthToken(setLoading);
 
@@ -42,7 +41,7 @@ function AppContent() {
   return (
     <>
       <Header />
-      {token && <Navigation location={location.pathname} />}
+      {token && <Navigation />}
       <Routes>
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
