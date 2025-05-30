@@ -16,7 +16,7 @@ export default function Navigation() {
         </li>
         <li>
           <NavLink
-            to="test/"
+            to="/register"
             className={({ isActive }) => (isActive ? "active-link" : "")}
           >
             <FaUserPlus />

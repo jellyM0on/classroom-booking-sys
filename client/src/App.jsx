@@ -13,6 +13,7 @@ import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import RegistrationContainer from "./pages/Registration";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -45,10 +46,10 @@ function AppContent() {
       <Routes>
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
-          path="/test"
+          path="/register"
           element={
             <ProtectedRoute>
-              <Home />
+              <RegistrationContainer/>
             </ProtectedRoute>
           }
         />
