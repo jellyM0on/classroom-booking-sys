@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import "./App.css";
+import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home";
@@ -57,6 +58,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      <Footer />
     </>
   );
 }
