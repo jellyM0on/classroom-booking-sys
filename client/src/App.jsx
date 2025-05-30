@@ -7,11 +7,13 @@ import {
   useLocation,
 } from "react-router-dom";
 import "./App.css";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-
-// TODO: Replace placeholder code
+import RegistrationContainer from "./pages/Registration";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-function App() {
+function AppContent() {
   const [loading, setLoading] = useState(true);
   const token = useAuthToken(setLoading);
 
@@ -38,21 +40,30 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <>
+      <Header />
+      {token && <Navigation />}
       <Routes>
         <Route path="/" element={token ? <Home /> : <Login />} />
-
         <Route
-          path="/test"
+          path="/register"
           element={
             <ProtectedRoute>
-              <Home />
+              <RegistrationContainer/>
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

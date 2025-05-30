@@ -20,7 +20,7 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main id="home-page">
       <p>Hello</p>
       <button onClick={handleSignOut}>Sign Out</button>
     </main>
