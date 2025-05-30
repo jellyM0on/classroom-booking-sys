@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import "./App.css";
+import Header from "./components/Header";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -38,22 +39,25 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={token ? <Home /> : <Login />} />
+    <>
+      <Header />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={token ? <Home /> : <Login />} />
 
-        <Route
-          path="/test"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/test"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
