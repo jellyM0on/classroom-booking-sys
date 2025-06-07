@@ -16,7 +16,7 @@ const verifySelf = async (req, res, next) => {
     }
 
     if (user.uid !== requestingUid) {
-      return res.status(403).json({ message: "Forbidden." });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     next();
