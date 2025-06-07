@@ -11,11 +11,7 @@ const verifySelf = async (req, res, next) => {
 
     const user = await User.findOne({ where: { id: userId } });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    if (user.uid !== requestingUid) {
+    if (user.uid !== requestingUid || !user) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
