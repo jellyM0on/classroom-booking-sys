@@ -75,6 +75,7 @@ export default function LoginContainer() {
       const user = userCredential.user;
       console.log(user);
       sessionStorage.setItem("token", user.accessToken);
+      sessionStorage.setItem("email", user.email);
       navigate("/");
     } catch (err) {
       console.error("Error signing in:", err);
