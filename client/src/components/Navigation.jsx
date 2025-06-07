@@ -29,6 +29,7 @@ export default function Navigation() {
   const navigate = useNavigate();
   const handleSignOut = async () => {
     try {
+      sessionStorage.clear();
       await signOut(auth);
       console.log("User signed out");
       navigate("/login");
