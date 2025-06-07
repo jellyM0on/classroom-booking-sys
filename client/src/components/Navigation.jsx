@@ -52,15 +52,23 @@ export default function Navigation() {
               label="Requests"
             />
           </ul>
-          <li className="list-sub-heading">MANAGE</li>
-          <ul className="sub-list">
-            {role === "admin" && (
-              <NavItem to="/register" icon={FaUsersCog} label="Facilitators" />
-            )}
-            {role === "admin" && (
-              <NavItem to="/register" icon={MdRoomPreferences} label="Rooms" />
-            )}
-          </ul>
+          {role === "admin" && (
+            <>
+              <li className="list-sub-heading">MANAGE</li>
+              <ul className="sub-list">
+                <NavItem
+                  to="/register"
+                  icon={FaUsersCog}
+                  label="Facilitators"
+                />
+                <NavItem
+                  to="/register"
+                  icon={MdRoomPreferences}
+                  label="Rooms"
+                />
+              </ul>
+            </>
+          )}
         </div>
         <div>
           <li className="nav-profile-item">
