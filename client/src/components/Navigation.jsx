@@ -57,9 +57,9 @@ export default function Navigation() {
               <li className="list-sub-heading">MANAGE</li>
               <ul className="sub-list">
                 <NavItem
-                  to="/register"
+                  to="/users"
                   icon={FaUsersCog}
-                  label="Facilitators"
+                  label="Users"
                 />
                 <NavItem
                   to="/register"
