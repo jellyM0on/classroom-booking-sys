@@ -61,6 +61,10 @@ ul {
   width: fit-content;
 }
 
+a.transparent-btn {
+  text-decoration: none;
+}
+
 .transparent-btn:hover {
   text-decoration: underline;
   cursor: pointer;

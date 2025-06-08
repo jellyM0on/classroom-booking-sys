@@ -36,6 +36,11 @@ footer {
   margin-bottom: 2rem;
 }
 
+.page-title h2 {
+  align-items: center;
+  display: inline-flex;
+}
+
 .page-title span {
   margin-left: 0.5rem;
   font-size: small;
@@ -233,4 +238,48 @@ nav a.active-link {
 
 #user-management-tbl tbody tr:hover {
   background-color: #1e3a5f11;
+}
+
+/* user detail */
+
+.back-btn {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-btn a {
+  text-decoration: none;
+}
+
+.back-btn a:visited {
+  color: var(--main-color);
+}
+
+.readonly-field {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+#user-detail-form {
+  width: 75%;
+}
+
+#user-detail-form .form-field input,
+#user-detail-form .form-field select {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.form-field select {
+  border-radius: 0.25rem;
+  border: solid 0.5px rgb(178, 175, 175);
+  padding: 0.5rem;
+}
+
+#user-detail-form .submit-btn {
+  width: fit-content;
 }
