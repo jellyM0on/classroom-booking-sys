@@ -16,7 +16,6 @@ function UserDetail({
   handleSubmit,
   handleToggleEdit,
 }) {
-  // TODO: update error UI
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!user) return <p>No user found.</p>;
 
@@ -37,7 +36,7 @@ function UserDetail({
       {loading && <p>Loading...</p>}
 
       <form
-        handleSubmit={editMode ? handleSubmit : undefined}
+        onSubmit={editMode ? handleSubmit : undefined}
         id="user-detail-form"
       >
         <div className="form-fields">
@@ -52,7 +51,7 @@ function UserDetail({
                 type="text"
                 name="name"
                 value={formData.name}
-                handleChange={handleChange}
+                onChange={handleChange}
                 required
               />
             ) : (
@@ -79,7 +78,7 @@ function UserDetail({
               <select
                 name="role"
                 value={formData.role}
-                handleChange={handleChange}
+                onChange={handleChange}
                 required
               >
                 <option value="">Select role</option>
@@ -102,7 +101,7 @@ function UserDetail({
                 type="text"
                 name="department"
                 value={formData.department}
-                handleChange={handleChange}
+                onChange={handleChange}
                 required
               />
             ) : (
