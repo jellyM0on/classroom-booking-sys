@@ -1,5 +1,10 @@
 import { Op } from "sequelize";
-import { findUserById, findUsers } from "../services/userService.js";
+import {
+  findUserById,
+  findUsers,
+  updateUserById,
+} from "../services/userService.js";
+import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
 
 export const getOne = async (req, res) => {
   try {
@@ -50,5 +55,38 @@ export const getAll = async (req, res) => {
     console.log(error);
 
     return res.status(500).json(error);
+  }
+};
+
+export const updateOne = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { name, department, role } = req.body;
+
+    if (!name || !department || !role) {
+      return res.status(400).json({
+        message: "Name, department, and role are required.",
+      });
+    }
+
+    const updatedUser = await updateUserById(userId, {
+      name,
+      department,
+      role,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found or update failed",
+      });
+    }
+
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    const formattedError = formatSequelizeErrors(error);
+    return res.status(500).json({
+      message: "Failed to update user",
+      errors: formattedError,
+    });
   }
 };
