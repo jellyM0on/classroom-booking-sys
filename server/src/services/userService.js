@@ -6,7 +6,7 @@ const userAttributes = {
   exclude: ["uid", "departmentId"],
 };
 
-const departmentAttributes = ["code"];
+const departmentAttributes = ["code", "id", "name"];
 
 const formatUser = (userInstance) => {
   const user = userInstance.toJSON();

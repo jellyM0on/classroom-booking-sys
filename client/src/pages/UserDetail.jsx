@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { FaBuilding, FaUser, FaUserTag } from "react-icons/fa6";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineAlternateEmail } from "react-icons/md";
-import { useParams } from "react-router-dom";
-
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 function UserDetail({
   user,
@@ -12,6 +10,8 @@ function UserDetail({
   error,
   editMode,
   formData,
+  departments,
+  fieldErrors,
   handleChange,
   handleSubmit,
   handleToggleEdit,
@@ -40,20 +40,29 @@ function UserDetail({
         id="user-detail-form"
       >
         <div className="form-fields">
-          <div className="form-field user-form-field">
+          <div
+            className={`form-field user-form-field ${
+              fieldErrors.name ? "error-field" : ""
+            }`}
+          >
             <label>
               <span className="th-icon-label">
                 <FaUser /> Name
               </span>
             </label>
             {editMode ? (
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+                {fieldErrors.name && (
+                  <p className="error-msg">{fieldErrors.name}</p>
+                )}
+              </>
             ) : (
               <div className="readonly-field">{user.name}</div>
             )}
@@ -68,42 +77,66 @@ function UserDetail({
             <div className="readonly-field">{user.email}</div>
           </div>
 
-          <div className="form-field user-form-field">
+          <div
+            className={`form-field user-form-field ${
+              fieldErrors.role ? "error-field" : ""
+            }`}
+          >
             <label>
               <span className="th-icon-label">
                 <FaUserTag /> Role
               </span>
             </label>
             {editMode ? (
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select role</option>
-                <option value="admin">Admin</option>
-                <option value="staff">Staff</option>
-              </select>
+              <>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select role</option>
+                  <option value="admin">Admin</option>
+                  <option value="staff">Staff</option>
+                </select>
+                {fieldErrors.role && (
+                  <p className="error-msg">{fieldErrors.role}</p>
+                )}
+              </>
             ) : (
               <div className="readonly-field">{user.role}</div>
             )}
           </div>
 
-          <div className="form-field user-form-field">
+          <div
+            className={`form-field user-form-field ${
+              fieldErrors.department ? "error-field" : ""
+            }`}
+          >
             <label>
               <span className="th-icon-label">
                 <FaBuilding /> Department
               </span>
             </label>
             {editMode ? (
-              <input
-                type="text"
-                name="department"
-                value={formData.department}
-                onChange={handleChange}
-                required
-              />
+              <>
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.code} - {dept.name}
+                    </option>
+                  ))}
+                </select>
+                {fieldErrors.department && (
+                  <p className="error-msg">{fieldErrors.department}</p>
+                )}
+              </>
             ) : (
               <div className="readonly-field">
                 {user.department?.name || "—"}
@@ -157,6 +190,9 @@ export default function UserDetailContainer() {
     role: "",
     department: "",
   });
+  const [initialData, setInitialData] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -176,11 +212,15 @@ export default function UserDetailContainer() {
 
       const payload = await res.json();
       setUser(payload);
-      setFormData({
+
+      const initial = {
         name: payload.name,
         role: payload.role,
-        department: payload.department?.name || "",
-      });
+        department: payload.department?.id || "",
+      };
+
+      setFormData(initial);
+      setInitialData(initial);
     } catch (err) {
       setError(err.message || "Error fetching user");
     } finally {
@@ -188,12 +228,38 @@ export default function UserDetailContainer() {
     }
   };
 
+  const fetchDepartments = async () => {
+    const token = sessionStorage.getItem("token");
+
+    try {
+      const res = await fetch("http://localhost:3000/api/departments/admin", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch departments");
+
+      const payload = await res.json();
+      setDepartments(payload.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
+    fetchDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleToggleEdit = () => setEditMode(!editMode);
+  const handleToggleEdit = () => {
+    if (editMode && initialData) {
+      setFormData(initialData);
+    }
+    setFieldErrors({});
+    setEditMode(!editMode);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -204,6 +270,12 @@ export default function UserDetailContainer() {
     e.preventDefault();
     const token = sessionStorage.getItem("token");
 
+    const payload = {
+      name: formData.name,
+      role: formData.role,
+      department: formData.department,
+    };
+
     try {
       const res = await fetch(`http://localhost:3000/api/users/admin/${id}`, {
         method: "PUT",
@@ -211,14 +283,32 @@ export default function UserDetailContainer() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Update failed");
+      const data = await res.json();
 
-      const updated = await res.json();
-      setUser(updated);
+      if (!res.ok) {
+        if (data?.errors && Array.isArray(data.errors)) {
+          const formatted = {};
+          for (const err of data.errors) {
+            formatted[err.path] = err.message;
+          }
+          setFieldErrors(formatted);
+        } else {
+          setError(data?.message || "Update failed");
+        }
+        return;
+      }
+
+      setUser(data);
       setEditMode(false);
+      setFieldErrors({});
+      setInitialData({
+        name: data.name,
+        role: data.role,
+        department: data.department?.id || "",
+      });
     } catch (err) {
       setError(err.message || "Update error");
     }
@@ -231,6 +321,8 @@ export default function UserDetailContainer() {
       error={error}
       editMode={editMode}
       formData={formData}
+      departments={departments}
+      fieldErrors={fieldErrors}
       handleChange={handleChange}
       handleSubmit={handleSubmit}
       handleToggleEdit={handleToggleEdit}

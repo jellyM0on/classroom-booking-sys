@@ -109,7 +109,9 @@ a.transparent-btn {
 .error-field input {
   border: solid 0.5px rgb(169, 49, 49) !important;
 }
-
+.error-field p {
+  margin: 0 0 0.5rem 0;
+}
 /* pagination */
 .pagination-container {
   display: flex;
