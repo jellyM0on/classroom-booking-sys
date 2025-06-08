@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { auth } from "../configs/firebase.js";
 import { Department, User } from "../models/index.js";
 
 const userAttributes = {
@@ -48,4 +49,33 @@ const findUsers = async (filters = {}, pagination = {}) => {
   };
 };
 
-export { findUserById, findUsers };
+const updateUserById = async (id, { name, department, role }) => {
+  const user = await User.findOne({ where: { id } });
+  if (!user) return null;
+
+  const roleChanged = role && user.role !== role;
+
+  user.name = name;
+  user.role = role;
+  user.departmentId = department;
+
+  await user.save();
+
+  if (roleChanged) {
+    await auth.setCustomUserClaims(user.uid, { role });
+  }
+
+  const updatedUser = await User.findOne({
+    where: { id },
+    attributes: userAttributes,
+    include: {
+      model: Department,
+      as: "department",
+      attributes: departmentAttributes,
+    },
+  });
+
+  return updatedUser ? formatUser(updatedUser) : null;
+};
+
+export { findUserById, findUsers, updateUserById };
