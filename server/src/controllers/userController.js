@@ -21,7 +21,7 @@ export const getOne = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 2, role, departmentId, name } = req.query;
+    const { page = 1, limit = 10, role, departmentId, name } = req.query;
 
     const pagination = {
       limit: parseInt(limit),
