@@ -24,7 +24,9 @@ footer {
 /* main */
 
 #home-page,
-#registration-page {
+#registration-page,
+#user-management-page, 
+#user-detail-page {
   margin-left: 14rem;
   min-height: 100vh;
   padding: 1rem;
@@ -92,6 +94,7 @@ nav a.active-link {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .sign-out-btn:hover {
   background-color: #1e3a5f11;
@@ -136,3 +139,5 @@ nav a.active-link {
     rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
   padding: 3rem;
 }
+
+/* user management page */
