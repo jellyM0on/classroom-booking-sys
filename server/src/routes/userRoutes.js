@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/admin/:id", verifyToken, verifyAdmin, getOne);
 router.get("/admin", verifyToken, verifyAdmin, getAll);
-router.put("/admin/:id", verifyToken, verifyAdmin, updateOne)
+router.put("/admin/:id", verifyToken, verifyAdmin, updateOne);
 
 router.get("/:id", verifyToken, verifySelf, getOne);
 
