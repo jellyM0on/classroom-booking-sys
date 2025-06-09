@@ -61,6 +61,10 @@ ul {
   width: fit-content;
 }
 
+a.transparent-btn {
+  text-decoration: none;
+}
+
 .transparent-btn:hover {
   text-decoration: underline;
   cursor: pointer;
@@ -104,4 +108,29 @@ ul {
 
 .error-field input {
   border: solid 0.5px rgb(169, 49, 49) !important;
+}
+.error-field p {
+  margin: 0 0 0.5rem 0;
+}
+/* pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination-info {
+  color: var(--sub-grey);
+}
+
+.pagination button {
+  background: none;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+
+.pagination button:hover,
+.pagination .active {
+  background-color: #1e3a5f11;
 }

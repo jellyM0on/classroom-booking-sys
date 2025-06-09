@@ -11,6 +11,7 @@ header {
   align-items: center;
   background-color: white;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px;
+  z-index: 9999;
 }
 
 /* footer */
@@ -24,12 +25,43 @@ footer {
 /* main */
 
 #home-page,
-#registration-page {
+#registration-page,
+#user-management-page,
+#user-detail-page {
   margin-left: 14rem;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 2rem;
 }
 
+.page {
+  margin-left: 14rem;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.page-title {
+  margin-bottom: 2rem;
+}
+
+.page-title h2 {
+  align-items: center;
+  display: inline-flex;
+}
+
+.page-title span {
+  margin-left: 0.5rem;
+  font-size: small;
+  font-weight: 400;
+  padding: 0.25rem 0.5rem;
+  background-color: #1e3a5f11;
+  border-radius: 12px;
+  color: var(--sub-grey);
+}
+
+.page-title p {
+  margin: 0.5rem 0;
+  color: var(--sub-grey);
+}
 /* nav */
 nav {
   position: fixed;
@@ -92,6 +124,7 @@ nav a.active-link {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .sign-out-btn:hover {
   background-color: #1e3a5f11;
@@ -135,4 +168,130 @@ nav a.active-link {
   box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
     rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
   padding: 3rem;
+}
+
+/* user management page */
+
+.add-btn {
+  background-color: transparent;
+  border-radius: 0.25rem;
+  border: solid 0.5px rgb(178, 175, 175);
+  color: var(--sub-grey);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+a.add-btn {
+  text-decoration: none;
+  padding: 0.5rem;
+}
+
+.add-btn:hover {
+  background-color: #1e3a5f11;
+  cursor: pointer;
+}
+
+.table-opts {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: solid 0.25px rgba(0, 0, 0, 0.2);
+  padding-bottom: 1rem;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-field input {
+  border: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+#user-management-tbl-wrapper {
+  min-height: 60vh;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+#user-management-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  border: solid 0.25px rgba(0, 0, 0, 0.2);
+}
+
+#user-management-tbl th {
+  font-weight: 500;
+  color: var(--sub-grey);
+  background-color: #1e3a5f11;
+}
+
+#user-management-tbl td {
+  color: var(--main-color);
+}
+
+#user-management-tbl th,
+#user-management-tbl td {
+  border: solid 0.25px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.th-icon-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+#user-management-tbl tbody tr:hover {
+  background-color: #1e3a5f11;
+}
+
+/* user detail */
+
+.back-btn {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-btn a {
+  text-decoration: none;
+}
+
+.back-btn a:visited {
+  color: var(--main-color);
+}
+
+.readonly-field {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+#user-detail-form {
+  width: 75%;
+}
+
+#user-detail-form .form-field input,
+#user-detail-form .form-field select {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.form-field select {
+  border-radius: 0.25rem;
+  border: solid 0.5px rgb(178, 175, 175);
+  padding: 0.5rem;
+}
+
+#user-detail-form .submit-btn {
+  width: fit-content;
 }
