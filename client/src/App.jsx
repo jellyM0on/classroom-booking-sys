@@ -13,7 +13,7 @@ import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import RegistrationContainer from "./pages/Registration";
+import UserRegistrationContainer from "./pages/Registration";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
 
@@ -48,10 +48,10 @@ function AppContent() {
       <Routes>
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
-          path="/register"
+          path="/users/register"
           element={
             <ProtectedRoute>
-              <RegistrationContainer />
+              <UserRegistrationContainer />
             </ProtectedRoute>
           }
         />

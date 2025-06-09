@@ -11,6 +11,7 @@ header {
   align-items: center;
   background-color: white;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px;
+  z-index: 9999;
 }
 
 /* footer */
@@ -27,6 +28,12 @@ footer {
 #registration-page,
 #user-management-page,
 #user-detail-page {
+  margin-left: 14rem;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.page {
   margin-left: 14rem;
   min-height: 100vh;
   padding: 2rem;
@@ -174,6 +181,11 @@ nav a.active-link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+a.add-btn {
+  text-decoration: none;
+  padding: 0.5rem;
 }
 
 .add-btn:hover {
