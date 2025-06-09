@@ -295,3 +295,9 @@ a.add-btn {
 #user-detail-form .submit-btn {
   width: fit-content;
 }
+
+/* departments */
+
+.departments-table {
+  margin-top: 2rem;
+}

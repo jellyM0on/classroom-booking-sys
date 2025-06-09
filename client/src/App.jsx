@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import UserRegistrationContainer from "./pages/Registration";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
+import DepartmentsContainer from "./pages/DepartmentManagement";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <UserDetail />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/users/departments"
+          element={
+            <ProtectedRoute>
+              <DepartmentsContainer/>
             </ProtectedRoute>
           }
         />
