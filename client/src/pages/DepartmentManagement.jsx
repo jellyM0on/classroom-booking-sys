@@ -11,6 +11,13 @@ function Departments({
   loading,
   handleChange,
   handleSubmit,
+  editingId,
+  editFormData,
+  handleEditClick,
+  handleEditChange,
+  handleEditSubmit,
+  handleCancelEdit,
+  editFieldErrors,
 }) {
   return (
     <main className="page">
@@ -101,18 +108,84 @@ function Departments({
           <tbody>
             {departments.length === 0 ? (
               <tr>
-                <td colSpan="3">No departments found.</td>
+                <td colSpan="4">No departments found.</td>
               </tr>
             ) : (
               departments.map((dept) => (
                 <tr key={dept.id}>
                   <td>{dept.id}</td>
-                  <td>{dept.code}</td>
-                  <td>{dept.name}</td>
+
                   <td>
-                    <button className="table-btn table-edit-btn">
-                      <MdEdit />
-                    </button>
+                    {editingId === dept.id ? (
+                      <>
+                        <input
+                          type="text"
+                          name="code"
+                          value={editFormData.code}
+                          onChange={handleEditChange}
+                          required
+                          className={`tbl-form-field ${
+                            editFieldErrors.code ? "tbl-form-error" : ""
+                          }`}
+                        />
+                        {editFieldErrors.code && (
+                          <p className="error-msg">{editFieldErrors.code}</p>
+                        )}
+                      </>
+                    ) : (
+                      dept.code
+                    )}
+                  </td>
+
+                  <td>
+                    {editingId === dept.id ? (
+                      <>
+                        <input
+                          type="text"
+                          name="name"
+                          value={editFormData.name}
+                          onChange={handleEditChange}
+                          required
+                          className={`tbl-form-field ${
+                            editFieldErrors.name ? "tbl-form-error" : ""
+                          }`}
+                        />
+                        {editFieldErrors.name && (
+                          <p className="error-msg">{editFieldErrors.name}</p>
+                        )}
+                      </>
+                    ) : (
+                      dept.name
+                    )}
+                  </td>
+
+                  <td>
+                    {editingId === dept.id ? (
+                      <>
+                        <button
+                          className="submit-btn tbl-btn"
+                          onClick={() => handleEditSubmit(dept.id)}
+                          disabled={loading}
+                        >
+                          Save Changes
+                        </button>
+                        <button
+                          className="transparent-btn tbl-btn"
+                          onClick={handleCancelEdit}
+                          type="button"
+                          style={{ marginLeft: "0.5rem" }}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="table-btn table-edit-btn"
+                        onClick={() => handleEditClick(dept)}
+                      >
+                        <MdEdit />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
@@ -125,14 +198,14 @@ function Departments({
 }
 
 export default function DepartmentsContainer() {
-  const [formData, setFormData] = useState({
-    code: "",
-    name: "",
-  });
-
+  const [formData, setFormData] = useState({ code: "", name: "" });
   const [departments, setDepartments] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [editFieldErrors, setEditFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const [editingId, setEditingId] = useState(null);
+  const [editFormData, setEditFormData] = useState({ code: "", name: "" });
 
   const fetchDepartments = async () => {
     const token = sessionStorage.getItem("token");
@@ -160,10 +233,102 @@ export default function DepartmentsContainer() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditClick = (dept) => {
+    setEditingId(dept.id);
+    setEditFormData({ code: dept.code, name: dept.name });
+    setEditFieldErrors({});
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditFormData({ code: "", name: "" });
+    setEditFieldErrors({});
+  };
+
+  const handleEditSubmit = async (id) => {
+    const token = sessionStorage.getItem("token");
+    setLoading(true);
+    setEditFieldErrors({});
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/departments/admin/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editFormData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data?.errors && Array.isArray(data.errors)) {
+          const formatted = {};
+          for (const err of data.errors) {
+            formatted[err.path] = err.message;
+          }
+          setEditFieldErrors(formatted);
+        }
+        return;
+      }
+
+      setEditingId(null);
+      await fetchDepartments();
+    } catch (err) {
+      console.error("Update error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setFieldErrors({});
 
-    console.log("Form submitted:", formData);
+    const token = sessionStorage.getItem("token");
+
+    try {
+      const res = await fetch("http://localhost:3000/api/departments/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data?.errors && Array.isArray(data.errors)) {
+          const formatted = {};
+          for (const err of data.errors) {
+            formatted[err.path] = err.message;
+          }
+          setFieldErrors(formatted);
+        } else {
+          alert(data?.message || "Failed to add department");
+        }
+        return;
+      }
+
+      setFormData({ code: "", name: "" });
+      await fetchDepartments();
+    } catch (err) {
+      console.error("Submission error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -174,6 +339,13 @@ export default function DepartmentsContainer() {
       loading={loading}
       handleChange={handleChange}
       handleSubmit={handleSubmit}
+      editingId={editingId}
+      editFormData={editFormData}
+      handleEditClick={handleEditClick}
+      handleEditChange={handleEditChange}
+      handleEditSubmit={handleEditSubmit}
+      handleCancelEdit={handleCancelEdit}
+      editFieldErrors={editFieldErrors}
     />
   );
 }

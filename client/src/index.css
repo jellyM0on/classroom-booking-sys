@@ -136,8 +136,8 @@ a.transparent-btn {
 }
 
 .flex-gap-1 {
-  display: flex; 
-  gap: 1rem; 
+  display: flex;
+  gap: 1rem;
 }
 
 .table-edit-btn {
@@ -149,4 +149,20 @@ a.transparent-btn {
 .table-edit-btn:hover {
   background-color: #1e3a5f11;
   cursor: pointer;
+}
+
+.tbl-form-field {
+  border-radius: 0.25rem;
+  border: solid 0.5px rgb(178, 175, 175);
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 80% !important;
+}
+
+.tbl-form-error {
+  border: solid 0.5px rgb(169, 49, 49) !important;
+}
+
+.tbl-btn {
+  width: fit-content;
 }
