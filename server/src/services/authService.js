@@ -1,53 +1,41 @@
 import { auth } from "../configs/firebase.js";
 import User from "../models/UserModel.js";
 import { sendSetPasswordVerificationEmail } from "../utils/sendVerificationEmail.js";
-import { validateUser, ValidationError } from "../validators/userValidator.js";
+import { validateUser } from "../validators/userValidator.js";
 
 export const registerUser = async (userData) => {
-  try {
-    // Validate
-    await validateUser(userData);
+  // Validate
+  await validateUser(userData);
 
-    // Save user in firebase
-    const userRecord = await auth.createUser({
-      email: userData.email,
-      password: userData.password,
-    });
+  // Save user in firebase
+  const userRecord = await auth.createUser({
+    email: userData.email,
+    password: userData.password,
+  });
 
-    await auth.setCustomUserClaims(userRecord.uid, { role: userData.role });
+  await auth.setCustomUserClaims(userRecord.uid, { role: userData.role });
 
-    // Save user in DB
-    const user = await User.create({
-      uid: userRecord.uid,
-      email: userRecord.email,
-      role: userData.role,
-      name: userData.name,
-      departmentId: userData.departmentId,
-    });
+  // Save user in DB
+  const user = await User.create({
+    uid: userRecord.uid,
+    email: userRecord.email,
+    role: userData.role,
+    name: userData.name,
+    departmentId: userData.departmentId,
+  });
 
-    // Send email
-    const actionCodeSettings = {
-      url: "http://localhost:5173/login",
-      handleCodeInApp: true,
-    };
+  // Send email
+  const actionCodeSettings = {
+    url: "http://localhost:5173/login",
+    handleCodeInApp: true,
+  };
 
-    const resetLink = await auth.generatePasswordResetLink(
-      userRecord.email,
-      actionCodeSettings
-    );
+  const resetLink = await auth.generatePasswordResetLink(
+    userRecord.email,
+    actionCodeSettings
+  );
 
-    await sendSetPasswordVerificationEmail(userRecord.email, resetLink);
+  await sendSetPasswordVerificationEmail(userRecord.email, resetLink);
 
-    return user;
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      throw error;
-    }
-
-    if (error.errorInfo?.message) {
-      throw new Error(error.errorInfo.message);
-    }
-
-    throw new Error(error.message);
-  }
+  return user;
 };

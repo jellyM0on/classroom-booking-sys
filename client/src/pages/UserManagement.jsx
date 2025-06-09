@@ -3,8 +3,7 @@ import { FaSearch } from "react-icons/fa";
 import { FaBuilding, FaUser, FaUserTag } from "react-icons/fa6";
 import { MdNumbers, MdOutlineAlternateEmail } from "react-icons/md";
 import { RiUserAddFill } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
-
+import { NavLink, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 
 function UserManagement({
@@ -34,10 +33,10 @@ function UserManagement({
           <FaSearch color="rgb(107, 106, 106)" />
           <input type="text" placeholder="Search" />
         </div>
-        <button className="add-btn">
+        <NavLink to="/users/register" className="add-btn">
           <RiUserAddFill />
           Add user
-        </button>
+        </NavLink>
       </div>
 
       <div className="filter-opts">

@@ -4,7 +4,7 @@ import {
   findUsers,
   updateUserById,
 } from "../services/userService.js";
-import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
+import { formatErrors } from "../utils/formatErrors.js";
 
 export const getOne = async (req, res) => {
   try {
@@ -83,7 +83,7 @@ export const updateOne = async (req, res) => {
 
     return res.status(200).json(updatedUser);
   } catch (error) {
-    const formattedError = formatSequelizeErrors(error);
+    const formattedError = formatErrors(error);
     return res.status(500).json({
       message: "Failed to update user",
       errors: formattedError,
