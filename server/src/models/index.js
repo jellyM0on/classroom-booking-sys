@@ -31,6 +31,7 @@ Building.hasMany(Room, {
     name: "buildingId",
     allowNull: false,
   },
+  as: "rooms",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });

@@ -1,5 +1,38 @@
 import { BookingSchedule, Building, Room } from "../models/index.js";
 
+export const findAllRooms = async (filters = {}, pagination = {}) => {
+  const rooms = await Room.findAndCountAll({
+    where: filters,
+    limit: pagination.limit,
+    offset: pagination.offset,
+    order: [["number"]],
+    include: {
+      model: Building,
+      as: "building",
+    },
+  });
+
+  return {
+    count: rooms.count,
+    rows: rooms.rows,
+  };
+};
+
+export const findRoomByIdWithBuilding = async (id) => {
+  const room = await Room.findByPk(id, {
+    include: {
+      model: Building,
+      as: "building",
+    },
+  });
+
+  if (!room) {
+    return null;
+  }
+
+  return room;
+};
+
 export const createRoom = async (roomData) => {
   const { buildingId } = roomData;
 
