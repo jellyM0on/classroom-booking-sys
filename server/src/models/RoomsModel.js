@@ -38,8 +38,13 @@ const Room = sequelize.define(
         notNull: {
           msg: "Open time is required",
         },
-        isDate: {
-          msg: "Open time must be a valid time",
+        isValidTime(value) {
+          const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
+          if (!timeRegex.test(value)) {
+            throw new Error(
+              "Open time must be a valid time in HH:MM or HH:MM:SS format"
+            );
+          }
         },
       },
     },
@@ -50,8 +55,13 @@ const Room = sequelize.define(
         notNull: {
           msg: "Close time is required",
         },
-        isDate: {
-          msg: "Close time must be a valid time",
+        isValidTime(value) {
+          const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
+          if (!timeRegex.test(value)) {
+            throw new Error(
+              "Close time must be a valid time in HH:MM or HH:MM:SS format"
+            );
+          }
         },
       },
     },
