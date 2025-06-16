@@ -1,4 +1,6 @@
+import Building from "./BuildingsModel.js";
 import Department from "./DepartmentModel.js";
+import Room from "./RoomsModel.js";
 import User from "./UserModel.js";
 
 Department.hasMany(User, {
@@ -15,4 +17,24 @@ User.belongsTo(Department, {
   onUpdate: "CASCADE",
 });
 
-export { Department, User };
+Building.hasMany(Room, {
+  foreignKey: {
+    name: "buildingId",
+    allowNull: false,
+  },
+  as: "rooms",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
+
+Room.belongsTo(Building, {
+  foreignKey: {
+    name: "buildingId",
+    allowNull: false,
+  },
+  as: "building",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
+
+export { Building, Department, Room, User };

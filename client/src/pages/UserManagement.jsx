@@ -138,7 +138,7 @@ export default function UserManagementContainer() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const pageSize = 2;
+  const pageSize = 10;
   const navigate = useNavigate();
 
   const fetchUsers = async (pageNumber = 1) => {
