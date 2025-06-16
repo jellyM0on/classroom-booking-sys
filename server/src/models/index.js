@@ -52,6 +52,7 @@ Booking.hasMany(BookingSchedule, {
     name: "booking_id",
     allowNull: false,
   },
+  as: "schedules",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });

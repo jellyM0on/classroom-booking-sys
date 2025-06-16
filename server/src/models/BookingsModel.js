@@ -1,5 +1,3 @@
-// models/Booking.js
-
 import { DataTypes } from "sequelize";
 import { sequelize } from "../configs/sequelize.js";
 
@@ -20,18 +18,6 @@ const Booking = sequelize.define(
         },
       },
     },
-    submitted_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: "Submitted at timestamp is required",
-        },
-        isDate: {
-          msg: "Submitted at must be a valid date",
-        },
-      },
-    },
     reviewed_at: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -40,6 +26,16 @@ const Booking = sequelize.define(
           msg: "Reviewed at must be a valid date",
         },
       },
+    },
+    reviewed_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "users",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
     },
     number_of_occupants: {
       type: DataTypes.INTEGER,
