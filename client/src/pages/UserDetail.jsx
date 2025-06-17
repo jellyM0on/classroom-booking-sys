@@ -20,7 +20,7 @@ function UserDetail({
   if (!user) return <p>No user found.</p>;
 
   return (
-    <main id="user-detail-page">
+    <main class="page">
       <NavLink to="/users" className="transparent-btn back-btn">
         <IoIosArrowBack />
         Back to Manage Users

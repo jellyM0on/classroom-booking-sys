@@ -11,12 +11,14 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
+import DepartmentsContainer from "./pages/DepartmentManagement";
+import FacilityManagementContainer from "./pages/FacilityManagement";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import UserRegistrationContainer from "./pages/Registration";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
-import DepartmentsContainer from "./pages/DepartmentManagement";
+import FacilityDetailContainer from "./pages/FacilityDetail";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -72,11 +74,27 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-         <Route
+        <Route
           path="/users/departments"
           element={
             <ProtectedRoute>
-              <DepartmentsContainer/>
+              <DepartmentsContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/facilities"
+          element={
+            <ProtectedRoute>
+              <FacilityManagementContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/facilities/:id"
+          element={
+            <ProtectedRoute>
+              <FacilityDetailContainer />
             </ProtectedRoute>
           }
         />
