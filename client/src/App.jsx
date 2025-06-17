@@ -20,6 +20,7 @@ import UserRegistrationContainer from "./pages/Registration";
 import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
+import FacilitiesAddContainer from "./pages/FacilitiesAdd"
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -99,11 +100,19 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-          <Route
+        <Route
           path="/rooms/:id"
           element={
             <ProtectedRoute>
-              <RoomDetailContainer/>
+              <RoomDetailContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/facilities/add"
+          element={
+            <ProtectedRoute>
+              <FacilitiesAddContainer/>
             </ProtectedRoute>
           }
         />

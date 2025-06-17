@@ -319,3 +319,14 @@ a.add-btn {
   padding: 1rem;
   border-radius: 12px;
 }
+
+.facility-type-selector {
+  margin-bottom: 1rem;
+  display: flex;
+}
+
+.facility-type-selector-lbl {
+  margin-right: 1rem;
+  font-weight: bold;
+  font-size: smaller;
+}
