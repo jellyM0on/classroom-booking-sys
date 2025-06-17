@@ -6,13 +6,22 @@ export const findAllBookingsWithSchedulesAndRooms = async (
   filters = {},
   pagination = {}
 ) => {
-  const { scheduleFilters = {}, userFilters = {} } = filters;
+  const { scheduleFilters = {}, userFilters = {}, currentUserId } = filters;
 
   const result = await Booking.findAndCountAll({
-    where: filters.bookingFilters,
+    where: {
+      ...filters.bookingFilters,
+      [Op.or]: [
+        { status: { [Op.ne]: "draft" } },
+        { submitted_by: currentUserId },
+      ],
+    },
     limit: pagination.limit,
     offset: pagination.offset,
     order: [["createdAt", "DESC"]],
+    attributes: {
+      exclude: ["submitted_by", "facilitated_by", "reviewed_by"],
+    },
     include: [
       {
         model: BookingSchedule,
@@ -40,21 +49,21 @@ export const findAllBookingsWithSchedulesAndRooms = async (
       {
         model: User,
         as: "submittedBy",
-        attributes: ["id", "name", "uid"],
+        attributes: ["id", "name"],
         where: userFilters.submittedBy || undefined,
         required: false,
       },
       {
         model: User,
         as: "facilitatedBy",
-        attributes: ["id", "name", "uid"],
+        attributes: ["id", "name"],
         where: userFilters.facilitatedBy || undefined,
         required: false,
       },
       {
         model: User,
         as: "reviewedBy",
-        attributes: ["id", "name", "uid"],
+        attributes: ["id", "name"],
         where: userFilters.reviewedBy || undefined,
         required: false,
       },

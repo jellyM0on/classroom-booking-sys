@@ -12,6 +12,7 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
 import DepartmentsContainer from "./pages/DepartmentManagement";
+import FacilitiesAddContainer from "./pages/FacilitiesAdd";
 import FacilityDetailContainer from "./pages/FacilityDetail";
 import FacilityManagementContainer from "./pages/FacilityManagement";
 import Home from "./pages/Home";
@@ -20,7 +21,7 @@ import UserRegistrationContainer from "./pages/Registration";
 import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
-import FacilitiesAddContainer from "./pages/FacilitiesAdd"
+import BookingManagementContainer from "./pages/BookingManagement";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -112,7 +113,15 @@ function AppContent() {
           path="/facilities/add"
           element={
             <ProtectedRoute>
-              <FacilitiesAddContainer/>
+              <FacilitiesAddContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bookings"
+          element={
+            <ProtectedRoute>
+              <BookingManagementContainer/>
             </ProtectedRoute>
           }
         />

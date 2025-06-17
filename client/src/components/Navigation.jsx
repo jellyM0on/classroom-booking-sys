@@ -47,7 +47,7 @@ export default function Navigation() {
           <ul className="sub-list">
             <NavItem to="/" icon={FaFileMedical} label="New Request" />
             <NavItem
-              to="/"
+              to="/bookings"
               icon={IoFileTrayFullSharp}
               label="Requests"
             />

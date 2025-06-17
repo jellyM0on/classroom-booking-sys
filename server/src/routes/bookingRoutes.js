@@ -18,6 +18,7 @@ const router = express.Router();
 
 router.get("/:id", verifyToken, verifySelfBooking, getById);
 router.get("/", verifyToken, getAllSelf);
+
 router.post("/", verifyToken, create);
 router.put(
   "/:id",
@@ -34,13 +35,7 @@ router.put(
   updateCancel
 );
 
-router.get(
-  "/admin",
-  verifyToken,
-  verifyAdmin,
-  verifyBookingStatus(["pending", "approved", "rejected", "cancelled"]),
-  getAll
-);
+router.get("/admin/all", verifyToken, verifyAdmin, getAll);
 router.get(
   "/admin/:id",
   verifyToken,
