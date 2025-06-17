@@ -181,9 +181,7 @@ function FacilityDetail({
                 <tr
                   key={room.id}
                   style={{ cursor: "pointer" }}
-                  onClick={() =>
-                    navigate(`/facilities/${building.id}/rooms/${room.id}`)
-                  }
+                  onClick={() => navigate(`/rooms/${room.id}`)}
                 >
                   <td>{room.id}</td>
                   <td>{room.number}</td>

@@ -314,3 +314,8 @@ a.add-btn {
 }
 
 /* facilities */
+.room-detail-bldg-info {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 12px;
+}

@@ -84,7 +84,7 @@ export const update = async (req, res) => {
     if (!updatedRoom) {
       return res.status(404).json({ message: "Room not found" });
     }
-    return res.status(200).json({ updatedRoom });
+    return res.status(200).json(updatedRoom);
   } catch (error) {
     if (error.statusCode === 400) {
       return res.status(error.statusCode).json({ message: error.message });
