@@ -5,15 +5,15 @@ const Booking = sequelize.define(
   "Booking",
   {
     status: {
-      type: DataTypes.ENUM("pending", "approved", "rejected", "cancelled"),
+      type: DataTypes.ENUM("draft", "pending", "approved", "rejected", "cancelled"),
       allowNull: false,
-      defaultValue: "pending",
+      defaultValue: "draft",
       validate: {
         notNull: {
           msg: "Status is required",
         },
         isIn: {
-          args: [["pending", "approved", "rejected", "cancelled"]],
+          args: [["draft", "pending", "approved", "rejected", "cancelled"]],
           msg: "Invalid status value",
         },
       },
@@ -26,16 +26,6 @@ const Booking = sequelize.define(
           msg: "Reviewed at must be a valid date",
         },
       },
-    },
-    reviewed_by: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "users",
-        key: "id",
-      },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
     },
     number_of_occupants: {
       type: DataTypes.INTEGER,

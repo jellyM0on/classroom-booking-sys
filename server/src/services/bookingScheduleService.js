@@ -1,5 +1,43 @@
 import { Op } from "sequelize";
-import { BookingSchedule } from "../models/index.js";
+import { Booking, BookingSchedule, Room } from "../models/index.js";
+
+export const findFacilitatedSchedulesByMonth = async (facilitatorId, month) => {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const startDate = `${month}-01`;
+  const lastDay = new Date(year, monthNumber, 0).getDate();
+  const endDate = `${month}-${lastDay.toString().padStart(2, "0")}`;
+
+  const schedules = await BookingSchedule.findAll({
+    where: {
+      date: {
+        [Op.between]: [startDate, endDate],
+      },
+    },
+    order: [
+      ["date", "ASC"],
+      ["start_time", "ASC"],
+    ],
+    include: [
+      {
+        model: Booking,
+        as: "booking",
+        where: {
+          status: "approved",
+          facilitated_by: facilitatorId,
+        },
+        required: true,
+        attributes: ["id", "status", "purpose", "urgency", "createdAt"],
+      },
+      {
+        model: Room,
+        as: "room",
+        attributes: ["id", "number", "type"],
+      },
+    ],
+  });
+
+  return schedules;
+};
 
 export const cancelBookingScheduleById = async (id) => {
   const schedule = await BookingSchedule.findByPk(id);

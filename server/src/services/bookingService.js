@@ -2,6 +2,149 @@ import { Op } from "sequelize";
 import { sequelize } from "../configs/sequelize.js";
 import { Booking, BookingSchedule, Room, User } from "../models/index.js";
 
+export const findAllBookingsWithSchedulesAndRooms = async (
+  filters = {},
+  pagination = {}
+) => {
+  const { scheduleFilters = {}, userFilters = {} } = filters;
+
+  const result = await Booking.findAndCountAll({
+    where: filters.bookingFilters,
+    limit: pagination.limit,
+    offset: pagination.offset,
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: BookingSchedule,
+        as: "schedules",
+        where: Object.keys(scheduleFilters).length
+          ? scheduleFilters
+          : undefined,
+        required: false,
+        attributes: [
+          "id",
+          "date",
+          "room_id",
+          "status",
+          "start_time",
+          "end_time",
+        ],
+        include: [
+          {
+            model: Room,
+            as: "room",
+            attributes: ["id", "number", "type"],
+          },
+        ],
+      },
+      {
+        model: User,
+        as: "submittedBy",
+        attributes: ["id", "name", "uid"],
+        where: userFilters.submittedBy || undefined,
+        required: false,
+      },
+      {
+        model: User,
+        as: "facilitatedBy",
+        attributes: ["id", "name", "uid"],
+        where: userFilters.facilitatedBy || undefined,
+        required: false,
+      },
+      {
+        model: User,
+        as: "reviewedBy",
+        attributes: ["id", "name", "uid"],
+        where: userFilters.reviewedBy || undefined,
+        required: false,
+      },
+    ],
+  });
+
+  return {
+    count: result.count,
+    rows: result.rows,
+  };
+};
+
+export const findSelfBookingsWithSchedulesAndRooms = async (
+  userId,
+  filters = {},
+  pagination = {}
+) => {
+  const { scheduleFilters = {} } = filters;
+
+  const result = await Booking.findAndCountAll({
+    where: {
+      ...filters.bookingFilters,
+      submitted_by: userId,
+    },
+    limit: pagination.limit,
+    offset: pagination.offset,
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: BookingSchedule,
+        as: "schedules",
+        where: Object.keys(scheduleFilters).length
+          ? scheduleFilters
+          : undefined,
+        required: false,
+        attributes: [
+          "id",
+          "date",
+          "room_id",
+          "status",
+          "start_time",
+          "end_time",
+        ],
+        include: [
+          {
+            model: Room,
+            as: "room",
+            attributes: ["id", "number", "type"],
+          },
+        ],
+      },
+      {
+        model: User,
+        as: "facilitatedBy",
+        attributes: ["id", "name", "uid"],
+      },
+      {
+        model: User,
+        as: "reviewedBy",
+        attributes: ["id", "name", "uid"],
+      },
+    ],
+  });
+
+  return {
+    count: result.count,
+    rows: result.rows,
+  };
+};
+
+export const findBookingByIdWithSchedulesAndRooms = async (id) => {
+  const booking = await Booking.findByPk(id, {
+    include: [
+      {
+        model: BookingSchedule,
+        as: "schedules",
+        include: [
+          {
+            model: Room,
+            as: "room",
+            attributes: ["id", "number", "type"],
+          },
+        ],
+      },
+    ],
+  });
+
+  return booking;
+};
+
 export const createBookingWithSchedules = async (bookingData) => {
   const { bookingSchedules, ...bookingFields } = bookingData;
 
