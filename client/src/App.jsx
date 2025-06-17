@@ -127,7 +127,7 @@ function AppContent() {
           }
         />
         <Route
-          path="/bookings/add"
+          path="/new-booking"
           element={
             <ProtectedRoute>
               <BookingsAddContainer />

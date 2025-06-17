@@ -32,7 +32,7 @@ function BookingManagement({
           <input type="text" placeholder="Search" />
         </div>
         <div className="flex-gap-1">
-          <NavLink to="/bookings/add" className="add-btn">
+          <NavLink to="/new-booking" className="add-btn">
             <FaFileMedical />
             New Request
           </NavLink>

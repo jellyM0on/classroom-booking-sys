@@ -33,7 +33,7 @@ function BookingsAdd({
     <main className="page">
       {loading && <p>Loading...</p>}
       <NavLink to="/bookings" className="transparent-btn back-btn">
-        <IoIosArrowBack /> Back to Bookings
+        <IoIosArrowBack /> Go to Bookings
       </NavLink>
 
       <div className="page-title">

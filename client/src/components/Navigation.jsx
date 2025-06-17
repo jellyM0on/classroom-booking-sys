@@ -45,7 +45,11 @@ export default function Navigation() {
           <NavItem to="/" icon={FaHome} label="Home" />
           <li className="list-sub-heading">BOOKINGS</li>
           <ul className="sub-list">
-            <NavItem to="/" icon={FaFileMedical} label="New Request" />
+            <NavItem
+              to="/new-booking"
+              icon={FaFileMedical}
+              label="New Request"
+            />
             <NavItem
               to="/bookings"
               icon={IoFileTrayFullSharp}
@@ -56,11 +60,7 @@ export default function Navigation() {
             <>
               <li className="list-sub-heading">MANAGE</li>
               <ul className="sub-list">
-                <NavItem
-                  to="/users"
-                  icon={FaUsersCog}
-                  label="Users"
-                />
+                <NavItem to="/users" icon={FaUsersCog} label="Users" />
                 <NavItem
                   to="/facilities"
                   icon={MdRoomPreferences}
