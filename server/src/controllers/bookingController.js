@@ -165,7 +165,17 @@ export const getById = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const newBooking = await createBookingWithSchedules(req.body);
+    const requestingUid = req.user?.uid;
+
+    const currentUser = await User.findOne({ where: { uid: requestingUid } });
+    if (!currentUser) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
+    const newBooking = await createBookingWithSchedules({
+      ...req.body,
+      submitted_by: currentUser.id,
+    });
 
     return res.status(201).json({
       message: "Booking created successfully",

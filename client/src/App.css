@@ -303,7 +303,8 @@ a.add-btn {
 }
 
 #user-detail-form .submit-btn,
-#generic-form .submit-btn {
+#generic-form .submit-btn,
+#generic-form .submit-btn-disabled {
   width: fit-content;
 }
 

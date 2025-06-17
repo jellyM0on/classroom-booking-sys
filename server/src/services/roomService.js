@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { BookingSchedule, Building, Room } from "../models/index.js";
 
 export const findAllRooms = async (filters = {}, pagination = {}) => {
@@ -91,3 +92,54 @@ export const deleteRoomById = async (id) => {
   await room.destroy();
   return room;
 };
+
+export async function findAvailableRooms({
+  buildingId,
+  roomTypes,
+  scheduleSlots,
+}) {
+  const rooms = await Room.findAll({
+    where: {
+      buildingId,
+      type: {
+        [Op.in]: roomTypes,
+      },
+    },
+  });
+
+  if (rooms.length === 0) return [];
+
+  const roomIds = rooms.map((r) => r.id);
+
+  const conflictConditions = scheduleSlots.map(
+    ({ date, start_time, end_time }) => ({
+      date,
+      status: "active",
+      [Op.and]: [
+        {
+          start_time: {
+            [Op.lt]: end_time,
+          },
+        },
+        {
+          end_time: {
+            [Op.gt]: start_time,
+          },
+        },
+      ],
+    })
+  );
+
+  const conflictingSchedules = await BookingSchedule.findAll({
+    where: {
+      room_id: {
+        [Op.in]: roomIds,
+      },
+      [Op.or]: conflictConditions,
+    },
+  });
+
+  const conflictedRoomIds = new Set(conflictingSchedules.map((s) => s.room_id));
+
+  return rooms.filter((room) => !conflictedRoomIds.has(room.id));
+}

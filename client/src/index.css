@@ -46,6 +46,16 @@ ul {
   border: solid 0.5px transparent;
 }
 
+.submit-btn-disabled {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: grey;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  border: solid 0.5px transparent;
+}
+
 .submit-btn:hover {
   background-color: white;
   color: #1e3a5f;
