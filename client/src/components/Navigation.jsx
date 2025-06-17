@@ -62,9 +62,9 @@ export default function Navigation() {
                   label="Users"
                 />
                 <NavItem
-                  to="/"
+                  to="/facilities"
                   icon={MdRoomPreferences}
-                  label="Rooms"
+                  label="Facilities"
                 />
               </ul>
             </>

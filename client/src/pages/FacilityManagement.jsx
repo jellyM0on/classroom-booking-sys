@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa";
+import { BsBuildingFillAdd } from "react-icons/bs";
 import {
   FaBuilding,
-  FaBuildingCircleExclamation,
-  FaUser,
-  FaUserTag,
-} from "react-icons/fa6";
-import { MdNumbers, MdOutlineAlternateEmail } from "react-icons/md";
-import { RiUserAddFill } from "react-icons/ri";
+  FaLayerGroup,
+  FaMapMarkerAlt,
+  FaSearch,
+} from "react-icons/fa";
+import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 
-function UserManagement({
+function FacilityManagement({
   loading,
   error,
-  users,
+  facilities,
   handleRowClick,
   page,
   totalPages,
@@ -23,12 +22,12 @@ function UserManagement({
   handlePageChange,
 }) {
   return (
-    <main class="page">
+    <main className="page">
       <div className="page-title">
         <h2>
-          Manage Users <span>{total}</span>
+          Manage Facilities <span>{total}</span>
         </h2>
-        <p>Manage admin and staff users here.</p>
+        <p>Manage facilities here.</p>
       </div>
 
       {loading && <p>Loading...</p>}
@@ -39,14 +38,9 @@ function UserManagement({
           <input type="text" placeholder="Search" />
         </div>
         <div className="flex-gap-1">
-          <NavLink to="/users/departments" className="add-btn">
-            <FaBuildingCircleExclamation />
-            Edit Departments
-          </NavLink>
-
-          <NavLink to="/users/register" className="add-btn">
-            <RiUserAddFill />
-            Add user
+          <NavLink to="/facilities/add" className="add-btn">
+            <BsBuildingFillAdd />
+            Add Facility
           </NavLink>
         </div>
       </div>
@@ -56,9 +50,9 @@ function UserManagement({
         <div></div>
       </div>
 
-      {!loading && !error && users && users.length > 0 && (
-        <div id="user-management-tbl-wrapper">
-          <table cellPadding="8" cellSpacing="0" id="user-management-tbl">
+      {!loading && !error && facilities && facilities.length > 0 && (
+        <div id="generic-table-wrapper">
+          <table cellPadding="8" cellSpacing="0" id="generic-table">
             <thead>
               <tr>
                 <th>
@@ -68,22 +62,22 @@ function UserManagement({
                 </th>
                 <th>
                   <span className="th-icon-label">
-                    <FaUser /> Name
+                    <FaBuilding /> Code
                   </span>
                 </th>
                 <th>
                   <span className="th-icon-label">
-                    <MdOutlineAlternateEmail /> Email
+                    <FaBuilding /> Name
                   </span>
                 </th>
                 <th>
                   <span className="th-icon-label">
-                    <FaUserTag /> Role
+                    <FaMapMarkerAlt /> Address
                   </span>
                 </th>
                 <th>
                   <span className="th-icon-label">
-                    <FaBuilding /> Department
+                    <FaLayerGroup /> Total Floors
                   </span>
                 </th>
                 <th>
@@ -96,19 +90,19 @@ function UserManagement({
             </thead>
 
             <tbody>
-              {users.map((user) => (
+              {facilities.map((building) => (
                 <tr
-                  key={user.id}
-                  onClick={() => handleRowClick(user.id)}
+                  key={building.id}
+                  onClick={() => handleRowClick(building.id)}
                   style={{ cursor: "pointer" }}
                 >
-                  <td>{user.id}</td>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>{user.department?.code || "—"}</td>
-                  <td>{user.createdAt}</td>
-                  <td>{user.updatedAt}</td>
+                  <td>{building.id}</td>
+                  <td>{building.code}</td>
+                  <td>{building.name}</td>
+                  <td>{building.address}</td>
+                  <td>{building.total_floors}</td>
+                  <td>{new Date(building.createdAt).toLocaleString()}</td>
+                  <td>{new Date(building.updatedAt).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -124,15 +118,15 @@ function UserManagement({
         handlePageChange={handlePageChange}
       />
 
-      {!loading && !error && users && users.length === 0 && (
-        <p>No users found.</p>
+      {!loading && !error && facilities && facilities.length === 0 && (
+        <p>No facilities found.</p>
       )}
     </main>
   );
 }
 
-export default function UserManagementContainer() {
-  const [users, setUsers] = useState([]);
+export default function FacilityManagementContainer() {
+  const [facilities, setFacilities] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -141,13 +135,13 @@ export default function UserManagementContainer() {
   const pageSize = 10;
   const navigate = useNavigate();
 
-  const fetchUsers = async (pageNumber = 1) => {
+  const fetchFacilities = async (pageNumber = 1) => {
     const token = sessionStorage.getItem("token");
 
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3000/api/users/admin/?page=${pageNumber}&limit=${pageSize}`,
+        `http://localhost:3000/api/buildings/admin?page=${pageNumber}&limit=${pageSize}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -161,7 +155,7 @@ export default function UserManagementContainer() {
       }
 
       const payload = await response.json();
-      setUsers(payload.data);
+      setFacilities(payload.data);
       setPage(payload.page);
       setTotalPages(payload.totalPages);
       setTotal(payload.total);
@@ -173,21 +167,21 @@ export default function UserManagementContainer() {
   };
 
   useEffect(() => {
-    fetchUsers(page);
+    fetchFacilities(page);
   }, [page]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    fetchUsers(newPage);
+    fetchFacilities(newPage);
   };
 
-  const handleRowClick = (userId) => {
-    navigate(`/users/${userId}`);
+  const handleRowClick = (id) => {
+    navigate(`/facilities/${id}`);
   };
 
   return (
-    <UserManagement
-      users={users}
+    <FacilityManagement
+      facilities={facilities}
       loading={loading}
       error={error}
       handleRowClick={handleRowClick}

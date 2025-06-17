@@ -80,7 +80,7 @@ export const update = async (req, res) => {
       return res.status(404).json({ message: "Building not found." });
     }
 
-    return res.status(200).json({ updatedBuilding });
+    return res.status(200).json(updatedBuilding);
   } catch (error) {
     const fieldErrors = formatSequelizeErrors(error, res);
     if (fieldErrors) return;
