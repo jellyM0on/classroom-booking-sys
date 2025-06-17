@@ -3,6 +3,7 @@ import { FaBuilding, FaUser, FaUserTag } from "react-icons/fa6";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function UserDetail({
   user,
@@ -33,7 +34,7 @@ function UserDetail({
         <p>Manage user details here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <LoadingSpinner />}
 
       <form
         onSubmit={editMode ? handleSubmit : undefined}

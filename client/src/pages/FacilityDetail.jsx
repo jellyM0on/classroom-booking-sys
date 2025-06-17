@@ -10,6 +10,7 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function FacilityDetail({
   building,
@@ -41,7 +42,7 @@ function FacilityDetail({
         <p>Manage facility details here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <LoadingSpinner />}
 
       <form onSubmit={editMode ? handleSubmit : undefined} id="generic-form">
         <div className="form-fields">

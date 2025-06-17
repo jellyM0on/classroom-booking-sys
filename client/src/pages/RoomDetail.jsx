@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaBuilding, FaClock, FaDoorOpen } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { NavLink, useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function RoomDetail({
   room,
@@ -35,7 +36,7 @@ function RoomDetail({
         <p>Manage room details here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <LoadingSpinner />}
 
       <form onSubmit={editMode ? handleSubmit : undefined} id="generic-form">
         <div className="form-fields">
