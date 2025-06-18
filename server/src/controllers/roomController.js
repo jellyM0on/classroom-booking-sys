@@ -4,6 +4,7 @@ import {
   deleteRoomById,
   findAllRooms,
   findRoomByIdWithBuilding,
+  findAvailableRooms,
   updateRoomById,
 } from "../services/roomService.js";
 import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
@@ -119,3 +120,28 @@ export const destroy = async (req, res) => {
     });
   }
 };
+
+export async function getAllAvailable(req, res) {
+  try {
+    const { buildingId, roomTypes, scheduleSlots } = req.body;
+
+    if (
+      !buildingId ||
+      !Array.isArray(roomTypes) ||
+      !Array.isArray(scheduleSlots)
+    ) {
+      return res.status(400).json({ message: "Missing or invalid parameters" });
+    }
+
+    const rooms = await findAvailableRooms({
+      buildingId,
+      roomTypes,
+      scheduleSlots,
+    });
+
+    return res.status(200).json({ data: rooms });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}

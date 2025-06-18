@@ -24,6 +24,8 @@ footer {
 
 /* main */
 
+/* Default sidebar width */
+.page,
 #home-page,
 #registration-page,
 #user-management-page,
@@ -31,12 +33,16 @@ footer {
   margin-left: 14rem;
   min-height: 100vh;
   padding: 2rem;
+  transition: margin-left 0.3s ease;
 }
 
-.page {
-  margin-left: 14rem;
-  min-height: 100vh;
-  padding: 2rem;
+/* Adjust main content when sidebar is collapsed */
+body.sidebar-collapsed .page,
+body.sidebar-collapsed #home-page,
+body.sidebar-collapsed #registration-page,
+body.sidebar-collapsed #user-management-page,
+body.sidebar-collapsed #user-detail-page {
+  margin-left: 5rem;
 }
 
 .page-title {
@@ -72,6 +78,7 @@ nav {
   background-color: white;
   padding: 2rem 1rem 0 1rem;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px;
+  transition: width 0.3s ease;
 }
 
 .nav-container {
@@ -99,12 +106,13 @@ nav a {
 nav a.active-link {
   background-color: #1e3a5f11;
   font-weight: bolder;
+  margin-top: 5px;
 }
 
 .list-sub-heading {
   color: var(--sub-grey);
   font-weight: bold;
-  font-size: smaller;
+  font-size: 0.65rem;
 }
 
 .nav-profile-item {
@@ -128,6 +136,66 @@ nav a.active-link {
 }
 .sign-out-btn:hover {
   background-color: #1e3a5f11;
+}
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle {
+  background-color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.menu-label {
+  font-size: 0.75rem;
+  margin-left: 5px;
+  font-weight: 700;
+  color: var(--sub-grey);
+  justify-self: center;
+}
+
+.toggle-wrapper.expanded {
+  justify-content: space-between;
+  padding-right: 0.5rem;
+}
+
+.toggle-wrapper.collapsed {
+  justify-content: center;
+}
+
+nav.collapsed {
+  width: 3.5rem;
+  overflow: hidden;
+  transition: width 0.3s ease;
+}
+
+nav.collapsed .list-sub-heading,
+nav.collapsed .nav-profile-item span,
+nav.collapsed .nav-link span {
+  display: none;
+}
+
+nav.collapsed .nav-link {
+  justify-content: center;
+}
+
+nav.collapsed .centered-heading {
+  display: block;
+  text-align: center;
+  font-size: 0.65rem;
+  padding: 0;
 }
 
 /* login */
@@ -338,7 +406,8 @@ a.add-btn {
 }
 
 #user-detail-form .submit-btn,
-#generic-form .submit-btn {
+#generic-form .submit-btn,
+#generic-form .submit-btn-disabled {
   width: fit-content;
 }
 
@@ -364,4 +433,11 @@ a.add-btn {
   margin-right: 1rem;
   font-weight: bold;
   font-size: smaller;
+}
+
+/* booking detail */
+.booking-detail-page-title {
+  display: flex; 
+  align-items: center;
+  justify-content: space-between;
 }

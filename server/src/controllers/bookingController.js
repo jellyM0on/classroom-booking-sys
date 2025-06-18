@@ -1,10 +1,13 @@
+import { User } from "../models/index.js";
 import {
   createBookingWithSchedules,
   findAllBookingsWithSchedulesAndRooms,
   findBookingByIdWithSchedulesAndRooms,
+  findSelfBookingsWithSchedulesAndRooms,
   updateActiveBookingWithSchedules,
   updateBookingStatus,
   updateBookingStatusToCancelled,
+  updateBookingStatusToPending,
   updatePendingBookingWithSchedules,
 } from "../services/bookingService.js";
 import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
@@ -45,8 +48,20 @@ export const getAll = async (req, res) => {
       reviewedBy: reviewed_by ? { id: reviewed_by } : null,
     };
 
+    const requestingUid = req.user?.uid;
+
+    const currentUser = await User.findOne({ where: { uid: requestingUid } });
+    if (!currentUser) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
     const result = await findAllBookingsWithSchedulesAndRooms(
-      { bookingFilters, scheduleFilters, userFilters },
+      {
+        bookingFilters,
+        scheduleFilters,
+        userFilters,
+        currentUserId: currentUser.id,
+      },
       pagination
     );
 
@@ -54,12 +69,14 @@ export const getAll = async (req, res) => {
       return res.status(404).json({ message: "No bookings found" });
     }
 
+    const actualCount = result.rows.length;
+
     return res.status(200).json({
       data: result.rows,
-      total: result.count,
+      total: actualCount,
       page: parseInt(page),
       pageSize: parseInt(limit),
-      totalPages: Math.ceil(result.count / limit),
+      totalPages: Math.ceil(actualCount / pagination.limit),
     });
   } catch (error) {
     console.error("Error fetching bookings:", error);
@@ -78,7 +95,7 @@ export const getAllSelf = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: Missing UID" });
     }
 
-    const user = await req.models.User.findOne({
+    const user = await User.findOne({
       where: { uid: requestingUid },
     });
 
@@ -101,7 +118,7 @@ export const getAllSelf = async (req, res) => {
     if (date) scheduleFilters.date = date;
     if (room_id) scheduleFilters.room_id = room_id;
 
-    const result = await findMyBookingsWithSchedulesAndRooms(
+    const result = await findSelfBookingsWithSchedulesAndRooms(
       user.id,
       { bookingFilters, scheduleFilters },
       pagination
@@ -149,7 +166,17 @@ export const getById = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const newBooking = await createBookingWithSchedules(req.body);
+    const requestingUid = req.user?.uid;
+
+    const currentUser = await User.findOne({ where: { uid: requestingUid } });
+    if (!currentUser) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
+    const newBooking = await createBookingWithSchedules({
+      ...req.body,
+      submitted_by: currentUser.id,
+    });
 
     return res.status(201).json({
       message: "Booking created successfully",
@@ -241,12 +268,34 @@ export const updateCancel = async (req, res) => {
   }
 };
 
+export const updateToPending = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedBooking = await updateBookingStatusToPending(id);
+
+    return res.status(200).json({
+      message: "Booking submitted successfully",
+      data: updatedBooking,
+    });
+  } catch (error) {
+    if (error.statusCode === 404 || error.statusCode === 400) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 export const updateStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
   try {
-    const updatedBooking = await updateBookingStatus(id, status);
+    const updatedBooking = await updateBookingStatus(id, status, req.user?.uid);
 
     return res.status(200).json({
       message: `Booking status updated to "${status}"`,

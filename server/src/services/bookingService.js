@@ -1,18 +1,33 @@
 import { Op } from "sequelize";
 import { sequelize } from "../configs/sequelize.js";
-import { Booking, BookingSchedule, Room, User } from "../models/index.js";
+import {
+  Booking,
+  BookingSchedule,
+  Building,
+  Room,
+  User,
+} from "../models/index.js";
 
 export const findAllBookingsWithSchedulesAndRooms = async (
   filters = {},
   pagination = {}
 ) => {
-  const { scheduleFilters = {}, userFilters = {} } = filters;
+  const { scheduleFilters = {}, userFilters = {}, currentUserId } = filters;
 
   const result = await Booking.findAndCountAll({
-    where: filters.bookingFilters,
+    where: {
+      ...filters.bookingFilters,
+      [Op.or]: [
+        { status: { [Op.ne]: "draft" } },
+        { submitted_by: currentUserId },
+      ],
+    },
     limit: pagination.limit,
     offset: pagination.offset,
     order: [["createdAt", "DESC"]],
+    attributes: {
+      exclude: ["submitted_by", "facilitated_by", "reviewed_by"],
+    },
     include: [
       {
         model: BookingSchedule,
@@ -40,21 +55,21 @@ export const findAllBookingsWithSchedulesAndRooms = async (
       {
         model: User,
         as: "submittedBy",
-        attributes: ["id", "name", "uid"],
+        attributes: ["id", "name"],
         where: userFilters.submittedBy || undefined,
         required: false,
       },
       {
         model: User,
         as: "facilitatedBy",
-        attributes: ["id", "name", "uid"],
+        attributes: ["id", "name"],
         where: userFilters.facilitatedBy || undefined,
         required: false,
       },
       {
         model: User,
         as: "reviewedBy",
-        attributes: ["id", "name", "uid"],
+        attributes: ["id", "name"],
         where: userFilters.reviewedBy || undefined,
         required: false,
       },
@@ -135,7 +150,14 @@ export const findBookingByIdWithSchedulesAndRooms = async (id) => {
           {
             model: Room,
             as: "room",
-            attributes: ["id", "number", "type"],
+            attributes: ["id", "number", "type", "buildingId"],
+            include: [
+              {
+                model: Building,
+                as: "building",
+                attributes: ["id"],
+              },
+            ],
           },
         ],
       },
@@ -248,7 +270,29 @@ export const updatePendingBookingWithSchedules = async (id, updateData) => {
     }
 
     return await Booking.findByPk(booking.id, {
-      include: { model: BookingSchedule, as: "schedules" },
+      attributes: {
+        include: ["createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: BookingSchedule,
+          as: "schedules",
+          include: [
+            {
+              model: Room,
+              as: "room",
+              attributes: ["id", "number", "type", "buildingId"],
+              include: [
+                {
+                  model: Building,
+                  as: "building",
+                  attributes: ["id"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
       transaction: t,
     });
   });
@@ -329,6 +373,27 @@ export const updateActiveBookingWithSchedules = async (id, updateData) => {
   });
 };
 
+export const updateBookingStatusToPending = async (id) => {
+  const booking = await Booking.findByPk(id);
+
+  if (!booking) {
+    const error = new Error("Booking not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (booking.status !== "draft") {
+    const error = new Error("Booking cannot be updated to pending");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  booking.status = "pending";
+  await booking.save();
+
+  return booking;
+};
+
 export const updateBookingStatusToCancelled = async (id) => {
   const booking = await Booking.findByPk(id);
 
@@ -350,7 +415,7 @@ export const updateBookingStatusToCancelled = async (id) => {
   return booking;
 };
 
-const VALID_STATUSES = ["approved", "rejected", "cancelled"];
+const VALID_STATUSES = ["approved", "rejected"];
 
 export const updateBookingStatus = async (id, newStatus, requestingUid) => {
   if (!VALID_STATUSES.includes(newStatus)) {
@@ -361,7 +426,10 @@ export const updateBookingStatus = async (id, newStatus, requestingUid) => {
     throw error;
   }
 
-  const booking = await Booking.findByPk(id);
+  const booking = await Booking.findByPk(id, {
+    include: ["schedules"],
+  });
+
   if (!booking) {
     const error = new Error("Booking not found");
     error.statusCode = 404;
@@ -386,6 +454,15 @@ export const updateBookingStatus = async (id, newStatus, requestingUid) => {
   booking.reviewed_by = user.id;
 
   await booking.save();
+
+  if (newStatus === "approved") {
+    await Promise.all(
+      booking.schedules.map((sched) => {
+        sched.status = "active";
+        return sched.save();
+      })
+    );
+  }
 
   return booking;
 };

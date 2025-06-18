@@ -12,7 +12,10 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { useAuthToken } from "./hooks/useAuthToken";
+import BookingManagementContainer from "./pages/BookingManagement";
+import BookingsAddContainer from "./pages/BookingsAdd";
 import DepartmentsContainer from "./pages/DepartmentManagement";
+import FacilitiesAddContainer from "./pages/FacilitiesAdd";
 import FacilityDetailContainer from "./pages/FacilityDetail";
 import FacilityManagementContainer from "./pages/FacilityManagement";
 import Home from "./pages/Home";
@@ -21,7 +24,7 @@ import UserRegistrationContainer from "./pages/Registration";
 import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
-import FacilitiesAddContainer from "./pages/FacilitiesAdd"
+import BookingDetailContainer from "./pages/BookingDetail";
 import ForgotPassword from "./pages/ForgotPassword"; // Forgot password import
 
 function ProtectedRoute({ children }) {
@@ -131,7 +134,31 @@ function AppContent() {
           path="/facilities/add"
           element={
             <ProtectedRoute>
-              <FacilitiesAddContainer/>
+              <FacilitiesAddContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bookings"
+          element={
+            <ProtectedRoute>
+              <BookingManagementContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/new-booking"
+          element={
+            <ProtectedRoute>
+              <BookingsAddContainer />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/bookings/:id"
+          element={
+            <ProtectedRoute>
+              <BookingDetailContainer/>
             </ProtectedRoute>
           }
         />
