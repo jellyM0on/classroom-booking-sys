@@ -8,9 +8,11 @@ import {
   updateCancel,
   updatePending,
   updateStatus,
+  updateToPending,
 } from "../controllers/bookingController.js";
 import verifySelfBooking from "../middlewares/bookingMiddlewares/verifySelfBooking.js";
 import verifyBookingStatus from "../middlewares/bookingMiddlewares/verifyStatus.js";
+import verifyBookingStatusUnlessSelf from "../middlewares/bookingMiddlewares/verifyStatusUnlessSelf.js";
 import verifyAdmin from "../middlewares/verifyAdmin.js";
 import verifyToken from "../middlewares/verifyToken.js";
 
@@ -18,6 +20,7 @@ const router = express.Router();
 
 router.get("/:id", verifyToken, verifySelfBooking, getById);
 router.get("/", verifyToken, getAllSelf);
+
 router.post("/", verifyToken, create);
 router.put(
   "/:id",
@@ -33,19 +36,25 @@ router.put(
   verifyBookingStatus(["pending"]),
   updateCancel
 );
-
-router.get(
-  "/admin",
+router.put(
+  "/:id/submit",
   verifyToken,
-  verifyAdmin,
-  verifyBookingStatus(["pending", "approved", "rejected", "cancelled"]),
-  getAll
+  verifySelfBooking,
+  verifyBookingStatus(["draft"]),
+  updateToPending
 );
+
+router.get("/admin/all", verifyToken, verifyAdmin, getAll);
 router.get(
   "/admin/:id",
   verifyToken,
   verifyAdmin,
-  verifyBookingStatus(["pending", "approved", "rejected", "cancelled"]),
+  verifyBookingStatusUnlessSelf([
+    "pending",
+    "approved",
+    "rejected",
+    "cancelled",
+  ]),
   getById
 );
 router.put(

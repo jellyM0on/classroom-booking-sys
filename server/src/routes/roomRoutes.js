@@ -3,6 +3,7 @@ import {
   create,
   destroy,
   getAll,
+  getAllAvailable,
   getOne,
   update,
 } from "../controllers/roomController.js";
@@ -16,5 +17,7 @@ router.get("/admin/:id", verifyToken, verifyAdmin, getOne);
 router.post("/admin", verifyToken, verifyAdmin, create);
 router.put("/admin/:id", verifyToken, verifyAdmin, update);
 router.delete("/admin/:id", verifyToken, verifyAdmin, destroy);
+
+router.post("/available", verifyToken, getAllAvailable);
 
 export default router;

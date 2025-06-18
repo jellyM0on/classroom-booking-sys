@@ -406,7 +406,8 @@ a.add-btn {
 }
 
 #user-detail-form .submit-btn,
-#generic-form .submit-btn {
+#generic-form .submit-btn,
+#generic-form .submit-btn-disabled {
   width: fit-content;
 }
 
@@ -432,4 +433,11 @@ a.add-btn {
   margin-right: 1rem;
   font-weight: bold;
   font-size: smaller;
+}
+
+/* booking detail */
+.booking-detail-page-title {
+  display: flex; 
+  align-items: center;
+  justify-content: space-between;
 }

@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { FaFileMedical, FaHome, FaUsersCog, FaBars } from "react-icons/fa";
+import { signOut } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { FaBars, FaFileMedical, FaHome, FaUsersCog } from "react-icons/fa";
 import { IoFileTrayFullSharp } from "react-icons/io5";
 import { MdRoomPreferences } from "react-icons/md";
 import { PiSignOutBold, PiUserCircleFill } from "react-icons/pi";
 import { NavLink, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
 import { auth } from "../configs/firebase";
 
 const NavItem = ({ to, icon: Icon, label, collapsed }) => {
@@ -23,15 +23,14 @@ const NavItem = ({ to, icon: Icon, label, collapsed }) => {
   );
 };
 
-
 export default function Navigation() {
   const [collapsed, setCollapsed] = useState(false);
 
-    useEffect(() => {
-        document.body.classList.toggle("sidebar-collapsed", collapsed);
-      }, [collapsed]);
+  useEffect(() => {
+    document.body.classList.toggle("sidebar-collapsed", collapsed);
+  }, [collapsed]);
 
-    useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth <= 768) {
         setCollapsed(true);
@@ -53,8 +52,7 @@ export default function Navigation() {
 
   const role = sessionStorage.getItem("role");
   const rawEmail = sessionStorage.getItem("email") || "";
-  const email =
-    rawEmail.length > 10 ? rawEmail.slice(0, 10) + "..." : rawEmail;
+  const email = rawEmail.length > 10 ? rawEmail.slice(0, 10) + "..." : rawEmail;
 
   const navigate = useNavigate();
   const handleSignOut = async () => {
@@ -73,7 +71,11 @@ export default function Navigation() {
       <nav className={collapsed ? "collapsed" : ""}>
         <ul className="nav-container">
           <div className="nav-main-items">
-            <div className={`toggle-wrapper ${collapsed ? "collapsed" : "expanded"}`}>
+            <div
+              className={`toggle-wrapper ${
+                collapsed ? "collapsed" : "expanded"
+              }`}
+            >
               {!collapsed && <span className="menu-label">MENU</span>}
               <button className="sidebar-toggle" onClick={toggleSidebar}>
                 <FaBars />
@@ -81,18 +83,22 @@ export default function Navigation() {
             </div>
 
             <NavItem to="/" icon={FaHome} label="Home" collapsed={collapsed} />
-            <li className={`list-sub-heading ${collapsed ? "centered-heading" : ""}`}>
+            <li
+              className={`list-sub-heading ${
+                collapsed ? "centered-heading" : ""
+              }`}
+            >
               BOOKINGS
             </li>
             <ul className="sub-list">
               <NavItem
-                to="/"
+                to="/new-booking"
                 icon={FaFileMedical}
                 label="New Request"
                 collapsed={collapsed}
               />
               <NavItem
-                to="/"
+                to="/bookings"
                 icon={IoFileTrayFullSharp}
                 label="Requests"
                 collapsed={collapsed}
@@ -101,7 +107,11 @@ export default function Navigation() {
 
             {role === "admin" && (
               <>
-                <li className={`list-sub-heading ${collapsed ? "centered-heading" : ""}`}>
+                <li
+                  className={`list-sub-heading ${
+                    collapsed ? "centered-heading" : ""
+                  }`}
+                >
                   MANAGE
                 </li>
                 <ul className="sub-list">
