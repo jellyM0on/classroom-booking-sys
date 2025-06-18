@@ -138,12 +138,10 @@ nav a.active-link {
   background-color: #1e3a5f11;
 }
 
-
 .toggle-wrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
   transition: all 0.3s ease;
 }
 
@@ -161,29 +159,27 @@ nav a.active-link {
 }
 
 .menu-label {
-  font-size: 1.2rem;
+  font-size: 0.75rem;
+  margin-left: 5px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--sub-grey);
   justify-self: center;
-  margin-right: 30px;
 }
 
 .toggle-wrapper.expanded {
-  justify-content: flex-end;
+  justify-content: space-between;
   padding-right: 0.5rem;
 }
 
 .toggle-wrapper.collapsed {
-  justify-content: center; 
+  justify-content: center;
 }
-
 
 nav.collapsed {
   width: 3.5rem;
   overflow: hidden;
   transition: width 0.3s ease;
 }
-
 
 nav.collapsed .list-sub-heading,
 nav.collapsed .nav-profile-item span,
@@ -195,16 +191,12 @@ nav.collapsed .nav-link {
   justify-content: center;
 }
 
-
 nav.collapsed .centered-heading {
   display: block;
   text-align: center;
   font-size: 0.65rem;
   padding: 0;
 }
-
-
-
 
 /* login */
 #login-page {
