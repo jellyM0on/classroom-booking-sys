@@ -1,5 +1,3 @@
-// middlewares/verifyBookingStatus.js
-
 import { Booking } from "../../models/index.js";
 
 const verifyBookingStatus = (allowedStatuses = []) => {

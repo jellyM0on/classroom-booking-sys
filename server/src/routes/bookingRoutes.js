@@ -13,6 +13,7 @@ import verifySelfBooking from "../middlewares/bookingMiddlewares/verifySelfBooki
 import verifyBookingStatus from "../middlewares/bookingMiddlewares/verifyStatus.js";
 import verifyAdmin from "../middlewares/verifyAdmin.js";
 import verifyToken from "../middlewares/verifyToken.js";
+import verifyBookingStatusUnlessSelf from "../middlewares/bookingMiddlewares/verifyStatusUnlessSelf.js";
 
 const router = express.Router();
 
@@ -40,7 +41,7 @@ router.get(
   "/admin/:id",
   verifyToken,
   verifyAdmin,
-  verifyBookingStatus(["pending", "approved", "rejected", "cancelled"]),
+  verifyBookingStatusUnlessSelf(["pending", "approved", "rejected", "cancelled"]),
   getById
 );
 router.put(

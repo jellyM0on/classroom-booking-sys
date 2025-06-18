@@ -1,6 +1,12 @@
 import { Op } from "sequelize";
 import { sequelize } from "../configs/sequelize.js";
-import { Booking, BookingSchedule, Room, User } from "../models/index.js";
+import {
+  Booking,
+  BookingSchedule,
+  Building,
+  Room,
+  User,
+} from "../models/index.js";
 
 export const findAllBookingsWithSchedulesAndRooms = async (
   filters = {},
@@ -144,7 +150,14 @@ export const findBookingByIdWithSchedulesAndRooms = async (id) => {
           {
             model: Room,
             as: "room",
-            attributes: ["id", "number", "type"],
+            attributes: ["id", "number", "type", "buildingId"],
+            include: [
+              {
+                model: Building,
+                as: "building",
+                attributes: ["id"],
+              },
+            ],
           },
         ],
       },
@@ -257,7 +270,29 @@ export const updatePendingBookingWithSchedules = async (id, updateData) => {
     }
 
     return await Booking.findByPk(booking.id, {
-      include: { model: BookingSchedule, as: "schedules" },
+      attributes: {
+        include: ["createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: BookingSchedule,
+          as: "schedules",
+          include: [
+            {
+              model: Room,
+              as: "room",
+              attributes: ["id", "number", "type", "buildingId"],
+              include: [
+                {
+                  model: Building,
+                  as: "building",
+                  attributes: ["id"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
       transaction: t,
     });
   });

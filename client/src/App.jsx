@@ -24,6 +24,7 @@ import UserRegistrationContainer from "./pages/Registration";
 import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
+import BookingDetailContainer from "./pages/BookingDetail";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -141,6 +142,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <BookingsAddContainer />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/bookings/:id"
+          element={
+            <ProtectedRoute>
+              <BookingDetailContainer/>
             </ProtectedRoute>
           }
         />

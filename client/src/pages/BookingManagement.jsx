@@ -61,40 +61,59 @@ function BookingManagement({
                 <th>Submitted by</th>
                 <th>Facilitated by</th>
                 <th>Reviewed by</th>
-                <th>Schedules</th>
+                <th>Schedule</th>
+                <th>Room(s)</th>
               </tr>
             </thead>
             <tbody>
-              {bookings.map((booking) => (
-                <tr
-                  key={booking.id}
-                  onClick={() => handleRowClick(booking.id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <td>{booking.id}</td>
-                  <td>{booking.status}</td>
-                  <td>{booking.urgency}</td>
-                  <td>{booking.purpose}</td>
-                  <td>{new Date(booking.createdAt).toLocaleString()}</td>
-                  <td>{booking.submittedBy?.name || "N/A"}</td>
-                  <td>{booking.facilitatedBy?.name || "N/A"}</td>
-                  <td>{booking.reviewedBy?.name || "N/A"}</td>
-                  <td>
-                    {booking.schedules.length > 0 ? (
-                      <ul>
-                        {booking.schedules.map((schedule) => (
-                          <li key={schedule.id}>
-                            {schedule.date} {schedule.start_time} -{" "}
-                            {schedule.end_time} (Room {schedule.room.number})
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      "No schedules"
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {bookings.map((booking) => {
+                const uniqueRooms = [
+                  ...new Map(
+                    booking.schedules.map((s) => [s.room.id, s.room])
+                  ).values(),
+                ];
+
+                const firstSchedule = booking.schedules[0];
+
+                const formatDate = (d) =>
+                  d ? new Date(d).toISOString().slice(0, 10) : "N/A";
+
+                const scheduleDisplay =
+                  booking.schedule_type === "once"
+                    ? `${formatDate(firstSchedule?.date)} ${
+                        firstSchedule?.start_time || "?"
+                      } - ${firstSchedule?.end_time || "?"}`
+                    : `${booking.interval_type} from ${formatDate(
+                        booking.start_date
+                      )} to ${formatDate(booking.end_date)} ${
+                        firstSchedule?.start_time || "?"
+                      } - ${firstSchedule?.end_time || "?"}`;
+
+                return (
+                  <tr
+                    key={booking.id}
+                    onClick={() => handleRowClick(booking.id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <td>{booking.id}</td>
+                    <td>{booking.status}</td>
+                    <td>{booking.urgency}</td>
+                    <td>{booking.purpose}</td>
+                    <td>{new Date(booking.createdAt).toLocaleString()}</td>
+                    <td>{booking.submittedBy?.name || "N/A"}</td>
+                    <td>{booking.facilitatedBy?.name || "N/A"}</td>
+                    <td>{booking.reviewedBy?.name || "N/A"}</td>
+                    <td>{scheduleDisplay}</td>
+                    <td>
+                      {uniqueRooms.length > 0
+                        ? uniqueRooms
+                            .map((room) => `Room ${room.number}`)
+                            .join(", ")
+                        : "N/A"}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -124,8 +143,7 @@ export default function BookingManagementContainer() {
   const [error, setError] = useState(null);
   const pageSize = 10;
 
-  const navigate = useNavigate(); // <-- add this
-
+  const navigate = useNavigate();
   const fetchBookings = async (pageNumber = 1) => {
     const token = sessionStorage.getItem("token");
     const role = sessionStorage.getItem("role");
@@ -169,7 +187,7 @@ export default function BookingManagementContainer() {
   };
 
   const handleRowClick = (id) => {
-    navigate(`/bookings/${id}`); // <-- navigate on row click
+    navigate(`/bookings/${id}`);
   };
 
   return (
