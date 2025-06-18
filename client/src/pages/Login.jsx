@@ -2,6 +2,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../configs/firebase";
+import { sendPasswordResetEmail } from "firebase/auth"; // add forgot password function
 
 function Login({
   email,
@@ -10,6 +11,8 @@ function Login({
   setEmail,
   setPassword,
   handleSubmit,
+  handleForgotPassword, // new prop added
+  loading
 }) {
   return (
     <main id="login-page">
@@ -41,12 +44,18 @@ function Login({
                   required
                 />
               </div>
-              <button className="transparent-btn">Forgot password?</button>
+              <button
+                type="button"
+                className="transparent-btn"
+                onClick={handleForgotPassword}
+              >
+                Forgot password?
+              </button>
             </div>
-            <button class="submit-btn" type="submit">
-              Sign In
+            <button className="submit-btn" type="submit" disabled={loading}>
+              {loading ? "Signing In..." : "Sign In"}
             </button>
-            {error && <p className="error-msg">Invalid Credentials!</p>}
+            {error && <p className="error-msg">{error}</p>}
           </form>
         </div>
       </div>
@@ -58,6 +67,7 @@ function Login({
 export default function LoginContainer() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // add useState for loading
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -83,6 +93,22 @@ export default function LoginContainer() {
     }
   };
 
+  // add forgot password method
+  const handleForgotPassword = async () => {
+  if (!email) {
+    setError("Please enter your email first.");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    alert("Password reset email sent!");
+  } catch (err) {
+    console.error("Error sending reset email:", err);
+    setError("Failed to send reset email.");
+  }
+};
+
   return (
     <Login
       email={email}
@@ -91,6 +117,8 @@ export default function LoginContainer() {
       setEmail={setEmail}
       setPassword={setPassword}
       handleSubmit={handleSubmit}
+      handleForgotPassword={handleForgotPassword} // pass forgot password
+      loading={loading} // pass loading
     />
   );
 }

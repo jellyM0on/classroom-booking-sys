@@ -22,6 +22,7 @@ import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
 import FacilitiesAddContainer from "./pages/FacilitiesAdd"
+import ForgotPassword from "./pages/ForgotPassword"; // Forgot password import
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -56,11 +57,19 @@ function AppContent() {
   );
 }
 
+// add route for forgot password
+
   return (
     <>
       <Header />
       {token && <Navigation />}
       <Routes>
+        <Route 
+          path="/forgot-password" 
+          element={
+          <ForgotPassword />
+          } 
+        /> 
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
           path="/users/register"
