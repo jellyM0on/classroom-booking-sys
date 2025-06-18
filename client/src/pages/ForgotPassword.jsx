@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../configs/firebase";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function ForgotPassword() {
@@ -8,40 +10,65 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPageLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (pageLoading) {
+    return (
+      <div className="fullscreen-spinner">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   const handleReset = async (e) => {
     e.preventDefault();
-    setMessage("");
     setError("");
+    setMessage("");
     setLoading(true);
     try {
       await sendPasswordResetEmail(auth, email);
       setMessage("Password reset email sent.");
     } catch (err) {
-      setError(`❌ ${err.message}`);
+      setError(`${err.message}`);
     }
     setLoading(false);
   };
 
   return (
-    <div className="auth-form">
-      <h2>Forgot Password</h2>
-      <form onSubmit={handleReset}>
-        <input
-          type="email"
-          placeholder="Enter your registered email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Sending..." : "Send Reset Link"}
-        </button>
-      </form>
+    <div className="forgot-password-container">
+      <div className="forgot-password-form">
+        <h2>Forgot Password</h2>
 
-      {loading && <LoadingSpinner />}
-      {message && <p className="success">{message}</p>}
-      {error && <p className="error">{error}</p>}
+        <form onSubmit={handleReset}>
+          <input
+            type="email"
+            placeholder="Enter your registered email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
+
+        {loading && <LoadingSpinner className="mini-spinner" />}
+
+        {message && <p className="success">{message}</p>}
+        {error && <p className="error">{error}</p>}
+
+        <div className="text-link">
+          <Link to="/login">← Back to Login</Link>
+        </div>
+      </div>
     </div>
   );
 }

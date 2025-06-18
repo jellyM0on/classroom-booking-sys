@@ -1,8 +1,10 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { auth } from "../configs/firebase";
 import { sendPasswordResetEmail } from "firebase/auth"; // add forgot password function
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Login({
   email,
@@ -14,6 +16,24 @@ function Login({
   handleForgotPassword, // new prop added
   loading
 }) {
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPageLoading(false);
+    }, 800); // You can reduce/increase time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (pageLoading) {
+  return (
+    <div className="fullscreen-spinner">
+      <LoadingSpinner />
+    </div>
+  );
+}
+
   return (
     <main id="login-page">
       <div className="login-container">
@@ -42,6 +62,7 @@ function Login({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  placeholder="Enter your password"
                 />
               </div>
               <button
@@ -94,19 +115,8 @@ export default function LoginContainer() {
   };
 
   // add forgot password method
-  const handleForgotPassword = async () => {
-  if (!email) {
-    setError("Please enter your email first.");
-    return;
-  }
-
-  try {
-    await sendPasswordResetEmail(auth, email);
-    alert("Password reset email sent!");
-  } catch (err) {
-    console.error("Error sending reset email:", err);
-    setError("Failed to send reset email.");
-  }
+  const handleForgotPassword = () => {
+  navigate("/forgot-password");
 };
 
   return (

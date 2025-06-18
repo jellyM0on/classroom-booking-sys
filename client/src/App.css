@@ -238,6 +238,87 @@ nav.collapsed .centered-heading {
   padding: 3rem;
 }
 
+/* forgot */
+.forgot-password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+
+.forgot-password-form {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.forgot-password-form h2 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.forgot-password-form input {
+  width: 100%;
+  padding: 0.75rem 1rem;  
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1.5; 
+  box-sizing: border-box;
+  height: 45px; 
+}
+
+
+.forgot-password-form button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background-color: #1e3a5f;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.forgot-password-form button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.success,
+.error {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+
+.text-link {
+  margin-top: 0.5rem;
+}
+
+.text-link a {
+  color: #1e3a5f;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
 /* user management page */
 
 .add-btn {
@@ -351,6 +432,14 @@ a.add-btn {
   justify-content: center;
   align-items: center;
   height: 100vh;
+}
+
+/* Smaller spinner */
+.mini-spinner .spinner {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+  margin: 8px auto;
 }
 
 @keyframes spin {

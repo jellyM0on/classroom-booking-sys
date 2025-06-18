@@ -1,6 +1,6 @@
-export default function LoadingSpinner() {
+export default function LoadingSpinner({ className = "" }) {
   return (
-    <div className="loading-wrapper">
+    <div className={`loading-wrapper ${className}`}>
       <div className="spinner" />
     </div>
   );
