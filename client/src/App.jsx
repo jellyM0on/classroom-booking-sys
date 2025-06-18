@@ -10,6 +10,7 @@ import "./App.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
+import LoadingSpinner from "./components/LoadingSpinner";
 import { useAuthToken } from "./hooks/useAuthToken";
 import BookingManagementContainer from "./pages/BookingManagement";
 import BookingsAddContainer from "./pages/BookingsAdd";
@@ -30,8 +31,13 @@ function ProtectedRoute({ children }) {
   const location = useLocation();
 
   if (loading) {
-    return <p>Loading...</p>;
-  }
+  return (
+    <div className="fullscreen-spinner">
+      <LoadingSpinner />
+    </div>
+  );
+}
+
 
   if (!token) {
     return <Navigate to="/" replace state={{ from: location }} />;
@@ -45,8 +51,12 @@ function AppContent() {
   const token = useAuthToken(setLoading);
 
   if (loading) {
-    return <p>Loading...</p>;
-  }
+  return (
+    <div className="fullscreen-spinner">
+      <LoadingSpinner />
+    </div>
+  );
+}
 
   return (
     <>
