@@ -10,6 +10,7 @@ import { MdNumbers, MdOutlineAlternateEmail } from "react-icons/md";
 import { RiUserAddFill } from "react-icons/ri";
 import { NavLink, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function UserManagement({
   loading,
@@ -31,7 +32,6 @@ function UserManagement({
         <p>Manage admin and staff users here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
 
       <div className="table-opts">
         <div className="search-field">
@@ -55,6 +55,8 @@ function UserManagement({
         <p>FILTER</p>
         <div></div>
       </div>
+
+      {loading && <LoadingSpinner />}
 
       {!loading && !error && users && users.length > 0 && (
         <div id="user-management-tbl-wrapper">

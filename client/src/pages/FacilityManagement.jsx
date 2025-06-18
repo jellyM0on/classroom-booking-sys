@@ -9,6 +9,7 @@ import {
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function FacilityManagement({
   loading,
@@ -30,8 +31,6 @@ function FacilityManagement({
         <p>Manage facilities here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
-
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
@@ -49,6 +48,8 @@ function FacilityManagement({
         <p>FILTER</p>
         <div></div>
       </div>
+
+      {loading && <LoadingSpinner />}
 
       {!loading && !error && facilities && facilities.length > 0 && (
         <div id="generic-table-wrapper">
