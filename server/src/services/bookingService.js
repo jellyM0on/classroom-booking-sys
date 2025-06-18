@@ -373,6 +373,27 @@ export const updateActiveBookingWithSchedules = async (id, updateData) => {
   });
 };
 
+export const updateBookingStatusToPending = async (id) => {
+  const booking = await Booking.findByPk(id);
+
+  if (!booking) {
+    const error = new Error("Booking not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (booking.status !== "draft") {
+    const error = new Error("Booking cannot be updated to pending");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  booking.status = "pending";
+  await booking.save();
+
+  return booking;
+};
+
 export const updateBookingStatusToCancelled = async (id) => {
   const booking = await Booking.findByPk(id);
 
@@ -394,7 +415,7 @@ export const updateBookingStatusToCancelled = async (id) => {
   return booking;
 };
 
-const VALID_STATUSES = ["approved", "rejected", "cancelled"];
+const VALID_STATUSES = ["approved", "rejected"];
 
 export const updateBookingStatus = async (id, newStatus, requestingUid) => {
   if (!VALID_STATUSES.includes(newStatus)) {

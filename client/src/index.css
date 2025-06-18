@@ -63,6 +63,23 @@ ul {
   cursor: pointer;
 }
 
+.reject-btn {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: rgb(164, 67, 67);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  border: solid 0.5px transparent;
+}
+
+.reject-btn:hover {
+  background-color: white;
+  color: rgb(164, 67, 67);
+  border: solid 0.5px rgb(164, 67, 67);
+  cursor: pointer;
+}
+
 .transparent-btn {
   font-size: smaller;
   color: var(--main-color);

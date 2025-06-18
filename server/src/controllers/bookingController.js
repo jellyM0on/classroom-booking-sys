@@ -7,6 +7,7 @@ import {
   updateActiveBookingWithSchedules,
   updateBookingStatus,
   updateBookingStatusToCancelled,
+  updateBookingStatusToPending,
   updatePendingBookingWithSchedules,
 } from "../services/bookingService.js";
 import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
@@ -267,12 +268,34 @@ export const updateCancel = async (req, res) => {
   }
 };
 
+export const updateToPending = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedBooking = await updateBookingStatusToPending(id);
+
+    return res.status(200).json({
+      message: "Booking submitted successfully",
+      data: updatedBooking,
+    });
+  } catch (error) {
+    if (error.statusCode === 404 || error.statusCode === 400) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 export const updateStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
   try {
-    const updatedBooking = await updateBookingStatus(id, status);
+    const updatedBooking = await updateBookingStatus(id, status, req.user?.uid);
 
     return res.status(200).json({
       message: `Booking status updated to "${status}"`,

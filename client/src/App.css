@@ -366,3 +366,10 @@ a.add-btn {
   font-weight: bold;
   font-size: smaller;
 }
+
+/* booking detail */
+.booking-detail-page-title {
+  display: flex; 
+  align-items: center;
+  justify-content: space-between;
+}

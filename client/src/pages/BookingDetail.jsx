@@ -22,6 +22,7 @@ function BookingDetail({
   users = [],
   buildings = [],
   availableRooms = [],
+  onSubmitDraft,
 }) {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!booking) return <p>No booking found.</p>;
@@ -35,11 +36,55 @@ function BookingDetail({
         <IoIosArrowBack /> Back to Manage Bookings
       </NavLink>
 
-      <div className="page-title">
-        <h2>
-          Booking Detail <span>ID: {booking.id}</span>
-        </h2>
-        <p>Review and manage the booking request details.</p>
+      <div className="page-title booking-detail-page-title">
+        <div>
+          <h2>
+            Booking Detail <span>ID: {booking.id}</span>{" "}
+            <span>{booking.status}</span>
+          </h2>
+          <p>Review and manage the booking request details.</p>
+        </div>
+        <div>
+          <div>
+            {booking.status === "draft" && (
+              <button
+                type="button"
+                onClick={onSubmitDraft}
+                className="submit-btn"
+              >
+                Submit
+              </button>
+            )}
+
+            {booking.status === "pending" &&
+              (sessionStorage.getItem("role") === "admin" ? (
+                <div className="flex-gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onSubmitDraft("approved")}
+                    className="submit-btn"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSubmitDraft("rejected")}
+                    className="reject-btn"
+                  >
+                    Reject
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onSubmitDraft("cancelled")}
+                  className="submit-btn"
+                >
+                  Cancel
+                </button>
+              ))}
+          </div>
+        </div>
       </div>
 
       {loading && <LoadingSpinner />}
@@ -334,13 +379,16 @@ function BookingDetail({
             </button>
           </>
         ) : (
-          <button
-            className="submit-btn"
-            type="button"
-            onClick={handleToggleEdit}
-          >
-            Edit Booking
-          </button>
+          !editMode &&
+          booking.status === "draft" && (
+            <button
+              className="submit-btn"
+              type="button"
+              onClick={handleToggleEdit}
+            >
+              Edit Booking
+            </button>
+          )
         )}
       </form>
     </main>
@@ -682,8 +730,47 @@ export default function BookingDetailContainer() {
     return slots;
   };
 
+  const onSubmitDraft = async (action) => {
+    const token = sessionStorage.getItem("token");
+
+    let endpoint = `http://localhost:3000/api/bookings/${id}/submit`;
+    let payload = null;
+
+    if (action === "approved" || action === "rejected") {
+      endpoint = `http://localhost:3000/api/bookings/admin/${id}/status`;
+      payload = JSON.stringify({ status: action });
+    }
+
+    if (action === "cancelled") {
+      endpoint = `http://localhost:3000/api/bookings/${id}/cancel`;
+    }
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        ...(payload && { body: payload }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update booking");
+
+      setBooking((prev) => ({
+        ...prev,
+        status: data.data.status,
+        updatedAt: data.data.updatedAt,
+      }));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <BookingDetail
+      onSubmitDraft={onSubmitDraft}
       booking={booking}
       loading={loading}
       error={error}
