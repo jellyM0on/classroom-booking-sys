@@ -201,7 +201,7 @@ function BookingsAdd({
             </label>
           </div>
 
-          {scheduleType === "once" && (
+          {scheduleType === "once" ? (
             <>
               <div className="form-field">
                 <label>Date</label>
@@ -235,9 +235,7 @@ function BookingsAdd({
                 />
               </div>
             </>
-          )}
-
-          {scheduleType === "repeating" && (
+          ) : (
             <>
               <div className="form-field">
                 <label>Start Date</label>
@@ -538,6 +536,7 @@ export default function BookingsAddContainer() {
       start_time,
       end_time,
     } = formData;
+
     if (!start_date || !end_date || !start_time || !end_time || !interval_type)
       return [];
 
@@ -555,8 +554,8 @@ export default function BookingsAddContainer() {
 
       const shouldInclude =
         interval_type === "daily" ||
-        (interval_type === "weekly" && selectedDays.includes(day)) ||
-        (interval_type === "biweekly" && selectedDays.includes(day));
+        ((interval_type === "weekly" || interval_type === "biweekly") &&
+          selectedDays.includes(day));
 
       if (shouldInclude) {
         slots.push({

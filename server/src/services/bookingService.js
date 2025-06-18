@@ -426,7 +426,10 @@ export const updateBookingStatus = async (id, newStatus, requestingUid) => {
     throw error;
   }
 
-  const booking = await Booking.findByPk(id);
+  const booking = await Booking.findByPk(id, {
+    include: ["schedules"],
+  });
+
   if (!booking) {
     const error = new Error("Booking not found");
     error.statusCode = 404;
@@ -451,6 +454,15 @@ export const updateBookingStatus = async (id, newStatus, requestingUid) => {
   booking.reviewed_by = user.id;
 
   await booking.save();
+
+  if (newStatus === "approved") {
+    await Promise.all(
+      booking.schedules.map((sched) => {
+        sched.status = "active";
+        return sched.save();
+      })
+    );
+  }
 
   return booking;
 };

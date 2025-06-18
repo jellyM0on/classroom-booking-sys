@@ -101,6 +101,23 @@ const Booking = sequelize.define(
         },
       },
     },
+    repeating_days: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      validate: {
+        isValidDays(value) {
+          if (value && !Array.isArray(value)) {
+            throw new Error("Repeating days must be an array");
+          }
+          const allowed = ["S", "M", "T", "W", "TH", "F"];
+          for (const day of value || []) {
+            if (!allowed.includes(day)) {
+              throw new Error(`Invalid day in repeating_days: ${day}`);
+            }
+          }
+        },
+      },
+    },
   },
   {
     timestamps: true,

@@ -12,7 +12,7 @@ export const useAuthToken = (setLoading) => {
     const unsubscribe = onIdTokenChanged(auth, async (user) => {
       try {
         if (user) {
-          const newToken = await user.getIdToken();
+          const newToken = await user.getIdToken(true);
           const customAttributes = JSON.parse(
             user.reloadUserInfo?.customAttributes
           );

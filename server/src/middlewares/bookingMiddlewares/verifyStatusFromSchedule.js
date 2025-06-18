@@ -1,4 +1,4 @@
-import { Booking, BookingSchedule } from "../../models/index.js";
+import { BookingSchedule } from "../../models/index.js";
 
 const verifyStatusFromSchedule = (allowedStatuses = []) => {
   return async (req, res, next) => {
@@ -16,16 +16,9 @@ const verifyStatusFromSchedule = (allowedStatuses = []) => {
         return res.status(404).json({ message: "Booking schedule not found" });
       }
 
-      const booking = await Booking.findByPk(schedule.booking_id);
-      if (!booking) {
-        return res
-          .status(404)
-          .json({ message: "Associated booking not found" });
-      }
-
-      if (!allowedStatuses.includes(booking.status)) {
+      if (!allowedStatuses.includes(schedule.status)) {
         return res.status(403).json({
-          message: `Associated booking must have one of the following status values: ${allowedStatuses.join(
+          message: `Associated schedule must have one of the following status values: ${allowedStatuses.join(
             ", "
           )}`,
         });

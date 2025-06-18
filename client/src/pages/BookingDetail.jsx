@@ -6,7 +6,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
-import { MdNumbers, MdOutlinePriorityHigh } from "react-icons/md";
+import { MdEdit, MdNumbers, MdOutlinePriorityHigh } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -23,6 +23,11 @@ function BookingDetail({
   buildings = [],
   availableRooms = [],
   onSubmitDraft,
+  setEditStatus,
+  setEditingIndex,
+  editStatus,
+  editingIndex,
+  handleScheduleUpdate,
 }) {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!booking) return <p>No booking found.</p>;
@@ -336,6 +341,29 @@ function BookingDetail({
             </>
           )}
 
+          {formData.schedule_type === "repeating" &&
+            (formData.interval_type === "weekly" ||
+              formData.interval_type === "biweekly") && (
+              <div className="form-field">
+                <label>Repeating Days</label>
+                <div className="repeating-days">
+                  {["M", "T", "W", "TH", "F", "S"].map((day) => (
+                    <label key={day}>
+                      <input
+                        type="checkbox"
+                        name="repeating_days"
+                        value={day}
+                        checked={(formData.repeating_days || []).includes(day)}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                      />{" "}
+                      {day}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
           <div className="form-field">
             <label>Room</label>
             <select
@@ -391,6 +419,101 @@ function BookingDetail({
           )
         )}
       </form>
+
+      {booking?.schedules?.length > 0 && (
+        <div id="user-management-tbl-wrapper" className="departments-table">
+          <h3 style={{ marginBottom: "1rem" }}>Schedules</h3>
+          <table cellPadding="8" cellSpacing="0" id="user-management-tbl">
+            <thead>
+              <tr>
+                <th>
+                  <span className="th-icon-label">
+                    <FaCalendarAlt /> Date
+                  </span>
+                </th>
+                <th>Day of Week</th>
+                <th>Status</th>
+                {booking.status === "approved" && <th>Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {booking.schedules.map((sched, index) => {
+                const dateObj = new Date(sched.date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const isPast = dateObj < today;
+                const isEditing = editingIndex === index;
+
+                return (
+                  <tr key={sched.id}>
+                    <td>{sched.date}</td>
+                    <td>
+                      {dateObj.toLocaleDateString("en-US", { weekday: "long" })}
+                    </td>
+                    <td>
+                      {isEditing ? (
+                        <select
+                          value={editStatus}
+                          onChange={(e) => setEditStatus(e.target.value)}
+                          className="tbl-form-field"
+                        >
+                          <option value="active">Active</option>
+                          <option value="cancelled">Cancel</option>
+                        </select>
+                      ) : (
+                        sched.status
+                      )}
+                    </td>
+                    {booking.status === "approved" && (
+                      <td>
+                        {isEditing ? (
+                          <>
+                            <button
+                              className="submit-btn tbl-btn"
+                              type="button"
+                              onClick={() =>
+                                handleScheduleUpdate(
+                                  sched.id,
+                                  editStatus,
+                                  index
+                                )
+                              }
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="transparent-btn tbl-btn"
+                              type="button"
+                              onClick={() => setEditingIndex(null)}
+                              style={{ marginLeft: "0.5rem" }}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          !isPast &&
+                          sched.status !== "cancelled" && (
+                            <button
+                              className="table-btn table-edit-btn"
+                              type="button"
+                              onClick={() => {
+                                setEditingIndex(index);
+                                setEditStatus(sched.status);
+                              }}
+                            >
+                              <MdEdit />
+                            </button>
+                          )
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }
@@ -436,6 +559,19 @@ export default function BookingDetailContainer() {
       const firstSchedule = schedules[0] || {};
       const roomType = firstSchedule.room?.type || "";
       const buildingId = firstSchedule.room?.buildingId || "";
+      const repeatingDaysSet = new Set(
+        data.schedules?.map((s) => new Date(s.date).getDay())
+      );
+      const dayMap = {
+        0: "S",
+        1: "M",
+        2: "T",
+        3: "W",
+        4: "TH",
+        5: "F",
+        6: "S",
+      };
+      const repeatingDays = [...repeatingDaysSet].map((d) => dayMap[d]);
 
       const initialForm = {
         number_of_occupants: data.number_of_occupants,
@@ -452,6 +588,7 @@ export default function BookingDetailContainer() {
         end_time: firstSchedule?.end_time || "",
         interval_type: data.interval_type || "",
         room_id: firstSchedule?.room?.id || "",
+        repeating_days: repeatingDays || [],
       };
 
       setFormData(initialForm);
@@ -568,6 +705,9 @@ export default function BookingDetailContainer() {
     if (name === "room_types") {
       const prev = formData.room_types || [];
       newValue = checked ? [...prev, value] : prev.filter((v) => v !== value);
+    } else if (name === "repeating_days") {
+      const prev = formData.repeating_days || [];
+      newValue = checked ? [...prev, value] : prev.filter((v) => v !== value);
     } else {
       newValue = value;
     }
@@ -587,6 +727,7 @@ export default function BookingDetailContainer() {
       "start_time",
       "end_time",
       "interval_type",
+      "repeating_days",
     ];
 
     const fieldChanged = fieldsToWatch.includes(name);
@@ -709,21 +850,43 @@ export default function BookingDetailContainer() {
   };
 
   const generateRepeatingScheduleSlots = () => {
-    const { start_date, end_date, interval_type, start_time, end_time } =
-      formData;
+    const {
+      start_date,
+      end_date,
+      interval_type,
+      repeating_days,
+      start_time,
+      end_time,
+    } = formData;
+
     if (!start_date || !end_date || !start_time || !end_time || !interval_type)
       return [];
 
     const slots = [];
+    const selectedDays = (repeating_days || []).map((day) => {
+      const map = { S: 0, M: 1, T: 2, W: 3, TH: 4, F: 5 };
+      return map[day] ?? -1;
+    });
+
     let current = new Date(start_date);
     const end = new Date(end_date);
 
     while (current <= end) {
-      slots.push({
-        date: current.toISOString().slice(0, 10),
-        start_time,
-        end_time,
-      });
+      const day = current.getDay();
+
+      const shouldInclude =
+        interval_type === "daily" ||
+        ((interval_type === "weekly" || interval_type === "biweekly") &&
+          selectedDays.includes(day));
+
+      if (shouldInclude) {
+        slots.push({
+          date: current.toISOString().slice(0, 10),
+          start_time,
+          end_time,
+        });
+      }
+
       current.setDate(current.getDate() + 1);
     }
 
@@ -768,6 +931,45 @@ export default function BookingDetailContainer() {
     }
   };
 
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editStatus, setEditStatus] = useState("");
+
+  const handleScheduleUpdate = async (scheduleId, newStatus, index) => {
+    if (newStatus !== "cancelled") return;
+
+    const token = sessionStorage.getItem("token");
+    const role = sessionStorage.getItem("role");
+    const endpoint =
+      role === "admin"
+        ? `http://localhost:3000/api/schedules/admin/${scheduleId}/cancel`
+        : `http://localhost:3000/api/schedules/${scheduleId}/cancel`;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update schedule");
+
+      const updatedSchedules = [...booking.schedules];
+      updatedSchedules[index] = {
+        ...updatedSchedules[index],
+        status: data.data.status,
+      };
+
+      setBooking({ ...booking, schedules: updatedSchedules });
+      setEditingIndex(null);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <BookingDetail
       onSubmitDraft={onSubmitDraft}
@@ -782,6 +984,11 @@ export default function BookingDetailContainer() {
       users={users}
       buildings={buildings}
       availableRooms={availableRooms}
+      editingIndex={editingIndex}
+      setEditingIndex={setEditingIndex}
+      editStatus={editStatus}
+      setEditStatus={setEditStatus}
+      handleScheduleUpdate={handleScheduleUpdate}
     />
   );
 }
