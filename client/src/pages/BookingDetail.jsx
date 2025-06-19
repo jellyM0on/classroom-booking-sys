@@ -6,7 +6,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
-import { MdEdit, MdNumbers, MdOutlinePriorityHigh } from "react-icons/md";
+import { MdEdit, MdOutlinePriorityHigh } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -39,7 +39,7 @@ function BookingDetail({
 }) {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!booking) return <p>No booking found.</p>;
-  
+
   const isSubmitter = currentUid === booking.submittedBy?.uid;
 
   return (
@@ -110,13 +110,6 @@ function BookingDetail({
         <div className="generic-form-section">
           <h3 className="generic-form-section-title">Details</h3>
           <div className="form-fields">
-            <div className="form-field">
-              <label>
-                <MdNumbers /> ID
-              </label>
-              <input type="text" value={booking.id} disabled />
-            </div>
-
             <div className="form-field">
               <label>
                 <FaInfoCircle /> Purpose

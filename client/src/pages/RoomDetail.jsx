@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { FaBuilding, FaClock, FaDoorOpen } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { NavLink, useParams } from "react-router-dom";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import formatDate from "../utils/formatDate";
+import formatTime from "../utils/formatTime";
 
 function RoomDetail({
   room,
@@ -19,6 +22,12 @@ function RoomDetail({
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!room) return <p>No room found.</p>;
 
+  const formatRoomType = (type) => {
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   return (
     <main className="page">
       <NavLink
@@ -26,13 +35,15 @@ function RoomDetail({
         className="transparent-btn back-btn"
       >
         <IoIosArrowBack />
-        Back to Facility Detail
+        Go to Facility Detail
       </NavLink>
 
       <div className="page-title">
-        <h2>
-          Room Detail <span>ID: {room.id}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2>Room Detail</h2>
+          <GenericChip label={`ID: ${room.id}`} />
+        </div>
+
         <p>Manage room details here.</p>
       </div>
 
@@ -147,7 +158,7 @@ function RoomDetail({
                 )}
               </>
             ) : (
-              <div className="readonly-field">{room.type}</div>
+              <div className="readonly-field">{formatRoomType(room.type)}</div>
             )}
           </div>
 
@@ -173,7 +184,7 @@ function RoomDetail({
                 )}
               </>
             ) : (
-              <div className="readonly-field">{room.open_time}</div>
+              <div className="readonly-field">{formatTime(room.open_time)}</div>
             )}
           </div>
 
@@ -199,7 +210,9 @@ function RoomDetail({
                 )}
               </>
             ) : (
-              <div className="readonly-field">{room.close_time}</div>
+              <div className="readonly-field">
+                {formatTime(room.close_time)}
+              </div>
             )}
           </div>
 
@@ -218,12 +231,12 @@ function RoomDetail({
 
           <div className="form-field">
             <label>Created At</label>
-            <div className="readonly-field">{room.createdAt}</div>
+            <div className="readonly-field">{formatDate(room.createdAt)}</div>
           </div>
 
           <div className="form-field">
             <label>Updated At</label>
-            <div className="readonly-field">{room.updatedAt}</div>
+            <div className="readonly-field">{formatDate(room.updatedAt)}</div>
           </div>
         </div>
 

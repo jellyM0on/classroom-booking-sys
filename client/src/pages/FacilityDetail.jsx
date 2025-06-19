@@ -10,7 +10,10 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import formatDate from "../utils/formatDate";
+import formatTime from "../utils/formatTime";
 
 function FacilityDetail({
   building,
@@ -25,6 +28,12 @@ function FacilityDetail({
 }) {
   const navigate = useNavigate();
 
+  const formatRoomType = (type) => {
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!building) return <p>No facility found.</p>;
 
@@ -32,13 +41,15 @@ function FacilityDetail({
     <main className="page">
       <NavLink to="/facilities" className="transparent-btn back-btn">
         <IoIosArrowBack />
-        Back to Manage Facilities
+        Go to Manage Facilities
       </NavLink>
 
       <div className="page-title">
-        <h2>
-          Facility Detail <span>ID: {building.id}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2>Facility Detail</h2>
+          <GenericChip label={`ID: ${building.id}`} />
+        </div>
+
         <p>Manage facility details here.</p>
       </div>
 
@@ -88,12 +99,16 @@ function FacilityDetail({
 
           <div className="form-field">
             <label>Created At</label>
-            <div className="readonly-field">{building.createdAt}</div>
+            <div className="readonly-field">
+              {formatDate(building.createdAt)}
+            </div>
           </div>
 
           <div className="form-field">
             <label>Updated At</label>
-            <div className="readonly-field">{building.updatedAt}</div>
+            <div className="readonly-field">
+              {formatDate(building.updatedAt)}
+            </div>
           </div>
         </div>
 
@@ -185,12 +200,14 @@ function FacilityDetail({
                   onClick={() => navigate(`/rooms/${room.id}`)}
                 >
                   <td>{room.id}</td>
-                  <td>{room.number}</td>
-                  <td>{room.type}</td>
-                  <td>{room.open_time}</td>
-                  <td>{room.close_time}</td>
-                  <td>{new Date(room.createdAt).toLocaleString()}</td>
-                  <td>{new Date(room.updatedAt).toLocaleString()}</td>
+                  <td>
+                    <GenericChip label={room.number} />
+                  </td>
+                  <td>{formatRoomType(room.type)}</td>
+                  <td>{formatTime(room.open_time)}</td>
+                  <td>{formatTime(room.close_time)}</td>
+                  <td>{formatDate(room.createdAt)}</td>
+                  <td>{formatDate(room.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>

@@ -8,8 +8,10 @@ import {
 } from "react-icons/fa";
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
-import Pagination from "../components/Pagination";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Pagination from "../components/Pagination";
+import formatDate from "../utils/formatDate";
 
 function FacilityManagement({
   loading,
@@ -25,9 +27,11 @@ function FacilityManagement({
   return (
     <main className="page">
       <div className="page-title">
-        <h2>
-          Manage Facilities <span>{total}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2> Manage Facilities</h2>
+          <GenericChip label={total} />
+        </div>
+
         <p>Manage facilities here.</p>
       </div>
 
@@ -98,12 +102,14 @@ function FacilityManagement({
                   style={{ cursor: "pointer" }}
                 >
                   <td>{building.id}</td>
-                  <td>{building.code}</td>
+                  <td>
+                    <GenericChip label={building.code} />
+                  </td>
                   <td>{building.name}</td>
                   <td>{building.address}</td>
                   <td>{building.total_floors}</td>
-                  <td>{new Date(building.createdAt).toLocaleString()}</td>
-                  <td>{new Date(building.updatedAt).toLocaleString()}</td>
+                  <td>{formatDate(building.createdAt)}</td>
+                  <td>{formatDate(building.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
