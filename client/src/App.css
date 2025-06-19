@@ -782,3 +782,28 @@ a.add-btn {
     opacity: 1;
   }
 }
+
+/* filter opts */
+.filter-opts {
+  padding: 1rem 0rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filter-opts p {
+  font-size: small;
+  font-weight: bold;
+  color: var(--sub-grey);
+}
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-controls select {
+  border: solid 0.5px rgba(0, 0, 0, 0.2);
+  border-radius: 24px;
+  padding: 0.25rem;
+  color: var(--main-color);
+}

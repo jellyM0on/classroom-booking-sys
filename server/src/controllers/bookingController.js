@@ -25,6 +25,7 @@ export const getAll = async (req, res) => {
       date,
       room_id,
       search,
+      sort = "desc",
     } = req.query;
 
     const pagination = {
@@ -63,6 +64,7 @@ export const getAll = async (req, res) => {
         userFilters,
         currentUserId: currentUser.id,
         search,
+        sort,
       },
       pagination
     );
@@ -109,6 +111,7 @@ export const getAllSelf = async (req, res) => {
       date,
       room_id,
       search,
+      sort = "desc",
     } = req.query;
 
     const pagination = {
@@ -126,7 +129,7 @@ export const getAllSelf = async (req, res) => {
 
     const result = await findSelfBookingsWithSchedulesAndRooms(
       user.id,
-      { bookingFilters, scheduleFilters, search },
+      { bookingFilters, scheduleFilters, search, sort },
       pagination
     );
 

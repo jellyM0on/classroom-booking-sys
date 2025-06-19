@@ -68,6 +68,8 @@ function BookingManagement({
   setStatusFilter,
   urgencyFilter,
   setUrgencyFilter,
+  sortOrder,
+  setSortOrder,
 }) {
   return (
     <main className="page">
@@ -106,29 +108,43 @@ function BookingManagement({
       </div>
 
       <div className="filter-opts">
-        <p>FILTER</p>
-        <div className="filter-controls">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
+        <div className="flex-gap-1 flex-align">
+          <p>FILTER</p>
+          <div className="filter-controls">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
 
-          <select
-            value={urgencyFilter}
-            onChange={(e) => setUrgencyFilter(e.target.value)}
-          >
-            <option value="">All Urgencies</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
+            <select
+              value={urgencyFilter}
+              onChange={(e) => setUrgencyFilter(e.target.value)}
+            >
+              <option value="">All Urgencies</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex-gap-1 flex-align">
+          <p>SORT</p>
+          <div className="filter-controls">
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="asc">ASC</option>
+              <option value="desc">DESC</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -262,6 +278,7 @@ export default function BookingManagementContainer() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [urgencyFilter, setUrgencyFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
   const pageSize = 10;
 
   const navigate = useNavigate();
@@ -278,6 +295,7 @@ export default function BookingManagementContainer() {
 
     if (statusFilter) queryParams.append("status", statusFilter);
     if (urgencyFilter) queryParams.append("urgency", urgencyFilter);
+    if (sortOrder) queryParams.append("sort", sortOrder);
 
     const endpoint = `${basePath}?${queryParams.toString()}`;
 
@@ -312,7 +330,7 @@ export default function BookingManagementContainer() {
   useEffect(() => {
     fetchBookings(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, statusFilter, urgencyFilter, searchTerm]);
+  }, [page, statusFilter, urgencyFilter, searchTerm, sortOrder]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -344,6 +362,8 @@ export default function BookingManagementContainer() {
         setStatusFilter={setStatusFilter}
         urgencyFilter={urgencyFilter}
         setUrgencyFilter={setUrgencyFilter}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
       />
     </>
   );

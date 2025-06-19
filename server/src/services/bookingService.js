@@ -10,7 +10,8 @@ import {
 
 export const findAllBookingsWithSchedulesAndRooms = async (
   filters = {},
-  pagination = {}
+  pagination = {},
+  sort = "DESC"
 ) => {
   const {
     scheduleFilters = {},
@@ -36,11 +37,11 @@ export const findAllBookingsWithSchedulesAndRooms = async (
     ];
   }
 
-  const result = await Booking.findAndCountAll({
+  const rows = await Booking.findAll({
     where: baseConditions,
     limit: pagination.limit,
     offset: pagination.offset,
-    order: [["createdAt", "DESC"]],
+    order: [["createdAt", sort.toUpperCase()]],
     attributes: { exclude: ["submitted_by", "facilitated_by", "reviewed_by"] },
     include: [
       {
@@ -90,16 +91,23 @@ export const findAllBookingsWithSchedulesAndRooms = async (
     ],
   });
 
+  const count = await Booking.count({
+    where: baseConditions,
+    distinct: true,
+    col: "id",
+  });
+
   return {
-    count: result.count,
-    rows: result.rows,
+    count,
+    rows,
   };
 };
 
 export const findSelfBookingsWithSchedulesAndRooms = async (
   userId,
   filters = {},
-  pagination = {}
+  pagination = {},
+  sort = "DESC"
 ) => {
   const { bookingFilters = {}, scheduleFilters = {}, search = "" } = filters;
 
@@ -116,11 +124,11 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
     ];
   }
 
-  const result = await Booking.findAndCountAll({
+  const rows = await Booking.findAll({
     where: baseConditions,
     limit: pagination.limit,
     offset: pagination.offset,
-    order: [["createdAt", "DESC"]],
+    order: [["createdAt", sort.toUpperCase()]],
     include: [
       {
         model: BookingSchedule,
@@ -163,9 +171,15 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
     ],
   });
 
+  const count = await Booking.count({
+    where: baseConditions,
+    distinct: true,
+    col: "id",
+  });
+
   return {
-    count: result.count,
-    rows: result.rows,
+    count,
+    rows,
   };
 };
 
