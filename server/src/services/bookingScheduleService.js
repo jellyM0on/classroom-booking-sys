@@ -15,6 +15,12 @@ export const findFacilitatedSchedulesByMonth = async (
   if (filters.roomId) roomWhere.id = filters.roomId;
   if (filters.buildingId) roomWhere.buildingId = filters.buildingId;
 
+  const bookingWhere = {
+    status: "approved",
+    facilitated_by: facilitatorId,
+  };
+  if (filters.urgency) bookingWhere.urgency = filters.urgency;
+
   const schedules = await BookingSchedule.findAll({
     where: {
       date: {
@@ -29,10 +35,7 @@ export const findFacilitatedSchedulesByMonth = async (
       {
         model: Booking,
         as: "booking",
-        where: {
-          status: "approved",
-          facilitated_by: facilitatorId,
-        },
+        where: bookingWhere,
         required: true,
         attributes: ["id", "status", "purpose", "urgency", "createdAt"],
       },

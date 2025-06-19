@@ -29,6 +29,14 @@ function EventComponent({ event }) {
         marginBottom: "2px",
       }}
     >
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <StatusChip
+          label={event.fullData.booking.urgency}
+          type={getUrgencyColor(event.fullData.booking.urgency)}
+          size="small"
+        />
+      </div>
+
       <div style={{ fontWeight: "bold" }}>{timeRange}</div>
       <div>
         {event.fullData.room.building.code} Room {event.room}
@@ -191,6 +199,25 @@ function Home({
                 </select>
               </div>
 
+              <div className="form-field">
+                <label>
+                  <span className="th-icon-label">
+                    <FaLayerGroup /> Urgency
+                  </span>
+                </label>
+                <select
+                  name="urgency"
+                  value={formValues.urgency || ""}
+                  onChange={handleFormChange}
+                >
+                  <option value="">Select Urgency</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+
               <div className="form-field-row form-field-btn-container">
                 <button type="submit" className="submit-btn">
                   Filter
@@ -304,6 +331,7 @@ export default function HomeContainer() {
     month: format(new Date(), "yyyy-MM"),
     building: "",
     room: "",
+    urgency: "",
   });
   const [activeFilters, setActiveFilters] = useState(formValues);
   const [buildings, setBuildings] = useState([]);
@@ -354,6 +382,7 @@ export default function HomeContainer() {
     const params = new URLSearchParams({ month: yearMonth });
     if (filters.building) params.append("building_id", filters.building);
     if (filters.room) params.append("room_id", filters.room);
+    if (filters.urgency) params.append("urgency", filters.urgency);
 
     const endpoint = `/api/schedules/facilitated?${params.toString()}`;
 
@@ -419,6 +448,7 @@ export default function HomeContainer() {
       month: format(resetDate, "yyyy-MM"),
       building: "",
       room: "",
+      urgency: "",
     };
     setFormValues(resetValues);
     setActiveFilters(resetValues);

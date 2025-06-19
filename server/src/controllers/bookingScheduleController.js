@@ -17,7 +17,7 @@ export const getAllByMonth = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { month, building_id, room_id } = req.query;
+    const { month, building_id, room_id, urgency } = req.query;
 
     if (!month || !/^\d{4}-\d{2}$/.test(month)) {
       return res.status(400).json({
@@ -28,6 +28,7 @@ export const getAllByMonth = async (req, res) => {
     const schedules = await findFacilitatedSchedulesByMonth(user.id, month, {
       buildingId: building_id,
       roomId: room_id,
+      urgency: urgency,
     });
 
     if (!schedules || schedules.length === 0) {

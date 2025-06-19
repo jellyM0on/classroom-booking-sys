@@ -3,20 +3,21 @@ const colorMap = {
   yellow: "#f0ad4e",
   green: "#28a745",
   red: "#dc3545",
-  black: "#000000"
+  black: "#000000",
 };
 
-export default function StatusChip({ label, type = "grey" }) {
+export default function StatusChip({ label, type = "grey", size = "default" }) {
   const dotColor = colorMap[type] || colorMap.grey;
 
-  //   TODO: Refactor CSS
+  const isSmall = size === "small";
+
   return (
     <div
       style={{
         display: "inline-flex",
         alignItems: "center",
-        padding: "2px 8px",
-        fontSize: "0.75rem",
+        padding: isSmall ? "1px 6px" : "2px 8px",
+        fontSize: isSmall ? "0.5rem" : "0.75rem",
         border: "0.25px solid rgba(0, 0, 0, 0.2)",
         borderRadius: "16px",
         backgroundColor: "white",
@@ -24,11 +25,11 @@ export default function StatusChip({ label, type = "grey" }) {
     >
       <span
         style={{
-          height: "8px",
-          width: "8px",
+          height: isSmall ? "6px" : "8px",
+          width: isSmall ? "6px" : "8px",
           borderRadius: "50%",
           backgroundColor: dotColor,
-          marginRight: "6px",
+          marginRight: isSmall ? "4px" : "6px",
         }}
       ></span>
       <span>{label}</span>
