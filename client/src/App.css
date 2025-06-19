@@ -198,6 +198,40 @@ nav.collapsed .centered-heading {
   padding: 0;
 }
 
+/* Filters */
+.filter-opts {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0rem;
+  padding: 0.75rem 1rem;
+  color: #333; 
+  font-weight: 500;
+}
+
+.filter-opts p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* Style for dropdowns */
+.filter-opts select {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 24px;
+  background-color: #f5f5f5;
+  font-size: 0.9rem;
+  color: #333;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.filter-opts select:focus {
+  border-color: #999;
+}
+
 /* login */
 #login-page {
   display: grid;

@@ -29,12 +29,13 @@ const findUserById = async (id) => {
   return user ? formatUser(user) : null;
 };
 
-const findUsers = async (filters = {}, pagination = {}) => {
+// add sortBy and order as params
+const findUsers = async (filters = {}, pagination = {}, sortBy = "name", order = "ASC") => {
   const result = await User.findAndCountAll({
     where: filters,
     limit: pagination.limit,
     offset: pagination.offset,
-    order: [["name"]],
+    order: [[sortBy, order]],
     attributes: userAttributes,
     include: {
       model: Department,
