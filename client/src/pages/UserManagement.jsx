@@ -9,8 +9,10 @@ import {
 import { MdNumbers, MdOutlineAlternateEmail } from "react-icons/md";
 import { RiUserAddFill } from "react-icons/ri";
 import { NavLink, useNavigate } from "react-router-dom";
-import Pagination from "../components/Pagination";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Pagination from "../components/Pagination";
+import formatDate from "../utils/formatDate";
 
 function UserManagement({
   loading,
@@ -26,12 +28,13 @@ function UserManagement({
   return (
     <main class="page">
       <div className="page-title">
-        <h2>
-          Manage Users <span>{total}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2> Manage Users</h2>
+          <GenericChip label={total} />
+        </div>
+
         <p>Manage admin and staff users here.</p>
       </div>
-
 
       <div className="table-opts">
         <div className="search-field">
@@ -107,10 +110,16 @@ function UserManagement({
                   <td>{user.id}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>{user.department?.code || "—"}</td>
-                  <td>{user.createdAt}</td>
-                  <td>{user.updatedAt}</td>
+                  <td>
+                    <GenericChip label={user.role} />
+                  </td>
+                  <td>
+                    {" "}
+                    <GenericChip label={user.department.code} />{" "}
+                    <GenericChip label={user.department.name} />
+                  </td>
+                  <td> {formatDate(new Date(user.createdAt))}</td>
+                  <td> {formatDate(new Date(user.updatedAt))}</td>
                 </tr>
               ))}
             </tbody>
