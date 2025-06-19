@@ -64,6 +64,10 @@ function BookingManagement({
   handlePageChange,
   searchTerm,
   setSearchTerm,
+  statusFilter,
+  setStatusFilter,
+  urgencyFilter,
+  setUrgencyFilter,
 }) {
   return (
     <main className="page">
@@ -103,7 +107,29 @@ function BookingManagement({
 
       <div className="filter-opts">
         <p>FILTER</p>
-        <div></div>
+        <div className="filter-controls">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+
+          <select
+            value={urgencyFilter}
+            onChange={(e) => setUrgencyFilter(e.target.value)}
+          >
+            <option value="">All Urgencies</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
       </div>
 
       {!loading && bookings && bookings.length > 0 && (
@@ -234,6 +260,8 @@ export default function BookingManagementContainer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState({ message: "", timestamp: null });
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [urgencyFilter, setUrgencyFilter] = useState("");
   const pageSize = 10;
 
   const navigate = useNavigate();
@@ -242,9 +270,16 @@ export default function BookingManagementContainer() {
     const role = sessionStorage.getItem("role");
     const basePath =
       role === "admin" ? "/api/bookings/admin/all" : "/api/bookings";
-    const endpoint = `${basePath}?page=${pageNumber}&limit=${pageSize}&search=${encodeURIComponent(
-      searchTerm
-    )}`;
+    const queryParams = new URLSearchParams({
+      page: pageNumber,
+      limit: pageSize,
+      search: searchTerm,
+    });
+
+    if (statusFilter) queryParams.append("status", statusFilter);
+    if (urgencyFilter) queryParams.append("urgency", urgencyFilter);
+
+    const endpoint = `${basePath}?${queryParams.toString()}`;
 
     try {
       setLoading(true);
@@ -256,7 +291,7 @@ export default function BookingManagementContainer() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error("No data found");
       }
 
       const payload = await response.json();
@@ -276,7 +311,8 @@ export default function BookingManagementContainer() {
 
   useEffect(() => {
     fetchBookings(page);
-  }, [page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, statusFilter, urgencyFilter, searchTerm]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -304,6 +340,10 @@ export default function BookingManagementContainer() {
         handlePageChange={handlePageChange}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        urgencyFilter={urgencyFilter}
+        setUrgencyFilter={setUrgencyFilter}
       />
     </>
   );

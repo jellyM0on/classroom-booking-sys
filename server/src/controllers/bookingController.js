@@ -71,14 +71,12 @@ export const getAll = async (req, res) => {
       return res.status(404).json({ message: "No bookings found" });
     }
 
-    const actualCount = result.rows.length;
-
     return res.status(200).json({
       data: result.rows,
-      total: actualCount,
+      total: result.count,
       page: parseInt(page),
       pageSize: parseInt(limit),
-      totalPages: Math.ceil(actualCount / pagination.limit),
+      totalPages: Math.ceil(result.count / pagination.limit),
     });
   } catch (error) {
     console.error("Error fetching bookings:", error);
@@ -97,9 +95,7 @@ export const getAllSelf = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: Missing UID" });
     }
 
-    const user = await User.findOne({
-      where: { uid: requestingUid },
-    });
+    const user = await User.findOne({ where: { uid: requestingUid } });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -143,7 +139,7 @@ export const getAllSelf = async (req, res) => {
       total: result.count,
       page: parseInt(page),
       pageSize: parseInt(limit),
-      totalPages: Math.ceil(result.count / limit),
+      totalPages: Math.ceil(result.count / pagination.limit),
     });
   } catch (error) {
     console.error("Error fetching user’s bookings:", error);
