@@ -25,6 +25,12 @@ function FacilityDetail({
   handleChange,
   handleSubmit,
   handleToggleEdit,
+  searchTerm,
+  setSearchTerm,
+  typeFilter,
+  setTypeFilter,
+  sortOrder,
+  setSortOrder,
 }) {
   const navigate = useNavigate();
 
@@ -144,7 +150,12 @@ function FacilityDetail({
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
-          <input type="text" placeholder="Search" />
+          <input
+            type="text"
+            placeholder="Search Code..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <div className="flex-gap-1">
           <NavLink to="/facilities/add" className="add-btn">
@@ -153,10 +164,34 @@ function FacilityDetail({
           </NavLink>
         </div>
       </div>
-
       <div className="filter-opts">
-        <p>FILTER</p>
-        <div></div>
+        <div className="flex-gap-1 flex-align">
+          <p>FILTER</p>
+          <div className="filter-controls">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+            >
+              <option value="">All Types</option>
+              <option value="classroom">Classroom</option>
+              <option value="comp_lab">Computer Lab</option>
+              <option value="science_lab">Science Lab</option>
+              <option value="specialty">Specialty</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex-gap-1 flex-align">
+          <p>SORT</p>
+          <div className="filter-controls">
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="asc">ASC</option>
+              <option value="desc">DESC</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {!loading && !error && building?.rooms?.length > 0 && (
@@ -193,23 +228,38 @@ function FacilityDetail({
             </thead>
 
             <tbody>
-              {building.rooms.map((room) => (
-                <tr
-                  key={room.id}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/rooms/${room.id}`)}
-                >
-                  <td>{room.id}</td>
-                  <td>
-                    <GenericChip label={room.number} />
-                  </td>
-                  <td>{formatRoomType(room.type)}</td>
-                  <td>{formatTime(room.open_time)}</td>
-                  <td>{formatTime(room.close_time)}</td>
-                  <td>{formatDate(room.createdAt)}</td>
-                  <td>{formatDate(room.updatedAt)}</td>
-                </tr>
-              ))}
+              {building.rooms
+                ?.filter((room) => {
+                  const matchesSearch = room.number
+                    .toString()
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase());
+                  const matchesType =
+                    !typeFilter ||
+                    room.type.toLowerCase() === typeFilter.toLowerCase();
+                  return matchesSearch && matchesType;
+                })
+                .sort((a, b) => {
+                  if (sortOrder === "asc") return a.number - b.number;
+                  else return b.number - a.number;
+                })
+                .map((room) => (
+                  <tr
+                    key={room.id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/rooms/${room.id}`)}
+                  >
+                    <td>{room.id}</td>
+                    <td>
+                      <GenericChip label={room.number} />
+                    </td>
+                    <td>{formatRoomType(room.type)}</td>
+                    <td>{formatTime(room.open_time)}</td>
+                    <td>{formatTime(room.close_time)}</td>
+                    <td>{formatDate(room.createdAt)}</td>
+                    <td>{formatDate(room.updatedAt)}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -238,6 +288,9 @@ export default function FacilityDetailContainer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const fetchBuilding = async () => {
     const token = sessionStorage.getItem("token");
@@ -356,6 +409,12 @@ export default function FacilityDetailContainer() {
       handleChange={handleChange}
       handleSubmit={handleSubmit}
       handleToggleEdit={handleToggleEdit}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      typeFilter={typeFilter}
+      setTypeFilter={setTypeFilter}
+      sortOrder={sortOrder}
+      setSortOrder={setSortOrder}
     />
   );
 }
