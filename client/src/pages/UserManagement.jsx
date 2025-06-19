@@ -14,6 +14,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import Pagination from "../components/Pagination";
 import formatDate from "../utils/formatDate";
 
+// added filter/sort to accept props
 function UserManagement({
   loading,
   error,
@@ -24,9 +25,19 @@ function UserManagement({
   pageSize,
   total,
   handlePageChange,
+  departments,
+  selectedRole,
+  setSelectedRole,
+  selectedDept,
+  setSelectedDept,
+  sortOrder,
+  setSortOrder,
+  searchText,
+  setSearchText
 }) {
+
   return (
-    <main class="page">
+    <main className="page">
       <div className="page-title">
         <div className="flex-gap-1">
           <h2> Manage Users</h2>
@@ -39,7 +50,12 @@ function UserManagement({
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
-          <input type="text" placeholder="Search" />
+          <input 
+            type="text" 
+            placeholder="Search"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)} 
+          />
         </div>
         <div className="flex-gap-1">
           <NavLink to="/users/departments" className="add-btn">
@@ -56,7 +72,27 @@ function UserManagement({
 
       <div className="filter-opts">
         <p>FILTER</p>
-        <div></div>
+        <div className="flex-gap-1">
+          <select onChange={(e) => setSelectedRole(e.target.value)} value={selectedRole}>
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
+          </select>
+
+          <select onChange={(e) => setSelectedDept(e.target.value)} value={selectedDept}>
+            <option value="">All Departments</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>
+              {d.code}
+            </option>
+            ))}
+          </select>
+
+          <select onChange={(e) => setSortOrder(e.target.value)} value={sortOrder}>
+            <option value="ASC">Sort ASC</option>
+            <option value="DESC">Sort DESC</option>
+          </select>
+        </div>
       </div>
 
       {loading && <LoadingSpinner />}
@@ -127,6 +163,12 @@ function UserManagement({
         </div>
       )}
 
+      {!loading && users.length === 0 && (
+        <p style={{ textAlign: "center", fontWeight: "bold", marginTop: "1rem" }}>
+          No users found.
+        </p>
+      )}
+
       <Pagination
         page={page}
         totalPages={totalPages}
@@ -134,10 +176,6 @@ function UserManagement({
         total={total}
         handlePageChange={handlePageChange}
       />
-
-      {!loading && !error && users && users.length === 0 && (
-        <p>No users found.</p>
-      )}
     </main>
   );
 }
@@ -152,13 +190,34 @@ export default function UserManagementContainer() {
   const pageSize = 10;
   const navigate = useNavigate();
 
+  // Add filter and sort + search
+  const [departments, setDepartments] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedDept, setSelectedDept] = useState("");
+  const [sortOrder, setSortOrder] = useState("ASC");
+  const [searchText, setSearchText] = useState("");
+
   const fetchUsers = async (pageNumber = 1) => {
     const token = sessionStorage.getItem("token");
 
+    // Include query params
+    const queryParams = new URLSearchParams({
+      page: pageNumber,
+      limit: pageSize,
+      sortBy: "name",
+      order: sortOrder,
+    });
+
+    // Only add filters if they are not empty
+    if (selectedRole) queryParams.append("role", selectedRole);
+    if (selectedDept) queryParams.append("departmentId", selectedDept);
+    if (searchText) queryParams.append("name", searchText);
+
     try {
+      setUsers([]); // clear the table before loading new data
       setLoading(true);
-      const response = await fetch(
-        `http://localhost:3000/api/users/admin/?page=${pageNumber}&limit=${pageSize}`,
+        const response = await fetch(
+          `http://localhost:3000/api/users/admin?${queryParams.toString()}`, // to make table updated w filter/sort search
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -183,9 +242,37 @@ export default function UserManagementContainer() {
     }
   };
 
+  const fetchDepartments = async () => {
+  const token = sessionStorage.getItem("token");
+  const res = await fetch("http://localhost:3000/api/departments/admin", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  setDepartments(data.data || []);
+};
+
+  // Fetch depts on mount
   useEffect(() => {
-    fetchUsers(page);
-  }, [page]);
+    fetchDepartments();
+  }, []);
+
+  // 💡 Run fetchUsers when filters/search/sort change
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchUsers(1); // force reload from page 1
+    }, 300);
+    return () => clearTimeout(delay);
+  }, [selectedRole, selectedDept, sortOrder, searchText]);
+
+  // When user manually changes pages (pagination)
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(1);
+    } else {
+      fetchUsers(page);
+    }
+  }, [page, totalPages]);
+
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -197,6 +284,7 @@ export default function UserManagementContainer() {
   };
 
   return (
+    // ensure props are passed correctly - filter/sort and search additions
     <UserManagement
       users={users}
       loading={loading}
@@ -207,6 +295,15 @@ export default function UserManagementContainer() {
       pageSize={pageSize}
       total={total}
       handlePageChange={handlePageChange}
+      departments={departments}
+      selectedRole={selectedRole}
+      setSelectedRole={setSelectedRole}
+      selectedDept={selectedDept}
+      setSelectedDept={setSelectedDept}
+      sortOrder={sortOrder}
+      setSortOrder={setSortOrder}
+      searchText={searchText}
+      setSearchText={setSearchText}
     />
   );
 }

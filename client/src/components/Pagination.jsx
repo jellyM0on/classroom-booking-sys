@@ -34,6 +34,9 @@ export default function Pagination({
   const rangeStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const rangeEnd = Math.min(page * pageSize, total);
 
+  const canGoPrev = page > 1 && totalPages > 0;
+  const canGoNext = page < totalPages && totalPages > 0;
+
   return (
     <div className="pagination-container">
       <div className="pagination-info">
@@ -41,8 +44,8 @@ export default function Pagination({
       </div>
       <div className="pagination">
         <button
-          onClick={() => handlePageChange(Math.max(1, page - 1))}
-          disabled={page === 1}
+          onClick={() => canGoPrev && handlePageChange(page - 1)}
+          disabled={!canGoPrev}
         >
           <IoIosArrowBack />
         </button>
@@ -50,8 +53,8 @@ export default function Pagination({
         {pages}
 
         <button
-          onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
+          onClick={() => canGoNext && handlePageChange(page + 1)}
+          disabled={!canGoNext}
         >
           <IoIosArrowForward />
         </button>
