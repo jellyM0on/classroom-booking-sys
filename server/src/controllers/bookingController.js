@@ -24,6 +24,7 @@ export const getAll = async (req, res) => {
       facilitated_by,
       date,
       room_id,
+      search,
     } = req.query;
 
     const pagination = {
@@ -61,6 +62,7 @@ export const getAll = async (req, res) => {
         scheduleFilters,
         userFilters,
         currentUserId: currentUser.id,
+        search,
       },
       pagination
     );
@@ -103,7 +105,15 @@ export const getAllSelf = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { page = 1, limit = 10, status, urgency, date, room_id } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      urgency,
+      date,
+      room_id,
+      search,
+    } = req.query;
 
     const pagination = {
       limit: parseInt(limit),
@@ -120,7 +130,7 @@ export const getAllSelf = async (req, res) => {
 
     const result = await findSelfBookingsWithSchedulesAndRooms(
       user.id,
-      { bookingFilters, scheduleFilters },
+      { bookingFilters, scheduleFilters, search },
       pagination
     );
 

@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { col, fn, Op, where } from "sequelize";
 import { sequelize } from "../configs/sequelize.js";
 import {
   Booking,
@@ -12,22 +12,36 @@ export const findAllBookingsWithSchedulesAndRooms = async (
   filters = {},
   pagination = {}
 ) => {
-  const { scheduleFilters = {}, userFilters = {}, currentUserId } = filters;
+  const {
+    scheduleFilters = {},
+    userFilters = {},
+    bookingFilters = {},
+    search = "",
+    currentUserId,
+  } = filters;
+
+  const baseConditions = {
+    [Op.or]: [
+      { status: { [Op.ne]: "draft" } },
+      { submitted_by: currentUserId },
+    ],
+    ...bookingFilters,
+  };
+
+  if (search) {
+    baseConditions[Op.and] = [
+      where(fn("LOWER", col("purpose")), {
+        [Op.like]: `%${search.toLowerCase()}%`,
+      }),
+    ];
+  }
 
   const result = await Booking.findAndCountAll({
-    where: {
-      ...filters.bookingFilters,
-      [Op.or]: [
-        { status: { [Op.ne]: "draft" } },
-        { submitted_by: currentUserId },
-      ],
-    },
+    where: baseConditions,
     limit: pagination.limit,
     offset: pagination.offset,
     order: [["createdAt", "DESC"]],
-    attributes: {
-      exclude: ["submitted_by", "facilitated_by", "reviewed_by"],
-    },
+    attributes: { exclude: ["submitted_by", "facilitated_by", "reviewed_by"] },
     include: [
       {
         model: BookingSchedule,
@@ -55,21 +69,21 @@ export const findAllBookingsWithSchedulesAndRooms = async (
       {
         model: User,
         as: "submittedBy",
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "uid"],
         where: userFilters.submittedBy || undefined,
         required: false,
       },
       {
         model: User,
         as: "facilitatedBy",
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "uid"],
         where: userFilters.facilitatedBy || undefined,
         required: false,
       },
       {
         model: User,
         as: "reviewedBy",
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "uid"],
         where: userFilters.reviewedBy || undefined,
         required: false,
       },
@@ -87,13 +101,23 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
   filters = {},
   pagination = {}
 ) => {
-  const { scheduleFilters = {} } = filters;
+  const { bookingFilters = {}, scheduleFilters = {}, search = "" } = filters;
+
+  const baseConditions = {
+    [Op.or]: [{ submitted_by: userId }, { facilitated_by: userId }],
+    ...bookingFilters,
+  };
+
+  if (search) {
+    baseConditions[Op.and] = [
+      where(fn("LOWER", col("purpose")), {
+        [Op.like]: `%${search.toLowerCase()}%`,
+      }),
+    ];
+  }
 
   const result = await Booking.findAndCountAll({
-    where: {
-      ...filters.bookingFilters,
-      [Op.or]: [{ submitted_by: userId }, { facilitated_by: userId }],
-    },
+    where: baseConditions,
     limit: pagination.limit,
     offset: pagination.offset,
     order: [["createdAt", "DESC"]],
@@ -144,6 +168,7 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
     rows: result.rows,
   };
 };
+
 export const findBookingByIdWithSchedulesAndRooms = async (id) => {
   const booking = await Booking.findByPk(id, {
     include: [

@@ -62,6 +62,8 @@ function BookingManagement({
   pageSize,
   total,
   handlePageChange,
+  searchTerm,
+  setSearchTerm,
 }) {
   return (
     <main className="page">
@@ -79,7 +81,17 @@ function BookingManagement({
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
-          <input type="text" placeholder="Search" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handlePageChange(1);
+              }
+            }}
+          />
         </div>
         <div className="flex-gap-1">
           <NavLink to="/new-booking" className="add-btn">
@@ -221,16 +233,18 @@ export default function BookingManagementContainer() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState({ message: "", timestamp: null });
+  const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
 
   const navigate = useNavigate();
   const fetchBookings = async (pageNumber = 1) => {
     const token = sessionStorage.getItem("token");
     const role = sessionStorage.getItem("role");
-    const endpoint =
-      role === "admin"
-        ? `/api/bookings/admin/all?page=${pageNumber}&limit=${pageSize}`
-        : `/api/bookings?page=${pageNumber}&limit=${pageSize}`;
+    const basePath =
+      role === "admin" ? "/api/bookings/admin/all" : "/api/bookings";
+    const endpoint = `${basePath}?page=${pageNumber}&limit=${pageSize}&search=${encodeURIComponent(
+      searchTerm
+    )}`;
 
     try {
       setLoading(true);
@@ -288,6 +302,8 @@ export default function BookingManagementContainer() {
         pageSize={pageSize}
         total={total}
         handlePageChange={handlePageChange}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
       />
     </>
   );

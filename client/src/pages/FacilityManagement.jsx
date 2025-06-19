@@ -49,7 +49,7 @@ function FacilityManagement({
       </div>
 
       <div className="filter-opts">
-        <p>FILTER</p>
+        <p>SORT</p>
         <div></div>
       </div>
 
