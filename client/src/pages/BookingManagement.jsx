@@ -89,7 +89,7 @@ function BookingManagement({
           <FaSearch color="rgb(107, 106, 106)" />
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search Purpose..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {

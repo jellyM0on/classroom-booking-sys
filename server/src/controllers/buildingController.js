@@ -1,4 +1,3 @@
-import { Op } from "sequelize";
 import {
   createBuilding,
   deleteBuildingById,
@@ -10,7 +9,7 @@ import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
 
 export const getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 10, code, name } = req.query;
+    const { page = 1, limit = 10, search = "", sort = "ASC" } = req.query;
 
     const pagination = {
       limit: parseInt(limit),
@@ -18,10 +17,11 @@ export const getAll = async (req, res) => {
     };
 
     const filters = {};
-    if (code) filters.code = { [Op.like]: `%${code}%` };
-    if (name) filters.name = { [Op.like]: `%${name}%` };
+    if (search) {
+      filters.search = search;
+    }
 
-    const result = await findAllBuildings(filters, pagination);
+    const result = await findAllBuildings(filters, pagination, sort);
 
     if (!result || result.rows.length === 0) {
       return res.status(404).json({ message: "No buildings found" });
@@ -32,7 +32,7 @@ export const getAll = async (req, res) => {
       total: result.count,
       page: parseInt(page),
       pageSize: parseInt(limit),
-      totalPages: Math.ceil(result.count / limit),
+      totalPages: Math.ceil(result.count / pagination.limit),
     });
   } catch (error) {
     return res
