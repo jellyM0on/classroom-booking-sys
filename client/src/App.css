@@ -248,7 +248,6 @@ nav.collapsed .centered-heading {
   box-sizing: border-box;
 }
 
-
 .forgot-password-form {
   background-color: #fff;
   padding: 2rem;
@@ -267,16 +266,15 @@ nav.collapsed .centered-heading {
 
 .forgot-password-form input {
   width: 100%;
-  padding: 0.75rem 1rem;  
+  padding: 0.75rem 1rem;
   margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
-  line-height: 1.5; 
+  line-height: 1.5;
   box-sizing: border-box;
-  height: 45px; 
+  height: 45px;
 }
-
 
 .forgot-password-form button {
   width: 100%;
@@ -532,6 +530,104 @@ a.add-btn {
 }
 
 /* home */
+
+.space-between {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.calendar-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 95vh;
+  width: 20%;
+}
+
+.calendar-filter-opts,
+#sched-info-container {
+  border: solid 0.25px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.calendar-info-container #generic-form {
+  padding-bottom: 0;
+}
+
+.calendar-info-container .form-field-btn-container {
+  margin-top: 1rem;
+  align-self: flex-end;
+}
+
+#sched-info-container {
+  overflow-y: scroll;
+}
+
+/* calendar */
+.custom-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-month-label {
+  margin-left: auto;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: var(--main-color);
+}
+
+.rbc-month-view .rbc-date-cell {
+  position: relative;
+}
+
+.rbc-month-view .rbc-day-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.rbc-month-view .rbc-day-bg::after {
+  content: "";
+  display: block;
+  height: 100%;
+}
+
+.rbc-month-view .rbc-row-content {
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.rbc-month-view .rbc-row-content {
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.rbc-month-view .rbc-row-content::-webkit-scrollbar,
+#sched-info-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rbc-month-view .rbc-row-content::-webkit-scrollbar-thumb,
+#sched-info-container::-webkit-scrollbar-thumb {
+  background-color: #080930;
+  border-radius: 3px;
+}
+
+.rbc-month-view .rbc-row-content::-webkit-scrollbar-track,
+#sched-info-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.rbc-month-view .rbc-row-content {
+  scrollbar-width: thin;
+  scrollbar-color: #080930 transparent;
+}
+
 
 /* Error Floating Message */
 .floating-error {

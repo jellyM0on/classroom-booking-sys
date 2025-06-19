@@ -1,9 +1,15 @@
-import { format, getDay, parse, startOfWeek } from "date-fns";
+import { format, getDay, isAfter, parse, startOfWeek } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { useEffect, useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { FaBuilding, FaCalendarAlt, FaLayerGroup } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa6";
+import { IoIosInformationCircle } from "react-icons/io";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import StatusChip from "../components/StatusChip";
+import { getScheduleStatusColor } from "../utils/getScheduleStatusColor";
+import { getUrgencyColor } from "../utils/getUrgencyColor";
 
 function EventComponent({ event }) {
   const isCancelled = event.status === "cancelled";
@@ -12,8 +18,6 @@ function EventComponent({ event }) {
     "HH:mm"
   )}`;
 
-  // TODO: Refactor styles
-
   return (
     <div
       style={{
@@ -21,14 +25,37 @@ function EventComponent({ event }) {
         padding: "4px",
         color: isCancelled ? "#888" : "#222",
         textDecoration: isCancelled ? "line-through" : "none",
-        backgroundColor: isCancelled ? "#f2f2f2" : "#e0f7fa",
+        backgroundColor: isCancelled ? "#f2f2f2" : "#ebf4fc",
         borderRadius: "4px",
         marginBottom: "2px",
       }}
     >
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <StatusChip
+          label={event.fullData.booking.urgency}
+          type={getUrgencyColor(event.fullData.booking.urgency)}
+          size="small"
+        />
+      </div>
+
       <div style={{ fontWeight: "bold" }}>{timeRange}</div>
-      <div>Room {event.room}</div>
+      <div>
+        {event.fullData.room.building.code} Room {event.room}
+      </div>
       <div>{event.title}</div>
+    </div>
+  );
+}
+
+function CustomToolbar({ label, onNavigate }) {
+  return (
+    <div className="rbc-toolbar custom-toolbar">
+      <div className="rbc-btn-group">
+        <button onClick={() => onNavigate("TODAY")}>Today</button>
+        <button onClick={() => onNavigate("PREV")}>Back</button>
+        <button onClick={() => onNavigate("NEXT")}>Next</button>
+      </div>
+      <div className="custom-month-label">{label}</div>
     </div>
   );
 }
@@ -41,11 +68,20 @@ function Home({
   formValues,
   handleFormChange,
   onFilterSubmit,
+  handleClearFilters,
   buildings,
   rooms,
   selectedEvent,
   setSelectedEvent,
+  handleCancelSchedule,
 }) {
+  const isPastEvent = (event) => {
+    const eventDateTime = new Date(
+      `${event.fullData.date}T${event.fullData.start_time}`
+    );
+    return isAfter(new Date(), eventDateTime);
+  };
+
   return (
     <main className="page">
       <div className="page-title">
@@ -53,8 +89,8 @@ function Home({
         <p>View your approved bookings in calendar view.</p>
       </div>
 
-      <div className="flex-gap-1">
-        <div style={{ height: "80vh", width: "70%" }}>
+      <div className="space-between">
+        <div style={{ minHeight: "600px", height: "90vh", width: "80%" }}>
           <Calendar
             localizer={localizer}
             events={events}
@@ -65,13 +101,48 @@ function Home({
             style={{ height: "100%" }}
             date={date}
             onNavigate={onNavigate}
-            components={{ event: EventComponent }}
+            components={{ event: EventComponent, toolbar: CustomToolbar }}
             onSelectEvent={(event) => setSelectedEvent(event)}
+            dayPropGetter={(date) => {
+              const isToday =
+                format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+              return {
+                style: {
+                  backgroundColor: isToday ? "#cce6ff" : undefined,
+                },
+              };
+            }}
+            eventPropGetter={(event) => {
+              const baseStyle = {
+                fontSize: "0.75rem",
+                padding: "1px",
+                borderRadius: "4px",
+                backgroundColor: "transparent",
+              };
+
+              if (event.status === "cancelled") {
+                return {
+                  style: {
+                    ...baseStyle,
+                    color: "#721c24",
+                    textDecoration: "line-through",
+                  },
+                };
+              }
+
+              return {
+                style: {
+                  ...baseStyle,
+                  color: "",
+                  fontWeight: 500,
+                },
+              };
+            }}
           />
         </div>
 
-        <div>
-          <form id="generic-form" onSubmit={onFilterSubmit}>
+        <div className="calendar-info-container">
+          <form className="calendar-filter-opts" onSubmit={onFilterSubmit}>
             <div className="form-fields">
               <div className="form-field">
                 <label>
@@ -99,7 +170,7 @@ function Home({
                   value={formValues.building}
                   onChange={handleFormChange}
                 >
-                  <option value="">-- Select Building --</option>
+                  <option value="">Select Building</option>
                   {buildings.map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
@@ -120,7 +191,7 @@ function Home({
                   onChange={handleFormChange}
                   disabled={!formValues.building}
                 >
-                  <option value="">-- Select Room --</option>
+                  <option value="">Select Room</option>
                   {rooms.map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.number}
@@ -130,56 +201,114 @@ function Home({
               </div>
 
               <div className="form-field">
-                <button type="submit" className="primary-btn">
+                <label>
+                  <span className="th-icon-label">
+                    <FaLayerGroup /> Urgency
+                  </span>
+                </label>
+                <select
+                  name="urgency"
+                  value={formValues.urgency || ""}
+                  onChange={handleFormChange}
+                >
+                  <option value="">Select Urgency</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+
+              <div className="form-field-row form-field-btn-container">
+                <button type="submit" className="submit-btn">
                   Filter
+                </button>
+                <button
+                  type="button"
+                  className="transparent-border-btn"
+                  onClick={handleClearFilters}
+                >
+                  Clear
                 </button>
               </div>
             </div>
           </form>
 
-          <div id="sched-info-container" className="form-fields">
-            {selectedEvent && (
-              <>
-                <h3>Schedule Details</h3>
-                <div className="form-field">
-                  <strong>Status:</strong> {selectedEvent.fullData.status}
-                </div>
-                <div className="form-field">
-                  <strong>Date:</strong> {selectedEvent.fullData.date}
-                </div>
-                <div className="form-field">
-                  <strong>Time:</strong> {selectedEvent.fullData.start_time} -{" "}
-                  {selectedEvent.fullData.end_time}
-                </div>
-                <div className="form-field">
-                  <strong>Room:</strong> {selectedEvent.fullData.room.number} (
-                  {selectedEvent.fullData.room.type})
-                </div>
+          {selectedEvent && (
+            <div id="sched-info-container" className="form-fields">
+              <div className="flex-gap-small">
+                <StatusChip
+                  label={selectedEvent.fullData.status}
+                  type={getScheduleStatusColor(selectedEvent.fullData.status)}
+                />
+                <StatusChip
+                  label={selectedEvent.fullData.booking.urgency}
+                  type={getUrgencyColor(selectedEvent.fullData.booking.urgency)}
+                />
+              </div>
+              <h3>{selectedEvent.fullData.booking.purpose}</h3>
 
-                <h3>Booking Details</h3>
-                <div className="form-field">
-                  <strong>Status:</strong>{" "}
-                  {selectedEvent.fullData.booking.status}
+              <div className="flex-gap-1 flex-align">
+                <span className="th-icon-label">
+                  <FaCalendarAlt />
+                </span>
+
+                <div>
+                  <p>{selectedEvent.fullData.date}</p>
+                  <p>
+                    {selectedEvent.fullData.start_time} -{" "}
+                    {selectedEvent.fullData.end_time}
+                  </p>
                 </div>
-                <div className="form-field">
-                  <strong>Purpose:</strong>{" "}
-                  {selectedEvent.fullData.booking.purpose}
+              </div>
+
+              <div className="flex-gap-1 flex-align">
+                <span className="th-icon-label">
+                  <FaBuilding />
+                </span>
+                <div>
+                  <p>
+                    {selectedEvent.fullData.room.building.code} -{" "}
+                    {selectedEvent.fullData.room.building.name}
+                  </p>
+                  <p>Room {selectedEvent.fullData.room.number}</p>
+                  <p className="small-text">
+                    {selectedEvent.fullData.room.building.address}
+                  </p>
                 </div>
-                <div className="form-field">
-                  <strong>Urgency:</strong>{" "}
-                  {selectedEvent.fullData.booking.urgency}
-                </div>
-                <div className="form-field">
+              </div>
+
+              <div className="flex-gap-1 flex-align">
+                <span className="th-icon-label">
+                  <IoIosInformationCircle />
+                </span>
+                <div className="flex-gap-1">
+                  Booking ID: {selectedEvent.fullData.booking.id}
                   <a
                     href={`/bookings/${selectedEvent.fullData.booking.id}`}
-                    className="primary-btn"
+                    className="arrow-btn"
                   >
-                    View Booking Details
+                    <FaArrowRight />
                   </a>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+
+              <br />
+              {selectedEvent.fullData.status !== "cancelled" &&
+                !isPastEvent(selectedEvent) && (
+                  <div className="form-field">
+                    <button
+                      className="reject-btn"
+                      onClick={() =>
+                        handleCancelSchedule(selectedEvent.fullData.id)
+                      }
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+            </div>
+          )}
         </div>
       </div>
     </main>
@@ -203,10 +332,13 @@ export default function HomeContainer() {
     month: format(new Date(), "yyyy-MM"),
     building: "",
     room: "",
+    urgency: "",
   });
+  const [activeFilters, setActiveFilters] = useState(formValues);
   const [buildings, setBuildings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
 
   const token = sessionStorage.getItem("token");
 
@@ -218,11 +350,14 @@ export default function HomeContainer() {
           "Content-Type": "application/json",
         },
       });
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) throw new Error(`Failed to fetch buildings`);
       const data = await res.json();
       setBuildings(data.data);
     } catch (err) {
-      console.error("Error fetching buildings:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -238,11 +373,14 @@ export default function HomeContainer() {
           },
         }
       );
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) throw new Error(`Failed to fetch rooms`);
       const data = await res.json();
       setRooms(data.data.rooms || []);
     } catch (err) {
-      console.error("Error fetching rooms by building:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
       setRooms([]);
     }
   };
@@ -252,9 +390,9 @@ export default function HomeContainer() {
     const params = new URLSearchParams({ month: yearMonth });
     if (filters.building) params.append("building_id", filters.building);
     if (filters.room) params.append("room_id", filters.room);
+    if (filters.urgency) params.append("urgency", filters.urgency);
 
     const endpoint = `/api/schedules/facilitated?${params.toString()}`;
-
     try {
       const response = await fetch(`http://localhost:3000${endpoint}`, {
         headers: {
@@ -263,10 +401,14 @@ export default function HomeContainer() {
         },
       });
 
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
       const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage =
+          data?.message || "An error occurred. Please try again";
+        throw new Error(errorMessage);
+      }
+
       const bookings = data.data.map((item) => ({
         id: item.id,
         title: item.booking.purpose,
@@ -280,18 +422,21 @@ export default function HomeContainer() {
 
       setEvents(bookings);
     } catch (err) {
-      console.error("Failed to fetch bookings:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
     }
   };
 
   useEffect(() => {
     fetchBuildings();
-    fetchBookings(currentDate);
-  }, [currentDate]);
+    fetchBookings(currentDate, activeFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDate, activeFilters]);
 
   const handleNavigate = (newDate) => {
     setCurrentDate(newDate);
-    setFormValues((prev) => ({ ...prev, month: format(newDate, "yyyy-MM") }));
   };
 
   const handleFormChange = (e) => {
@@ -308,22 +453,76 @@ export default function HomeContainer() {
     e.preventDefault();
     const newDate = new Date(`${formValues.month}-01`);
     setCurrentDate(newDate);
-    fetchBookings(newDate, formValues);
+    setActiveFilters(formValues);
+  };
+
+  const handleClearFilters = () => {
+    const resetDate = new Date();
+    const resetValues = {
+      month: format(resetDate, "yyyy-MM"),
+      building: "",
+      room: "",
+      urgency: "",
+    };
+    setFormValues(resetValues);
+    setActiveFilters(resetValues);
+    setRooms([]);
+    setSelectedEvent(null);
+    setCurrentDate(resetDate);
+  };
+
+  const handleCancelSchedule = async (scheduleId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/schedules/${scheduleId}/cancel`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to cancel booking");
+      fetchBookings(currentDate, activeFilters);
+      setSelectedEvent((prev) => ({
+        ...prev,
+        fullData: {
+          ...prev.fullData,
+          status: "cancelled",
+        },
+        status: "cancelled",
+      }));
+    } catch (err) {
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
+    }
   };
 
   return (
-    <Home
-      events={events}
-      localizer={localizer}
-      onNavigate={handleNavigate}
-      date={currentDate}
-      formValues={formValues}
-      handleFormChange={handleFormChange}
-      onFilterSubmit={handleFilterSubmit}
-      buildings={buildings}
-      rooms={rooms}
-      selectedEvent={selectedEvent}
-      setSelectedEvent={setSelectedEvent}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      <Home
+        events={events}
+        localizer={localizer}
+        onNavigate={handleNavigate}
+        date={currentDate}
+        formValues={formValues}
+        handleFormChange={handleFormChange}
+        onFilterSubmit={handleFilterSubmit}
+        handleClearFilters={handleClearFilters}
+        buildings={buildings}
+        rooms={rooms}
+        selectedEvent={selectedEvent}
+        setSelectedEvent={setSelectedEvent}
+        handleCancelSchedule={handleCancelSchedule}
+      />
+    </>
   );
 }
