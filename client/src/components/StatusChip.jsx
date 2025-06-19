@@ -8,8 +8,12 @@ const colorMap = {
 
 export default function StatusChip({ label, type = "grey", size = "default" }) {
   const dotColor = colorMap[type] || colorMap.grey;
-
   const isSmall = size === "small";
+
+  const formattedLabel =
+    typeof label === "string" && label.length > 0
+      ? label.charAt(0).toUpperCase() + label.slice(1)
+      : label;
 
   return (
     <div
@@ -32,7 +36,7 @@ export default function StatusChip({ label, type = "grey", size = "default" }) {
           marginRight: isSmall ? "4px" : "6px",
         }}
       ></span>
-      <span>{label}</span>
+      <span>{formattedLabel}</span>
     </div>
   );
 }
