@@ -3,6 +3,7 @@ import { FaBuilding, FaCode } from "react-icons/fa6";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdEdit, MdNumbers } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import GenericChip from "../components/GenericChip";
 
 function Departments({
   formData,
@@ -23,13 +24,15 @@ function Departments({
     <main className="page">
       <NavLink to="/users" className="transparent-btn back-btn">
         <IoIosArrowBack />
-        Back to Manage Users
+        Go to Manage Users
       </NavLink>
 
       <div className="page-title">
-        <h2>
-          Departments <span>{departments.length}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2> Manage Users</h2>
+          <GenericChip label={departments.length} />
+        </div>
+
         <p>Manage departments here.</p>
       </div>
 
@@ -133,7 +136,7 @@ function Departments({
                         )}
                       </>
                     ) : (
-                      dept.code
+                      <GenericChip label={dept.code}/>
                     )}
                   </td>
 
