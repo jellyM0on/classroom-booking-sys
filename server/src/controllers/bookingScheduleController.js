@@ -12,26 +12,28 @@ export const getAllByMonth = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: Missing UID" });
     }
 
-    const user = await User.findOne({
-      where: { uid: requestingUid },
-    });
+    const user = await User.findOne({ where: { uid: requestingUid } });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { month } = req.query;
+    const { month, building_id, room_id } = req.query;
+
     if (!month || !/^\d{4}-\d{2}$/.test(month)) {
       return res.status(400).json({
         message: "Invalid or missing 'month' query. Format should be YYYY-MM.",
       });
     }
 
-    const schedules = await findFacilitatedSchedulesByMonth(user.id, month);
+    const schedules = await findFacilitatedSchedulesByMonth(user.id, month, {
+      buildingId: building_id,
+      roomId: room_id,
+    });
 
     if (!schedules || schedules.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No schedules found for the specified month." });
+      return res.status(404).json({
+        message: "No schedules found for the specified month and filters.",
+      });
     }
 
     return res.status(200).json({ data: schedules });

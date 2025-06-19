@@ -1,11 +1,19 @@
 import { Op } from "sequelize";
-import { Booking, BookingSchedule, Room } from "../models/index.js";
+import { Booking, BookingSchedule, Building, Room } from "../models/index.js";
 
-export const findFacilitatedSchedulesByMonth = async (facilitatorId, month) => {
+export const findFacilitatedSchedulesByMonth = async (
+  facilitatorId,
+  month,
+  filters = {}
+) => {
   const [year, monthNumber] = month.split("-").map(Number);
   const startDate = `${month}-01`;
   const lastDay = new Date(year, monthNumber, 0).getDate();
   const endDate = `${month}-${lastDay.toString().padStart(2, "0")}`;
+
+  const roomWhere = {};
+  if (filters.roomId) roomWhere.id = filters.roomId;
+  if (filters.buildingId) roomWhere.buildingId = filters.buildingId;
 
   const schedules = await BookingSchedule.findAll({
     where: {
@@ -31,7 +39,15 @@ export const findFacilitatedSchedulesByMonth = async (facilitatorId, month) => {
       {
         model: Room,
         as: "room",
-        attributes: ["id", "number", "type"],
+        where: roomWhere,
+        attributes: ["id", "number", "type", "buildingId"],
+        include: [
+          {
+            model: Building,
+            as: "building",
+            attributes: ["code", "name", "address"],
+          },
+        ],
       },
     ],
   });
