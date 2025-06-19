@@ -31,12 +31,6 @@ export const getAllByMonth = async (req, res) => {
       urgency: urgency,
     });
 
-    if (!schedules || schedules.length === 0) {
-      return res.status(404).json({
-        message: "No schedules found for the specified filters.",
-      });
-    }
-
     return res.status(200).json({ data: schedules });
   } catch (error) {
     console.error("Error fetching schedules by month:", error);
