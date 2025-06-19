@@ -368,6 +368,7 @@ a.add-btn {
 
 #user-management-tbl,
 #generic-table {
+  /* min-width: 80vw; */
   width: 100%;
   border-collapse: collapse;
   border: solid 0.25px rgba(0, 0, 0, 0.2);
@@ -385,14 +386,20 @@ a.add-btn {
   color: var(--main-color);
 }
 
-#user-management-tbl th,
 #user-management-tbl td,
-#generic-table th,
 #generic-table td {
   border: solid 0.25px rgba(0, 0, 0, 0.2);
   padding: 8px;
   text-align: left;
   vertical-align: top;
+}
+
+#user-management-tbl th,
+#generic-table th {
+  border: solid 0.25px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  text-align: left;
+  vertical-align: center;
 }
 
 .th-icon-label {
@@ -522,6 +529,16 @@ a.add-btn {
   font-size: smaller;
 }
 
+/* booking management */
+
+.schedule-tbl-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: small;
+}
+
 /* booking detail */
 .booking-detail-page-title {
   display: flex;
@@ -628,7 +645,6 @@ a.add-btn {
   scrollbar-color: #080930 transparent;
 }
 
-
 /* Error Floating Message */
 .floating-error {
   position: fixed;
@@ -674,7 +690,6 @@ a.add-btn {
     opacity: 1;
   }
 }
-
 
 /* Success Floating Message */
 .floating-success {
