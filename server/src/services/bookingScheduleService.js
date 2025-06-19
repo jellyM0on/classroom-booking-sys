@@ -37,7 +37,14 @@ export const findFacilitatedSchedulesByMonth = async (
         as: "booking",
         where: bookingWhere,
         required: true,
-        attributes: ["id", "status", "purpose", "urgency", "createdAt"],
+        attributes: [
+          "id",
+          "status",
+          "purpose",
+          "urgency",
+          "createdAt",
+          "schedule_type",
+        ],
       },
       {
         model: Room,

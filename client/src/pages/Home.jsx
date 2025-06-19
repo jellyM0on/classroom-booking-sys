@@ -7,16 +7,17 @@ import { FaBuilding, FaCalendarAlt, FaLayerGroup } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa6";
 import { IoIosInformationCircle } from "react-icons/io";
 import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import GenericChip from "../components/GenericChip";
 import StatusChip from "../components/StatusChip";
+import formatDate from "../utils/formatDate";
+import formatTime from "../utils/formatTime";
 import { getScheduleStatusColor } from "../utils/getScheduleStatusColor";
 import { getUrgencyColor } from "../utils/getUrgencyColor";
 
 function EventComponent({ event }) {
+  console.log(event);
   const isCancelled = event.status === "cancelled";
-  const timeRange = `${format(event.start, "HH:mm")} - ${format(
-    event.end,
-    "HH:mm"
-  )}`;
+  const timeRange = `${formatTime(event.start)} - ${formatTime(event.end)}`;
 
   return (
     <div
@@ -246,6 +247,9 @@ function Home({
                   type={getUrgencyColor(selectedEvent.fullData.booking.urgency)}
                 />
               </div>
+              <GenericChip
+                label={selectedEvent.fullData.booking.schedule_type}
+              />
               <h3>{selectedEvent.fullData.booking.purpose}</h3>
 
               <div className="flex-gap-1 flex-align">
@@ -254,11 +258,19 @@ function Home({
                 </span>
 
                 <div>
-                  <p>{selectedEvent.fullData.date}</p>
-                  <p>
-                    {selectedEvent.fullData.start_time} -{" "}
-                    {selectedEvent.fullData.end_time}
-                  </p>
+                  <GenericChip
+                    label={formatDate(selectedEvent.fullData.date)}
+                  />
+                  <div className="schedule-tbl-info">
+                    From
+                    <GenericChip
+                      label={formatTime(selectedEvent.fullData.start_time)}
+                    />{" "}
+                    To
+                    <GenericChip
+                      label={formatTime(selectedEvent.fullData.end_time)}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -293,19 +305,21 @@ function Home({
                 </div>
               </div>
 
-              <br />
               {selectedEvent.fullData.status !== "cancelled" &&
                 !isPastEvent(selectedEvent) && (
-                  <div className="form-field">
-                    <button
-                      className="reject-btn"
-                      onClick={() =>
-                        handleCancelSchedule(selectedEvent.fullData.id)
-                      }
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  <>
+                    <br />
+                    <div className="form-field">
+                      <button
+                        className="reject-btn"
+                        onClick={() =>
+                          handleCancelSchedule(selectedEvent.fullData.id)
+                        }
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
                 )}
             </div>
           )}
