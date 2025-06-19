@@ -6,6 +6,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { FaBuilding, FaCalendarAlt, FaLayerGroup } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa6";
 import { IoIosInformationCircle } from "react-icons/io";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import StatusChip from "../components/StatusChip";
 import { getScheduleStatusColor } from "../utils/getScheduleStatusColor";
 import { getUrgencyColor } from "../utils/getUrgencyColor";
@@ -337,6 +338,7 @@ export default function HomeContainer() {
   const [buildings, setBuildings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
 
   const token = sessionStorage.getItem("token");
 
@@ -348,11 +350,14 @@ export default function HomeContainer() {
           "Content-Type": "application/json",
         },
       });
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) throw new Error(`Failed to fetch buildings`);
       const data = await res.json();
       setBuildings(data.data);
     } catch (err) {
-      console.error("Error fetching buildings:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -368,11 +373,14 @@ export default function HomeContainer() {
           },
         }
       );
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) throw new Error(`Failed to fetch rooms`);
       const data = await res.json();
       setRooms(data.data.rooms || []);
     } catch (err) {
-      console.error("Error fetching rooms by building:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
       setRooms([]);
     }
   };
@@ -385,7 +393,6 @@ export default function HomeContainer() {
     if (filters.urgency) params.append("urgency", filters.urgency);
 
     const endpoint = `/api/schedules/facilitated?${params.toString()}`;
-
     try {
       const response = await fetch(`http://localhost:3000${endpoint}`, {
         headers: {
@@ -394,10 +401,14 @@ export default function HomeContainer() {
         },
       });
 
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
       const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage =
+          data?.message || "An error occurred. Please try again";
+        throw new Error(errorMessage);
+      }
+
       const bookings = data.data.map((item) => ({
         id: item.id,
         title: item.booking.purpose,
@@ -411,7 +422,10 @@ export default function HomeContainer() {
 
       setEvents(bookings);
     } catch (err) {
-      console.error("Failed to fetch bookings:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -481,25 +495,34 @@ export default function HomeContainer() {
         status: "cancelled",
       }));
     } catch (err) {
-      console.error("Error cancelling booking:", err);
+      setError({
+        message: err.message,
+        timestamp: Date.now(),
+      });
     }
   };
 
   return (
-    <Home
-      events={events}
-      localizer={localizer}
-      onNavigate={handleNavigate}
-      date={currentDate}
-      formValues={formValues}
-      handleFormChange={handleFormChange}
-      onFilterSubmit={handleFilterSubmit}
-      handleClearFilters={handleClearFilters}
-      buildings={buildings}
-      rooms={rooms}
-      selectedEvent={selectedEvent}
-      setSelectedEvent={setSelectedEvent}
-      handleCancelSchedule={handleCancelSchedule}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      <Home
+        events={events}
+        localizer={localizer}
+        onNavigate={handleNavigate}
+        date={currentDate}
+        formValues={formValues}
+        handleFormChange={handleFormChange}
+        onFilterSubmit={handleFilterSubmit}
+        handleClearFilters={handleClearFilters}
+        buildings={buildings}
+        rooms={rooms}
+        selectedEvent={selectedEvent}
+        setSelectedEvent={setSelectedEvent}
+        handleCancelSchedule={handleCancelSchedule}
+      />
+    </>
   );
 }

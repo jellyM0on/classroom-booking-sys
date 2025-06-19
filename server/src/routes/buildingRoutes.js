@@ -11,8 +11,8 @@ import verifyToken from "../middlewares/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/admin", verifyToken, verifyAdmin, getAll);
-router.get("/admin/:id", verifyToken, verifyAdmin, getOne);
+router.get("/admin", verifyToken, getAll);
+router.get("/admin/:id", verifyToken, getOne);
 router.post("/admin", verifyToken, verifyAdmin, create);
 router.put("/admin/:id", verifyToken, verifyAdmin, update);
 router.delete("/admin/:id", verifyToken, verifyAdmin, destroy);

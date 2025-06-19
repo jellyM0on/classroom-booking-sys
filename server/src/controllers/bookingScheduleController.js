@@ -33,7 +33,7 @@ export const getAllByMonth = async (req, res) => {
 
     if (!schedules || schedules.length === 0) {
       return res.status(404).json({
-        message: "No schedules found for the specified month and filters.",
+        message: "No schedules found for the specified filters.",
       });
     }
 
