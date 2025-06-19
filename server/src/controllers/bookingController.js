@@ -167,14 +167,19 @@ export const getById = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const requestingUid = req.user?.uid;
+    const role = req.user?.role;
 
     const currentUser = await User.findOne({ where: { uid: requestingUid } });
     if (!currentUser) {
       return res.status(403).json({ message: "User not found" });
     }
 
+    const facilitatedBy =
+      role === "admin" ? req.body.facilitated_by : currentUser.id;
+
     const newBooking = await createBookingWithSchedules({
       ...req.body,
+      facilitated_by: facilitatedBy,
       submitted_by: currentUser.id,
     });
 

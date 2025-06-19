@@ -92,7 +92,7 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
   const result = await Booking.findAndCountAll({
     where: {
       ...filters.bookingFilters,
-      submitted_by: userId,
+      [Op.or]: [{ submitted_by: userId }, { facilitated_by: userId }],
     },
     limit: pagination.limit,
     offset: pagination.offset,
@@ -128,6 +128,11 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
       },
       {
         model: User,
+        as: "submittedBy",
+        attributes: ["id", "name", "uid"],
+      },
+      {
+        model: User,
         as: "reviewedBy",
         attributes: ["id", "name", "uid"],
       },
@@ -139,7 +144,6 @@ export const findSelfBookingsWithSchedulesAndRooms = async (
     rows: result.rows,
   };
 };
-
 export const findBookingByIdWithSchedulesAndRooms = async (id) => {
   const booking = await Booking.findByPk(id, {
     include: [
@@ -160,6 +164,21 @@ export const findBookingByIdWithSchedulesAndRooms = async (id) => {
             ],
           },
         ],
+      },
+      {
+        model: User,
+        as: "facilitatedBy",
+        attributes: ["id", "name", "uid"],
+      },
+      {
+        model: User,
+        as: "submittedBy",
+        attributes: ["id", "name", "uid"],
+      },
+      {
+        model: User,
+        as: "reviewedBy",
+        attributes: ["id", "name", "uid"],
       },
     ],
   });

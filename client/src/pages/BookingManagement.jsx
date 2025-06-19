@@ -14,6 +14,7 @@ import { TbTargetArrow } from "react-icons/tb";
 import { NavLink, useNavigate } from "react-router-dom";
 import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import GenericChip from "../components/GenericChip";
+import NoDataFound from "../components/NoDataFound";
 import Pagination from "../components/Pagination";
 import StatusChip from "../components/StatusChip";
 import formatDate from "../utils/formatDate";
@@ -54,7 +55,6 @@ function ScheduleDisplay({ booking, firstSchedule }) {
 
 function BookingManagement({
   loading,
-  error,
   bookings,
   handleRowClick,
   page,
@@ -66,9 +66,11 @@ function BookingManagement({
   return (
     <main className="page">
       <div className="page-title">
-        <h2>
-          Manage Requests <span>{total}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2>Manage Requests</h2>
+          <GenericChip label={total} />
+        </div>
+
         <p>Manage booking requests here.</p>
       </div>
 
@@ -199,6 +201,8 @@ function BookingManagement({
         </div>
       )}
 
+      {!loading && bookings && bookings.length === 0 && <NoDataFound />}
+
       <Pagination
         page={page}
         totalPages={totalPages}
@@ -206,10 +210,6 @@ function BookingManagement({
         total={total}
         handlePageChange={handlePageChange}
       />
-
-      {!loading && !error && bookings && bookings.length === 0 && (
-        <p>No booking requests found.</p>
-      )}
     </main>
   );
 }
@@ -282,7 +282,6 @@ export default function BookingManagementContainer() {
       <BookingManagement
         bookings={bookings}
         loading={loading}
-        error={error}
         handleRowClick={handleRowClick}
         page={page}
         totalPages={totalPages}

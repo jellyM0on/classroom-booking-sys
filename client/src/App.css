@@ -54,7 +54,7 @@ body.sidebar-collapsed #user-detail-page {
   display: inline-flex;
 }
 
-.page-title span {
+.page-title .span-chip {
   margin-left: 0.5rem;
   font-size: small;
   font-weight: 400;
@@ -499,10 +499,56 @@ a.add-btn {
   padding: 0.5rem;
 }
 
+.form-field label {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
 #user-detail-form .submit-btn,
 #generic-form .submit-btn,
 #generic-form .submit-btn-disabled {
   width: fit-content;
+}
+
+.generic-form-section {
+  border-left: solid 2px var(--main-color);
+  padding-left: 1rem;
+  margin-bottom: 2rem;
+}
+
+.generic-form-section-title {
+  color: var(--main-color);
+  margin-bottom: 1rem;
+}
+
+.generic-form-section-subrow {
+  display: flex;
+  gap: 5rem;
+}
+
+.form-small-field input {
+  width: 5rem;
+}
+.form-field textarea {
+  resize: none;
+  height: 4rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border-radius: 0.25rem;
+  border: solid 0.5px rgb(178, 175, 175);
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+
+.form-field input[type="date"],
+.form-field input[type="time"] {
+  font-family: inherit;
+}
+
+.repeating-days,
+.checkbox-group {
+  display: flex;
 }
 
 /* departments */
