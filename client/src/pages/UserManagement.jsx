@@ -70,36 +70,42 @@ function UserManagement({
       </div>
 
       <div className="filter-opts">
-        <p>FILTER</p>
-        <div className="flex-gap-1">
-          <select
-            onChange={(e) => setSelectedRole(e.target.value)}
-            value={selectedRole}
-          >
-            <option value="">All Roles</option>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-          </select>
+        <div className="flex-gap-1 flex-align">
+          <p>FILTER</p>
+          <div className="filter-controls">
+            <select
+              onChange={(e) => setSelectedRole(e.target.value)}
+              value={selectedRole}
+            >
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
+            </select>
 
-          <select
-            onChange={(e) => setSelectedDept(e.target.value)}
-            value={selectedDept}
-          >
-            <option value="">All Departments</option>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.code}
-              </option>
-            ))}
-          </select>
-
-          <select
-            onChange={(e) => setSortOrder(e.target.value)}
-            value={sortOrder}
-          >
-            <option value="ASC">Sort ASC</option>
-            <option value="DESC">Sort DESC</option>
-          </select>
+            <select
+              onChange={(e) => setSelectedDept(e.target.value)}
+              value={selectedDept}
+            >
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.code}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex-gap-1 flex-align">
+          <p>SORT</p>
+          <div className="filter-controls">
+            <select
+              onChange={(e) => setSortOrder(e.target.value)}
+              value={sortOrder}
+            >
+              <option value="ASC">ASC</option>
+              <option value="DESC">DESC</option>
+            </select>
+          </div>
         </div>
       </div>
 
