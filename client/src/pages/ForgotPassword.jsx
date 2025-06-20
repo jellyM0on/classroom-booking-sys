@@ -30,16 +30,41 @@ export default function ForgotPassword() {
 
   const handleReset = async (e) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
     setLoading(true);
+    setMessage(null);
+    setError(null);
+
+    if (!email) {
+      setError("Please enter your email.");
+      setLoading(false);
+      return;
+    }
+
     try {
+      const res = await fetch("http://localhost:3000/api/auth/check-user-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          setError("No account found with that email.");
+        } else {
+          setError("Something went wrong. Please try again.");
+        }
+        setLoading(false);
+        return;
+      }
+
       await sendPasswordResetEmail(auth, email);
       setMessage("Password reset email sent.");
     } catch (err) {
-      setError(`${err.message}`);
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
