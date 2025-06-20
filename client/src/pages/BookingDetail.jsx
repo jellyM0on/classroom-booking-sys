@@ -526,7 +526,13 @@ function BookingDetail({
 
           {!loading && booking && editMode ? (
             <>
-              <button className="submit-btn" type="submit">
+              <button
+                className="submit-btn"
+                onClick={async (e) => {
+                  await handleSubmit(e);
+                  window.location.reload();
+                }}
+              >
                 Save Changes
               </button>
               <button
@@ -540,7 +546,7 @@ function BookingDetail({
           ) : (
             !editMode &&
             booking.status == "draft" &&
-            isSubmitter && (
+            currentUid === booking.submittedBy?.uid && (
               <div className="flex-gap-1">
                 <button
                   className="submit-btn"
