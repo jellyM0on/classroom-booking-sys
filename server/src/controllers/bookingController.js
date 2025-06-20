@@ -24,6 +24,8 @@ export const getAll = async (req, res) => {
       facilitated_by,
       date,
       room_id,
+      search,
+      sort = "desc",
     } = req.query;
 
     const pagination = {
@@ -61,22 +63,18 @@ export const getAll = async (req, res) => {
         scheduleFilters,
         userFilters,
         currentUserId: currentUser.id,
+        search,
+        sort,
       },
       pagination
     );
 
-    if (!result || result.rows.length === 0) {
-      return res.status(404).json({ message: "No bookings found" });
-    }
-
-    const actualCount = result.rows.length;
-
     return res.status(200).json({
       data: result.rows,
-      total: actualCount,
+      total: result.count,
       page: parseInt(page),
       pageSize: parseInt(limit),
-      totalPages: Math.ceil(actualCount / pagination.limit),
+      totalPages: Math.ceil(result.count / pagination.limit),
     });
   } catch (error) {
     console.error("Error fetching bookings:", error);
@@ -95,15 +93,22 @@ export const getAllSelf = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: Missing UID" });
     }
 
-    const user = await User.findOne({
-      where: { uid: requestingUid },
-    });
+    const user = await User.findOne({ where: { uid: requestingUid } });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { page = 1, limit = 10, status, urgency, date, room_id } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      urgency,
+      date,
+      room_id,
+      search,
+      sort = "desc",
+    } = req.query;
 
     const pagination = {
       limit: parseInt(limit),
@@ -120,20 +125,16 @@ export const getAllSelf = async (req, res) => {
 
     const result = await findSelfBookingsWithSchedulesAndRooms(
       user.id,
-      { bookingFilters, scheduleFilters },
+      { bookingFilters, scheduleFilters, search, sort },
       pagination
     );
-
-    if (!result || result.rows.length === 0) {
-      return res.status(404).json({ message: "No bookings found" });
-    }
 
     return res.status(200).json({
       data: result.rows,
       total: result.count,
       page: parseInt(page),
       pageSize: parseInt(limit),
-      totalPages: Math.ceil(result.count / limit),
+      totalPages: Math.ceil(result.count / pagination.limit),
     });
   } catch (error) {
     console.error("Error fetching user’s bookings:", error);
@@ -167,14 +168,19 @@ export const getById = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const requestingUid = req.user?.uid;
+    const role = req.user?.role;
 
     const currentUser = await User.findOne({ where: { uid: requestingUid } });
     if (!currentUser) {
       return res.status(403).json({ message: "User not found" });
     }
 
+    const facilitatedBy =
+      role === "admin" ? req.body.facilitated_by : currentUser.id;
+
     const newBooking = await createBookingWithSchedules({
       ...req.body,
+      facilitated_by: facilitatedBy,
       submitted_by: currentUser.id,
     });
 

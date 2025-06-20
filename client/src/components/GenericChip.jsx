@@ -9,6 +9,7 @@ export default function GenericChip({ label, size = "default" }) {
   return (
     <div
       style={{
+        display: "inline-flex",
         width: "fit-content",
         alignItems: "center",
         padding: isSmall ? "1px 6px" : "2px 8px",

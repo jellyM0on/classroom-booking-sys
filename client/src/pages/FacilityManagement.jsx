@@ -8,8 +8,10 @@ import {
 } from "react-icons/fa";
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
-import Pagination from "../components/Pagination";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Pagination from "../components/Pagination";
+import formatDate from "../utils/formatDate";
 
 function FacilityManagement({
   loading,
@@ -21,20 +23,36 @@ function FacilityManagement({
   pageSize,
   total,
   handlePageChange,
+  searchTerm,
+  setSearchTerm,
+  sortOrder,
+  setSortOrder,
 }) {
   return (
     <main className="page">
       <div className="page-title">
-        <h2>
-          Manage Facilities <span>{total}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2> Manage Facilities</h2>
+          <GenericChip label={total} />
+        </div>
+
         <p>Manage facilities here.</p>
       </div>
 
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
-          <input type="text" placeholder="Search" />
+          <input
+            type="text"
+            placeholder="Search Name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handlePageChange(1);
+              }
+            }}
+          />
         </div>
         <div className="flex-gap-1">
           <NavLink to="/facilities/add" className="add-btn">
@@ -45,8 +63,16 @@ function FacilityManagement({
       </div>
 
       <div className="filter-opts">
-        <p>FILTER</p>
-        <div></div>
+        <p>SORT</p>
+        <div className="filter-controls">
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="ASC">ASC</option>
+            <option value="DESC">DESC</option>
+          </select>
+        </div>
       </div>
 
       {loading && <LoadingSpinner />}
@@ -98,12 +124,14 @@ function FacilityManagement({
                   style={{ cursor: "pointer" }}
                 >
                   <td>{building.id}</td>
-                  <td>{building.code}</td>
+                  <td>
+                    <GenericChip label={building.code} />
+                  </td>
                   <td>{building.name}</td>
                   <td>{building.address}</td>
                   <td>{building.total_floors}</td>
-                  <td>{new Date(building.createdAt).toLocaleString()}</td>
-                  <td>{new Date(building.updatedAt).toLocaleString()}</td>
+                  <td>{formatDate(building.createdAt)}</td>
+                  <td>{formatDate(building.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
@@ -133,6 +161,8 @@ export default function FacilityManagementContainer() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("ASC");
   const pageSize = 10;
   const navigate = useNavigate();
 
@@ -141,8 +171,16 @@ export default function FacilityManagementContainer() {
 
     try {
       setLoading(true);
+
+      const queryParams = new URLSearchParams({
+        page: pageNumber,
+        limit: pageSize,
+        search: searchTerm,
+        sort: sortOrder, // include sort order
+      });
+
       const response = await fetch(
-        `http://localhost:3000/api/buildings/admin?page=${pageNumber}&limit=${pageSize}`,
+        `http://localhost:3000/api/buildings/admin?${queryParams.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -169,7 +207,13 @@ export default function FacilityManagementContainer() {
 
   useEffect(() => {
     fetchFacilities(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  useEffect(() => {
+    fetchFacilities(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, sortOrder]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -191,6 +235,10 @@ export default function FacilityManagementContainer() {
       pageSize={pageSize}
       total={total}
       handlePageChange={handlePageChange}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      sortOrder={sortOrder}
+      setSortOrder={setSortOrder}
     />
   );
 }

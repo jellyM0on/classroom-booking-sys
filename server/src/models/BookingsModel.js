@@ -47,6 +47,10 @@ const Booking = sequelize.define(
       validate: {
         notNull: { msg: "Purpose is required" },
         notEmpty: { msg: "Purpose cannot be empty" },
+        len: {
+          args: [1, 50],
+          msg: "Purpose must be between 1 and 50 characters long",
+        },
       },
     },
     notes: {

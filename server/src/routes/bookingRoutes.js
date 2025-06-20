@@ -10,6 +10,7 @@ import {
   updateStatus,
   updateToPending,
 } from "../controllers/bookingController.js";
+import verifyFacilitatedBooking from "../middlewares/bookingMiddlewares/verifyFacilitatedBooking.js";
 import verifySelfBooking from "../middlewares/bookingMiddlewares/verifySelfBooking.js";
 import verifyBookingStatus from "../middlewares/bookingMiddlewares/verifyStatus.js";
 import verifyBookingStatusUnlessSelf from "../middlewares/bookingMiddlewares/verifyStatusUnlessSelf.js";
@@ -18,7 +19,7 @@ import verifyToken from "../middlewares/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/:id", verifyToken, verifySelfBooking, getById);
+router.get("/:id", verifyToken, verifyFacilitatedBooking, getById);
 router.get("/", verifyToken, getAllSelf);
 
 router.post("/", verifyToken, create);

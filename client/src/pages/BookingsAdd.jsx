@@ -8,6 +8,11 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { MdDescription, MdOutlinePriorityHigh } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
+import LoadingSpinner from "../components/LoadingSpinner";
+
+const isAdmin = sessionStorage.getItem("role") === "admin";
 
 function BookingsAdd({
   buildings,
@@ -16,7 +21,6 @@ function BookingsAdd({
   formData,
   fieldErrors,
   loading,
-  submitError,
   submitSuccess,
   handleChange,
   handleSubmit,
@@ -31,9 +35,9 @@ function BookingsAdd({
 
   return (
     <main className="page">
-      {loading && <p>Loading...</p>}
+      {loading && <LoadingSpinner />}
       <NavLink to="/bookings" className="transparent-btn back-btn">
-        <IoIosArrowBack /> Go to Bookings
+        <IoIosArrowBack /> Go to Requests
       </NavLink>
 
       <div className="page-title">
@@ -42,308 +46,370 @@ function BookingsAdd({
       </div>
 
       <form onSubmit={handleSubmit} id="generic-form">
-        <div className="form-fields">
-          <div
-            className={`form-field ${
-              fieldErrors.number_of_occupants ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <FaUsers /> Number of Occupants
-            </label>
-            <input
-              type="number"
-              name="number_of_occupants"
-              value={formData.number_of_occupants || ""}
-              onChange={handleChange}
-              required
-              min={1}
-            />
-          </div>
-
-          <div
-            className={`form-field ${fieldErrors.purpose ? "error-field" : ""}`}
-          >
-            <label>
-              <FaInfoCircle /> Purpose
-            </label>
-            <input
-              type="text"
-              name="purpose"
-              value={formData.purpose || ""}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-field">
-            <label>
-              <MdDescription /> Notes (optional)
-            </label>
-            <textarea
-              name="notes"
-              value={formData.notes || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div
-            className={`form-field ${fieldErrors.urgency ? "error-field" : ""}`}
-          >
-            <label>
-              <MdOutlinePriorityHigh /> Urgency
-            </label>
-            <select
-              name="urgency"
-              value={formData.urgency || ""}
-              onChange={handleChange}
-              required
+        <div className="generic-form-section">
+          <h3 className="generic-form-section-title">Details</h3>
+          <div className="form-fields">
+            <div
+              className={`form-field ${
+                fieldErrors.purpose ? "error-field" : ""
+              }`}
             >
-              <option value="">Select urgency</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
-            </select>
-          </div>
-
-          <div className="form-field">
-            <label>Facilitated By</label>
-            <select
-              name="facilitated_by"
-              value={formData.facilitated_by || ""}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select user</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} ({user.email})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-field">
-            <label>
-              <FaBuilding /> Building
-            </label>
-            <select
-              name="building_id"
-              value={formData.building_id || ""}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select building</option>
-              {buildings.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.code} - {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-field">
-            <label>Room Types (select all that apply)</label>
-            <div className="checkbox-group">
-              {["classroom", "science_lab", "computer_lab", "specialty"].map(
-                (type) => (
-                  <label key={type}>
-                    <input
-                      type="checkbox"
-                      name="room_types"
-                      value={type}
-                      checked={(formData.room_types || []).includes(type)}
-                      onChange={handleChange}
-                    />{" "}
-                    {type
-                      .replace("_", " ")
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </label>
-                )
+              <label>
+                <FaInfoCircle /> Purpose
+              </label>
+              <input
+                type="text"
+                name="purpose"
+                value={formData.purpose || ""}
+                onChange={handleChange}
+                required
+              />
+              {fieldErrors.purpose && (
+                <p className="error-msg">{fieldErrors.purpose}</p>
               )}
             </div>
-          </div>
 
-          <div className="form-field">
-            <label>
-              <FaCalendarAlt /> Schedule Type
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="schedule_type"
-                value="once"
-                checked={scheduleType === "once"}
-                onChange={() => {
-                  setScheduleType("once");
-                  handleChange({
-                    target: { name: "schedule_type", value: "once" },
-                  });
-                }}
-              />{" "}
-              Once
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="schedule_type"
-                value="repeating"
-                checked={scheduleType === "repeating"}
-                onChange={() => {
-                  setScheduleType("repeating");
-                  handleChange({
-                    target: { name: "schedule_type", value: "repeating" },
-                  });
-                }}
-              />{" "}
-              Repeating
-            </label>
-          </div>
+            <div className="generic-form-section-subrow">
+              {isAdmin && (
+                <div className="form-field">
+                  <label>Facilitated By</label>
+                  <select
+                    name="facilitated_by"
+                    value={formData.facilitated_by || ""}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select User</option>
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.facilitated_by && (
+                    <p className="error-msg">{fieldErrors.facilitated_by}</p>
+                  )}
+                </div>
+              )}
 
-          {scheduleType === "once" ? (
-            <>
-              <div className="form-field">
-                <label>Date</label>
+              <div
+                className={`form-small-field form-field ${
+                  fieldErrors.number_of_occupants ? "error-field" : ""
+                }`}
+              >
+                <label>
+                  <FaUsers /> Number of Occupants
+                </label>
                 <input
-                  type="date"
-                  name="date"
-                  value={formData.date || ""}
-                  onChange={handleChange}
-                  min={today}
-                  required
-                />
-              </div>
-              <div className="form-field">
-                <label>Start Time</label>
-                <input
-                  type="time"
-                  name="start_time"
-                  value={formData.start_time || ""}
+                  type="number"
+                  name="number_of_occupants"
+                  value={formData.number_of_occupants || ""}
                   onChange={handleChange}
                   required
+                  min={1}
                 />
+                {fieldErrors.number_of_occupants && (
+                  <p className="error-msg">{fieldErrors.number_of_occupants}</p>
+                )}
               </div>
-              <div className="form-field">
-                <label>End Time</label>
-                <input
-                  type="time"
-                  name="end_time"
-                  value={formData.end_time || ""}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="form-field">
-                <label>Start Date</label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={formData.start_date || ""}
-                  onChange={handleChange}
-                  min={today}
-                  required
-                />
-              </div>
-              <div className="form-field">
-                <label>End Date</label>
-                <input
-                  type="date"
-                  name="end_date"
-                  value={formData.end_date || ""}
-                  onChange={handleChange}
-                  min={formData.start_date || today}
-                  required
-                />
-              </div>
-              <div className="form-field">
-                <label>Start Time</label>
-                <input
-                  type="time"
-                  name="start_time"
-                  value={formData.start_time || ""}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-field">
-                <label>End Time</label>
-                <input
-                  type="time"
-                  name="end_time"
-                  value={formData.end_time || ""}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-field">
-                <label>Interval Type</label>
+
+              <div
+                className={`form-small-field form-field ${
+                  fieldErrors.urgency ? "error-field" : ""
+                }`}
+              >
+                <label>
+                  <MdOutlinePriorityHigh /> Urgency
+                </label>
                 <select
-                  name="interval_type"
-                  value={formData.interval_type || ""}
+                  name="urgency"
+                  value={formData.urgency || ""}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select interval</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Every Week</option>
-                  <option value="biweekly">Every Other Week</option>
+                  <option value="">Select Urgency</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
                 </select>
+                {fieldErrors.urgency && (
+                  <p className="error-msg">{fieldErrors.urgency}</p>
+                )}
               </div>
-              {(formData.interval_type === "weekly" ||
-                formData.interval_type === "biweekly") && (
+            </div>
+
+            <div className="form-field">
+              <label>
+                <MdDescription /> Notes (Optional)
+              </label>
+              <textarea
+                name="notes"
+                value={formData.notes || ""}
+                onChange={handleChange}
+              />
+              {fieldErrors.notes && (
+                <p className="error-msg">{fieldErrors.notes}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="generic-form-section">
+          <h3 className="generic-form-section-title">Schedule</h3>
+          <div className="form-fields">
+            <div className="form-field">
+              <label>
+                <FaCalendarAlt /> Schedule Type
+              </label>
+              <div className="flex-gap-1">
+                <label>
+                  <input
+                    type="radio"
+                    name="schedule_type"
+                    value="once"
+                    checked={scheduleType === "once"}
+                    onChange={() => {
+                      setScheduleType("once");
+                      handleChange({
+                        target: { name: "schedule_type", value: "once" },
+                      });
+                    }}
+                  />{" "}
+                  Once
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="schedule_type"
+                    value="repeating"
+                    checked={scheduleType === "repeating"}
+                    onChange={() => {
+                      setScheduleType("repeating");
+                      handleChange({
+                        target: { name: "schedule_type", value: "repeating" },
+                      });
+                    }}
+                  />{" "}
+                  Repeating
+                </label>
+              </div>
+            </div>
+
+            {scheduleType === "once" ? (
+              <div className="generic-form-section-subrow">
                 <div className="form-field">
-                  <label>Repeating Days</label>
-                  <div className="repeating-days">
-                    {["M", "T", "W", "TH", "F", "S"].map((day) => (
-                      <label key={day}>
-                        <input
-                          type="checkbox"
-                          name="repeating_days"
-                          value={day}
-                          checked={(formData.repeating_days || []).includes(
-                            day
-                          )}
-                          onChange={handleChange}
-                        />{" "}
-                        {day}
-                      </label>
-                    ))}
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date || ""}
+                    onChange={handleChange}
+                    min={today}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Start Time</label>
+                  <input
+                    type="time"
+                    name="start_time"
+                    value={formData.start_time || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label>End Time</label>
+                  <input
+                    type="time"
+                    name="end_time"
+                    value={formData.end_time || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="generic-form-section-subrow">
+                  <div className="form-field">
+                    <label>Start Date</label>
+                    <input
+                      type="date"
+                      name="start_date"
+                      value={formData.start_date || ""}
+                      onChange={handleChange}
+                      min={today}
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>End Date</label>
+                    <input
+                      type="date"
+                      name="end_date"
+                      value={formData.end_date || ""}
+                      onChange={handleChange}
+                      min={formData.start_date || today}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label>Start Time</label>
+                    <input
+                      type="time"
+                      name="start_time"
+                      value={formData.start_time || ""}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>End Time</label>
+                    <input
+                      type="time"
+                      name="end_time"
+                      value={formData.end_time || ""}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                 </div>
-              )}
-            </>
-          )}
+                <div className="generic-form-section-subrow">
+                  <div className="form-field">
+                    <label>Interval Type</label>
+                    <select
+                      name="interval_type"
+                      value={formData.interval_type || ""}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Interval</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Every Week</option>
+                      <option value="biweekly">Every Other Week</option>
+                    </select>
+                  </div>
 
-          <div className="form-field">
-            <label>Room</label>
-            {getRoomsError && <p className="error-msg">{getRoomsError}</p>}
-            {roomsLoading ? (
-              <p>Loading rooms...</p>
-            ) : (
+                  {(formData.interval_type === "weekly" ||
+                    formData.interval_type === "biweekly") && (
+                    <div className="form-field">
+                      <label>Repeating Days</label>
+                      <div className="repeating-days">
+                        {["M", "T", "W", "TH", "F", "S"].map((day) => (
+                          <label key={day}>
+                            <input
+                              type="checkbox"
+                              name="repeating_days"
+                              value={day}
+                              checked={(formData.repeating_days || []).includes(
+                                day
+                              )}
+                              onChange={handleChange}
+                            />{" "}
+                            {day}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="generic-form-section">
+          <h3 className="generic-form-section-title">Location</h3>
+          <div className="form-fields">
+            <div className="form-field">
+              <label>
+                <FaBuilding /> Building
+              </label>
+              <select
+                name="building_id"
+                value={formData.building_id || ""}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select building</option>
+                {buildings.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.code} - {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="generic-form-section-subrow">
+            <div className="form-field">
+              <label>Room Types (select all that apply)</label>
+              <div className="checkbox-group">
+                {["classroom", "science_lab", "computer_lab", "specialty"].map(
+                  (type) => (
+                    <label key={type}>
+                      <input
+                        type="checkbox"
+                        name="room_types"
+                        value={type}
+                        checked={(formData.room_types || []).includes(type)}
+                        onChange={handleChange}
+                      />{" "}
+                      {type
+                        .replace("_", " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </label>
+                  )
+                )}
+              </div>
+            </div>
+            <div className="form-field">
+              <label>Room</label>
+              {getRoomsError && <p className="error-msg">{getRoomsError}</p>}
               <select
                 name="room_id"
                 value={formData.room_id || ""}
                 onChange={handleChange}
                 disabled={!requiredFieldsFilled() || roomsLoading}
               >
-                <option value="">Select available room</option>
-                {availableRooms.map((room) => (
-                  <option key={room.id} value={room.id}>
-                    Room {room.number} ({room.type.replace("_", " ")})
-                  </option>
-                ))}
+                {roomsLoading ? (
+                  <option>Loading rooms...</option>
+                ) : (
+                  <>
+                    <option value="">Select available room</option>
+                    {availableRooms.map((room) => (
+                      <option key={room.id} value={room.id}>
+                        Room {room.number} ({room.type.replace("_", " ")})
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
-            )}
+            </div>
           </div>
+          {formData.room_id &&
+            availableRooms.length > 0 &&
+            (() => {
+              const selectedRoom = availableRooms.find(
+                (room) => room.id == formData.room_id
+              );
+              return (
+                selectedRoom?.instructions && (
+                  <div className="form-field">
+                    <label>Room Instructions</label>
+                    <p className="room-instructions">
+                      {selectedRoom.instructions}
+                    </p>
+                  </div>
+                )
+              );
+            })()}
         </div>
 
-        {submitError && <p className="error-msg">{submitError}</p>}
         {submitSuccess && (
-          <p className="success-msg">Request submitted successfully!</p>
+          <FloatingSuccessMessage message="Submitted successfully!" />
         )}
 
         <button
@@ -366,15 +432,16 @@ export default function BookingsAddContainer() {
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [buildings, setBuildings] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [getRoomsError, setGetRoomsError] = useState(null);
   const [roomsLoading, setRoomsLoading] = useState(false);
   const [users, setUsers] = useState([]);
+  const [error, setError] = useState({ message: "", timestamp: null });
 
   useEffect(() => {
+    if (!isAdmin) return;
     fetchUsers();
   }, []);
 
@@ -392,6 +459,7 @@ export default function BookingsAddContainer() {
       setUsers(data.data || []);
     } catch (err) {
       console.error("Error fetching users:", err);
+      setError({ message: "Failed to fetch users", timestamp: Date.now() });
     }
   };
 
@@ -409,6 +477,7 @@ export default function BookingsAddContainer() {
   }, [formData]);
 
   const fetchBuildings = async () => {
+    setError({ message: "", timestamp: null });
     const token = sessionStorage.getItem("token");
     try {
       const res = await fetch("http://localhost:3000/api/buildings/admin", {
@@ -422,6 +491,7 @@ export default function BookingsAddContainer() {
       setBuildings(payload.data || []);
     } catch (err) {
       console.error(err);
+      setError({ message: "Failed to fetch buildings", timestamp: Date.now() });
     }
   };
 
@@ -451,7 +521,7 @@ export default function BookingsAddContainer() {
     e.preventDefault();
     setLoading(true);
     setFieldErrors({});
-    setSubmitError(null);
+    setError({ message: "", timestamp: null });
     setSubmitSuccess(false);
 
     const token = sessionStorage.getItem("token");
@@ -512,8 +582,15 @@ export default function BookingsAddContainer() {
             formatted[err.path] = err.message;
           }
           setFieldErrors(formatted);
+          setError({
+            message: data?.message || "Submission failed",
+            timestamp: Date.now(),
+          });
         } else {
-          setSubmitError(data?.message || "Submission failed");
+          setError({
+            message: data?.message || "Submission failed",
+            timestamp: Date.now(),
+          });
         }
         return;
       }
@@ -521,7 +598,10 @@ export default function BookingsAddContainer() {
       setSubmitSuccess(true);
       setFormData({ schedule_type: "once" });
     } catch (err) {
-      setSubmitError(err.message || "Unexpected error");
+      setError({
+        message: err?.message || "Submission failed",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -573,6 +653,7 @@ export default function BookingsAddContainer() {
 
   const getAvailableRooms = async () => {
     setRoomsLoading(true);
+    setError({ message: "", timestamp: null });
     setGetRoomsError(null);
     setAvailableRooms([]);
 
@@ -616,6 +697,10 @@ export default function BookingsAddContainer() {
     } catch (err) {
       console.error(err);
       setGetRoomsError("Error fetching rooms. Please try again.");
+      setError({
+        message: "Failed to fetch available rooms",
+        timestamp: Date.now(),
+      });
     } finally {
       setRoomsLoading(false);
     }
@@ -664,20 +749,24 @@ export default function BookingsAddContainer() {
   };
 
   return (
-    <BookingsAdd
-      formData={formData}
-      fieldErrors={fieldErrors}
-      loading={loading}
-      submitError={submitError}
-      submitSuccess={submitSuccess}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      buildings={buildings}
-      availableRooms={availableRooms}
-      getRoomsError={getRoomsError}
-      roomsLoading={roomsLoading}
-      requiredFieldsFilled={requiredFieldsFilled}
-      users={users}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+      <BookingsAdd
+        formData={formData}
+        fieldErrors={fieldErrors}
+        loading={loading}
+        submitSuccess={submitSuccess}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        buildings={buildings}
+        availableRooms={availableRooms}
+        getRoomsError={getRoomsError}
+        roomsLoading={roomsLoading}
+        requiredFieldsFilled={requiredFieldsFilled}
+        users={users}
+      />
+    </>
   );
 }

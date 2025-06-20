@@ -129,7 +129,7 @@ a.transparent-btn {
 .form-fields {
   flex-direction: column;
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -167,6 +167,7 @@ a.transparent-btn {
 /* form errors */
 .error-msg {
   color: rgb(169, 49, 49);
+  font-size: small;
 }
 
 .error-field input {
@@ -177,6 +178,7 @@ a.transparent-btn {
 }
 /* pagination */
 .pagination-container {
+  margin-top: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -243,4 +245,15 @@ a.transparent-btn {
 .small-text {
   font-size: smaller;
   color: var(--sub-grey);
+}
+
+input:disabled {
+  color: var(--main-color);
+}
+
+select:disabled {
+  background-color: #f5f5f5;
+  color: var(--main-color);
+  border: 1px solid #ccc;
+  opacity: 1;
 }

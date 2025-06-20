@@ -9,8 +9,10 @@ import {
 import { MdNumbers, MdOutlineAlternateEmail } from "react-icons/md";
 import { RiUserAddFill } from "react-icons/ri";
 import { NavLink, useNavigate } from "react-router-dom";
-import Pagination from "../components/Pagination";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Pagination from "../components/Pagination";
+import formatDate from "../utils/formatDate";
 
 // added filter/sort to accept props
 function UserManagement({
@@ -31,27 +33,27 @@ function UserManagement({
   sortOrder,
   setSortOrder,
   searchText,
-  setSearchText
+  setSearchText,
 }) {
-
   return (
     <main className="page">
       <div className="page-title">
-        <h2>
-          Manage Users <span>{total}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2> Manage Users</h2>
+          <GenericChip label={total} />
+        </div>
+
         <p>Manage admin and staff users here.</p>
       </div>
-
 
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
-          <input 
-            type="text" 
-            placeholder="Search"
+          <input
+            type="text"
+            placeholder="Search Name..."
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)} 
+            onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
         <div className="flex-gap-1">
@@ -68,27 +70,42 @@ function UserManagement({
       </div>
 
       <div className="filter-opts">
-        <p>FILTER</p>
-        <div className="flex-gap-1">
-          <select onChange={(e) => setSelectedRole(e.target.value)} value={selectedRole}>
-            <option value="">All Roles</option>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-          </select>
+        <div className="flex-gap-1 flex-align">
+          <p>FILTER</p>
+          <div className="filter-controls">
+            <select
+              onChange={(e) => setSelectedRole(e.target.value)}
+              value={selectedRole}
+            >
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
+            </select>
 
-          <select onChange={(e) => setSelectedDept(e.target.value)} value={selectedDept}>
-            <option value="">All Departments</option>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>
-              {d.code}
-            </option>
-            ))}
-          </select>
-
-          <select onChange={(e) => setSortOrder(e.target.value)} value={sortOrder}>
-            <option value="ASC">Sort ASC</option>
-            <option value="DESC">Sort DESC</option>
-          </select>
+            <select
+              onChange={(e) => setSelectedDept(e.target.value)}
+              value={selectedDept}
+            >
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.code}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex-gap-1 flex-align">
+          <p>SORT</p>
+          <div className="filter-controls">
+            <select
+              onChange={(e) => setSortOrder(e.target.value)}
+              value={sortOrder}
+            >
+              <option value="ASC">ASC</option>
+              <option value="DESC">DESC</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -143,10 +160,16 @@ function UserManagement({
                   <td>{user.id}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>{user.department?.code || "—"}</td>
-                  <td>{user.createdAt}</td>
-                  <td>{user.updatedAt}</td>
+                  <td>
+                    <GenericChip label={user.role} />
+                  </td>
+                  <td>
+                    {" "}
+                    <GenericChip label={user.department.code} />{" "}
+                    <GenericChip label={user.department.name} />
+                  </td>
+                  <td> {formatDate(new Date(user.createdAt))}</td>
+                  <td> {formatDate(new Date(user.updatedAt))}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,7 +178,9 @@ function UserManagement({
       )}
 
       {!loading && users.length === 0 && (
-        <p style={{ textAlign: "center", fontWeight: "bold", marginTop: "1rem" }}>
+        <p
+          style={{ textAlign: "center", fontWeight: "bold", marginTop: "1rem" }}
+        >
           No users found.
         </p>
       )}
@@ -207,8 +232,8 @@ export default function UserManagementContainer() {
     try {
       setUsers([]); // clear the table before loading new data
       setLoading(true);
-        const response = await fetch(
-          `http://localhost:3000/api/users/admin?${queryParams.toString()}`, // to make table updated w filter/sort search
+      const response = await fetch(
+        `http://localhost:3000/api/users/admin?${queryParams.toString()}`, // to make table updated w filter/sort search
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -234,13 +259,13 @@ export default function UserManagementContainer() {
   };
 
   const fetchDepartments = async () => {
-  const token = sessionStorage.getItem("token");
-  const res = await fetch("http://localhost:3000/api/departments/admin", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const data = await res.json();
-  setDepartments(data.data || []);
-};
+    const token = sessionStorage.getItem("token");
+    const res = await fetch("http://localhost:3000/api/departments/admin", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setDepartments(data.data || []);
+  };
 
   // Fetch depts on mount
   useEffect(() => {
@@ -253,6 +278,7 @@ export default function UserManagementContainer() {
       fetchUsers(1); // force reload from page 1
     }, 300);
     return () => clearTimeout(delay);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRole, selectedDept, sortOrder, searchText]);
 
   // When user manually changes pages (pagination)
@@ -262,8 +288,8 @@ export default function UserManagementContainer() {
     } else {
       fetchUsers(page);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, totalPages]);
-
 
   const handlePageChange = (newPage) => {
     setPage(newPage);

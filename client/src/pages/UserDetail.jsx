@@ -3,7 +3,9 @@ import { FaBuilding, FaUser, FaUserTag } from "react-icons/fa6";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
+import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import formatDate from "../utils/formatDate";
 
 function UserDetail({
   user,
@@ -24,13 +26,15 @@ function UserDetail({
     <main class="page">
       <NavLink to="/users" className="transparent-btn back-btn">
         <IoIosArrowBack />
-        Back to Manage Users
+        Go to Manage Users
       </NavLink>
 
       <div className="page-title">
-        <h2>
-          User Detail <span>ID: {user.id}</span>
-        </h2>
+        <div className="flex-gap-1">
+          <h2> User Detail </h2>
+          <GenericChip label={`ID: ${user.id}`} />
+        </div>
+
         <p>Manage user details here.</p>
       </div>
 
@@ -147,12 +151,12 @@ function UserDetail({
 
           <div className="form-field user-form-field">
             <label>Created At</label>
-            <div className="readonly-field">{user.createdAt}</div>
+            <div className="readonly-field">{formatDate(user.createdAt)}</div>
           </div>
 
           <div className="form-field user-form-field">
             <label>Updated At</label>
-            <div className="readonly-field">{user.updatedAt}</div>
+            <div className="readonly-field">{formatDate(user.updatedAt)}</div>
           </div>
         </div>
 

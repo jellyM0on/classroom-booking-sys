@@ -17,7 +17,8 @@ export const useAuthToken = (setLoading) => {
             user.reloadUserInfo?.customAttributes
           );
           const role = customAttributes.role;
-          sessionStorage.setItem("email", user.email); 
+          sessionStorage.setItem("uid", user.uid);
+          sessionStorage.setItem("email", user.email);
           sessionStorage.setItem("role", role);
           sessionStorage.setItem("token", newToken);
           console.log(newToken);
