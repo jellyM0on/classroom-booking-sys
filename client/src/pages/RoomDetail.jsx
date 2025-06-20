@@ -8,6 +8,9 @@ import NoDataFound from "../components/NoDataFound";
 import formatDate from "../utils/formatDate";
 import formatTime from "../utils/formatTime";
 
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
+
 function RoomDetail({
   room,
   loading,
@@ -289,7 +292,8 @@ export default function RoomDetailContainer() {
   const [initialData, setInitialData] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
   const [editMode, setEditMode] = useState(false);
   const [buildings, setBuildings] = useState([]);
 
@@ -321,7 +325,10 @@ export default function RoomDetailContainer() {
       setFormData(initial);
       setInitialData(initial);
     } catch (err) {
-      setError(err.message || "Error fetching room");
+      setError({
+        message: err.message || "Error fetching room",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -343,7 +350,10 @@ export default function RoomDetailContainer() {
       const payload = await res.json();
       setBuildings(payload.data || []);
     } catch (err) {
-      console.error(err);
+      setError({
+        message: err.message || "Error fetching room",
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -369,7 +379,8 @@ export default function RoomDetailContainer() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = sessionStorage.getItem("token");
-
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
     try {
       const res = await fetch(`http://localhost:3000/api/rooms/admin/${id}`, {
         method: "PUT",
@@ -388,9 +399,16 @@ export default function RoomDetailContainer() {
           for (const err of data.errors) {
             formatted[err.path] = err.message;
           }
+          setError({
+            message: "Update failed",
+            timestamp: Date.now(),
+          });
           setFieldErrors(formatted);
         } else {
-          setError(data?.message || "Update failed");
+          setError({
+            message: data?.message || "Update failed",
+            timestamp: Date.now(),
+          });
         }
         return;
       }
@@ -399,23 +417,41 @@ export default function RoomDetailContainer() {
       setEditMode(false);
       setFieldErrors({});
       setInitialData({ ...formData });
+      setSuccess({
+        message: "Room updated successfully!",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      setError(err.message || "Update error");
+      setError({
+        message: err.message || "Update error",
+        timestamp: Date.now(),
+      });
     }
   };
 
   return (
-    <RoomDetail
-      room={room}
-      loading={loading}
-      error={error}
-      editMode={editMode}
-      formData={formData}
-      fieldErrors={fieldErrors}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleToggleEdit={handleToggleEdit}
-      buildings={buildings}
-    />
+    <>
+      {error?.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      {success?.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+      <RoomDetail
+        room={room}
+        loading={loading}
+        editMode={editMode}
+        formData={formData}
+        fieldErrors={fieldErrors}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleToggleEdit={handleToggleEdit}
+        buildings={buildings}
+      />
+    </>
   );
 }

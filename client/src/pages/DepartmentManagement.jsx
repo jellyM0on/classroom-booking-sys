@@ -3,6 +3,8 @@ import { FaBuilding, FaCode } from "react-icons/fa6";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdEdit, MdNumbers } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
 import GenericChip from "../components/GenericChip";
 import NoDataFound from "../components/NoDataFound";
 
@@ -213,6 +215,9 @@ export default function DepartmentsContainer() {
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({ code: "", name: "" });
 
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
+
   const fetchDepartments = async () => {
     const token = sessionStorage.getItem("token");
 
@@ -221,12 +226,17 @@ export default function DepartmentsContainer() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) throw new Error("Failed to fetch departments");
+      if (!res.ok) {
+        throw new Error("Failed to fetch departments");
+      }
 
       const payload = await res.json();
       setDepartments(payload.data || []);
     } catch (err) {
-      console.error(err);
+      setError({
+        message: err.message || "Error loading departments",
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -260,6 +270,8 @@ export default function DepartmentsContainer() {
     const token = sessionStorage.getItem("token");
     setLoading(true);
     setEditFieldErrors({});
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
 
     try {
       const res = await fetch(
@@ -284,13 +296,24 @@ export default function DepartmentsContainer() {
           }
           setEditFieldErrors(formatted);
         }
+        setError({
+          message: data?.message || "Failed to update department",
+          timestamp: Date.now(),
+        });
         return;
       }
 
+      setSuccess({
+        message: "Department updated successfully",
+        timestamp: Date.now(),
+      });
       setEditingId(null);
       await fetchDepartments();
     } catch (err) {
-      console.error("Update error:", err);
+      setError({
+        message: err.message || "Update failed",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -300,6 +323,8 @@ export default function DepartmentsContainer() {
     e.preventDefault();
     setLoading(true);
     setFieldErrors({});
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
 
     const token = sessionStorage.getItem("token");
 
@@ -322,36 +347,57 @@ export default function DepartmentsContainer() {
             formatted[err.path] = err.message;
           }
           setFieldErrors(formatted);
-        } else {
-          alert(data?.message || "Failed to add department");
         }
+        setError({
+          message: data?.message || "Failed to add department",
+          timestamp: Date.now(),
+        });
         return;
       }
 
+      setSuccess({
+        message: "Department added successfully",
+        timestamp: Date.now(),
+      });
       setFormData({ code: "", name: "" });
       await fetchDepartments();
     } catch (err) {
-      console.error("Submission error:", err);
+      setError({
+        message: err.message || "Submission failed",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Departments
-      formData={formData}
-      departments={departments}
-      fieldErrors={fieldErrors}
-      loading={loading}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      editingId={editingId}
-      editFormData={editFormData}
-      handleEditClick={handleEditClick}
-      handleEditChange={handleEditChange}
-      handleEditSubmit={handleEditSubmit}
-      handleCancelEdit={handleCancelEdit}
-      editFieldErrors={editFieldErrors}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+      {success.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+
+      <Departments
+        formData={formData}
+        departments={departments}
+        fieldErrors={fieldErrors}
+        loading={loading}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        editingId={editingId}
+        editFormData={editFormData}
+        handleEditClick={handleEditClick}
+        handleEditChange={handleEditChange}
+        handleEditSubmit={handleEditSubmit}
+        handleCancelEdit={handleCancelEdit}
+        editFieldErrors={editFieldErrors}
+      />
+    </>
   );
 }

@@ -4,14 +4,14 @@ import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
 
 function UserRegistration({
   formData,
   fieldErrors,
   departments,
   loading,
-  submitError,
-  submitSuccess,
   handleChange,
   handleSubmit,
 }) {
@@ -149,11 +149,6 @@ function UserRegistration({
           </div>
         </div>
 
-        {submitError && <p className="error-msg">{submitError}</p>}
-        {submitSuccess && (
-          <p className="success-msg">User registered successfully!</p>
-        )}
-
         <button className="submit-btn" type="submit" disabled={loading}>
           {loading ? "Registering..." : "Register User"}
         </button>
@@ -174,8 +169,8 @@ export default function UserRegistrationContainer() {
   const [departments, setDepartments] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -191,7 +186,10 @@ export default function UserRegistrationContainer() {
         const payload = await res.json();
         setDepartments(payload.data || []);
       } catch (err) {
-        console.error(err);
+        setError({
+          message: err.message || "Error fetching departments",
+          timestamp: Date.now(),
+        });
       }
     };
 
@@ -201,15 +199,16 @@ export default function UserRegistrationContainer() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setSubmitSuccess(false); 
+    setSuccess({ message: "", timestamp: null });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setFieldErrors({});
-    setSubmitError(null);
-    setSubmitSuccess(false);
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
+
     const token = sessionStorage.getItem("token");
 
     try {
@@ -231,8 +230,15 @@ export default function UserRegistrationContainer() {
             formatted[err.path] = err.message;
           }
           setFieldErrors(formatted);
+          setError({
+            message: data?.message || "Registration failed",
+            timestamp: Date.now(),
+          });
         } else {
-          setSubmitError(data?.message || "Registration failed");
+          setError({
+            message: data?.message || "Registration failed",
+            timestamp: Date.now(),
+          });
         }
         return;
       }
@@ -244,24 +250,41 @@ export default function UserRegistrationContainer() {
         role: "",
         departmentId: "",
       });
-      setSubmitSuccess(true);
+
+      setSuccess({
+        message: "User registered successfully!",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      setSubmitError(err.message || "Submission error");
+      setError({
+        message: err.message || "Submission error",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <UserRegistration
-      formData={formData}
-      fieldErrors={fieldErrors}
-      departments={departments}
-      loading={loading}
-      submitError={submitError}
-      submitSuccess={submitSuccess}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+      {success.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+
+      <UserRegistration
+        formData={formData}
+        fieldErrors={fieldErrors}
+        departments={departments}
+        loading={loading}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+      />
+    </>
   );
 }

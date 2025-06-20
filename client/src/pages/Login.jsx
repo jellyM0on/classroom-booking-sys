@@ -1,10 +1,9 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { auth } from "../configs/firebase";
-import { sendPasswordResetEmail } from "firebase/auth"; // add forgot password function
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { auth } from "../configs/firebase";
 
 function Login({
   email,
@@ -14,7 +13,7 @@ function Login({
   setPassword,
   handleSubmit,
   handleForgotPassword, // new prop added
-  loading
+  loading,
 }) {
   const [pageLoading, setPageLoading] = useState(true);
 
@@ -27,12 +26,12 @@ function Login({
   }, []);
 
   if (pageLoading) {
-  return (
-    <div className="fullscreen-spinner">
-      <LoadingSpinner />
-    </div>
-  );
-}
+    return (
+      <div className="fullscreen-spinner">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <main id="login-page">
@@ -45,7 +44,9 @@ function Login({
 
           <form onSubmit={handleSubmit}>
             <div className="form-fields">
-              <div className={`form-field ${error ? "error-field" : ""}`}>
+              <div
+                className={`form-field ${error.message ? "error-field" : ""}`}
+              >
                 <label>Email</label>
                 <input
                   type="email"
@@ -55,7 +56,9 @@ function Login({
                   placeholder="Enter your email"
                 />
               </div>
-              <div className={`form-field ${error ? "error-field" : ""}`}>
+              <div
+                className={`form-field ${error.message ? "error-field" : ""}`}
+              >
                 <label>Password</label>
                 <input
                   type="password"
@@ -76,7 +79,12 @@ function Login({
             <button className="submit-btn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
-            {error && <p className="error-msg">{error}</p>}
+            {error.message && (
+              <FloatingErrorMessage
+                key={error.timestamp}
+                message={error.message}
+              />
+            )}
           </form>
         </div>
       </div>
@@ -89,13 +97,14 @@ export default function LoginContainer() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false); // add useState for loading
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ message: "", timestamp: null });
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError("");
+    setError({ message: "", timestamp: null });
+    setLoading(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -104,20 +113,25 @@ export default function LoginContainer() {
         password
       );
       const user = userCredential.user;
-      console.log(user);
+
       sessionStorage.setItem("token", user.accessToken);
       sessionStorage.setItem("email", user.email);
       navigate("/");
     } catch (err) {
       console.error("Error signing in:", err);
-      setError(err.message);
+      setError({
+        message: err.message || "Login failed",
+        timestamp: Date.now(),
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   // add forgot password method
   const handleForgotPassword = () => {
-  navigate("/forgot-password");
-};
+    navigate("/forgot-password");
+  };
 
   return (
     <Login
@@ -127,8 +141,8 @@ export default function LoginContainer() {
       setEmail={setEmail}
       setPassword={setPassword}
       handleSubmit={handleSubmit}
-      handleForgotPassword={handleForgotPassword} // pass forgot password
-      loading={loading} // pass loading
+      handleForgotPassword={handleForgotPassword}
+      loading={loading}
     />
   );
 }

@@ -10,6 +10,8 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NoDataFound from "../components/NoDataFound";
@@ -19,7 +21,6 @@ import formatTime from "../utils/formatTime";
 function FacilityDetail({
   building,
   loading,
-  error,
   editMode,
   formData,
   fieldErrors,
@@ -272,9 +273,9 @@ function FacilityDetail({
         </div>
       )}
 
-      {!loading &&
-        !error &&
-        (!building.rooms || building.rooms.length === 0) && <NoDataFound />}
+      {!loading && (!building.rooms || building.rooms.length === 0) && (
+        <NoDataFound />
+      )}
     </main>
   );
 }
@@ -291,7 +292,8 @@ export default function FacilityDetailContainer() {
   const [initialData, setInitialData] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
   const [editMode, setEditMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -326,7 +328,10 @@ export default function FacilityDetailContainer() {
       setFormData(initial);
       setInitialData(initial);
     } catch (err) {
-      setError(err.message || "Error fetching facility");
+      setError({
+        message: err.message || "Error fetching building",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -383,8 +388,12 @@ export default function FacilityDetailContainer() {
             formatted[err.path] = err.message;
           }
           setFieldErrors(formatted);
+          setError({
+            message: "Update failed",
+            timestamp: Date.now(),
+          });
         } else {
-          setError(data?.message || "Update failed");
+          setError({ message: "Error submitting", timestamp: Date.now() });
         }
         return;
       }
@@ -398,28 +407,48 @@ export default function FacilityDetailContainer() {
       });
       setEditMode(false);
       setFieldErrors({});
+      setSuccess({
+        message: "Facility updated successfully!",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      setError(err.message || "Update error");
+      setError({
+        message: err.message || "Error submitting",
+        timestamp: Date.now(),
+      });
     }
   };
 
   return (
-    <FacilityDetail
-      building={building}
-      loading={loading}
-      error={error}
-      editMode={editMode}
-      formData={formData}
-      fieldErrors={fieldErrors}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleToggleEdit={handleToggleEdit}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      typeFilter={typeFilter}
-      setTypeFilter={setTypeFilter}
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
-    />
+    <>
+      {error?.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      {success?.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+
+      <FacilityDetail
+        building={building}
+        loading={loading}
+        error={error}
+        editMode={editMode}
+        formData={formData}
+        fieldErrors={fieldErrors}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleToggleEdit={handleToggleEdit}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+      />
+    </>
   );
 }
