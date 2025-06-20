@@ -67,17 +67,17 @@ function AppContent() {
       {token && <Navigation />}
       <Routes>
         <Route 
+          path="/login" 
+          element={
+            <Login />
+          } 
+        />
+        <Route 
           path="/forgot-password" 
           element={
           <ForgotPassword />
           } 
         /> 
-        <Route 
-          path="*" 
-          element={
-          <PageNotFound />
-          } 
-        />
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
           path="/users/register"
@@ -167,7 +167,18 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route 
+          path="/" 
+          element={
+            <Navigate to={token ? "/home" : "/login"} replace />
+          } 
+        />
+        <Route 
+          path="*" 
+          element={
+            <PageNotFound />
+          } 
+        />
       </Routes>
       <Footer />
     </>
