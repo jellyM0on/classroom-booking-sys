@@ -69,10 +69,6 @@ export const getAll = async (req, res) => {
       pagination
     );
 
-    if (!result || result.rows.length === 0) {
-      return res.status(404).json({ message: "No bookings found" });
-    }
-
     return res.status(200).json({
       data: result.rows,
       total: result.count,
@@ -132,10 +128,6 @@ export const getAllSelf = async (req, res) => {
       { bookingFilters, scheduleFilters, search, sort },
       pagination
     );
-
-    if (!result || result.rows.length === 0) {
-      return res.status(404).json({ message: "No bookings found" });
-    }
 
     return res.status(200).json({
       data: result.rows,
