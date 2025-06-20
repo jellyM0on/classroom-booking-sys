@@ -49,7 +49,16 @@ const User = sequelize.define(
       type: DataTypes.STRING(400),
       allowNull: false,
       validate: {
-        len: [5, 400],
+        notNull: {
+          msg: "Name is required",
+        },
+        notEmpty: {
+          msg: "Name cannot be empty",
+        },
+        len: {
+          args: [5, 400],
+          msg: "Name must be between 5 and 400 characters long",
+        },
       },
     },
   },
