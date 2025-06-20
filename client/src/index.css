@@ -115,13 +115,10 @@ a.transparent-btn {
 
 .arrow-btn {
   border-bottom: solid 0.25px transparent;
+  color: var(--main-color) !important;
 }
 .arrow-btn:hover {
-  border-bottom: solid 0.25px var(--main-color);
-}
-
-.arrow-btn:visited {
-  color: var(--main-color);
+  border-bottom: solid 0.25px var(--main-color); 
 }
 
 /* form fields */

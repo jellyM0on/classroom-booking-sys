@@ -545,7 +545,7 @@ function BookingDetail({
             </>
           ) : (
             !editMode &&
-            booking.status == "draft" &&
+            booking.status === "draft" &&
             currentUid === booking.submittedBy?.uid && (
               <div className="flex-gap-1">
                 <button
