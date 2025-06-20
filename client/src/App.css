@@ -845,8 +845,15 @@ a.add-btn {
 /* Not found page */
 .not-found-page {
   text-align: center;
-  padding: 4rem;
+  padding: 6rem 2rem;
+  max-width: 480px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   color: var(--sub-grey);
+  min-height: 70vh;
 }
 
 .not-found-page h1 {
@@ -858,4 +865,20 @@ a.add-btn {
 .not-found-page p {
   font-size: 1rem;
   color: #555;
+}
+
+.go-back-link {
+  margin-top: 1rem;
+  color: #1e3a5f;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.not-found-wrapper.center-viewport {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin-left: 0;
+  padding: 2rem;
 }
