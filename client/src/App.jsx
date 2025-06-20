@@ -25,7 +25,8 @@ import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
 import BookingDetailContainer from "./pages/BookingDetail";
-import ForgotPassword from "./pages/ForgotPassword"; // Forgot password import
+import ForgotPassword from "./pages/ForgotPassword";
+import PageNotFound from "./pages/PageNotFound";
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -60,8 +61,6 @@ function AppContent() {
   );
 }
 
-// add route for forgot password
-
   return (
     <>
       <Header />
@@ -73,6 +72,12 @@ function AppContent() {
           <ForgotPassword />
           } 
         /> 
+        <Route 
+          path="*" 
+          element={
+          <PageNotFound />
+          } 
+        />
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
           path="/users/register"
