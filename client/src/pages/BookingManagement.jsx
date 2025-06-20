@@ -83,8 +83,6 @@ function BookingManagement({
         <p>Manage booking requests here.</p>
       </div>
 
-      {loading && <LoadingSpinner />}
-
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
@@ -148,6 +146,8 @@ function BookingManagement({
           </div>
         </div>
       </div>
+
+      {loading && <LoadingSpinner />}
 
       {!loading && bookings && bookings.length > 0 && (
         <div id="generic-table-wrapper">
