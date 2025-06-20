@@ -10,6 +10,7 @@ import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import NoDataFound from "../components/NoDataFound";
 import Pagination from "../components/Pagination";
 import formatDate from "../utils/formatDate";
 
@@ -139,6 +140,8 @@ function FacilityManagement({
         </div>
       )}
 
+      {!loading && facilities.length === 0 && <NoDataFound />}
+
       <Pagination
         page={page}
         totalPages={totalPages}
@@ -146,10 +149,6 @@ function FacilityManagement({
         total={total}
         handlePageChange={handlePageChange}
       />
-
-      {!loading && !error && facilities && facilities.length === 0 && (
-        <p>No facilities found.</p>
-      )}
     </main>
   );
 }

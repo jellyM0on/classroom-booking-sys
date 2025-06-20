@@ -4,13 +4,13 @@ import { IoIosArrowBack } from "react-icons/io";
 import { NavLink, useParams } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import NoDataFound from "../components/NoDataFound";
 import formatDate from "../utils/formatDate";
 import formatTime from "../utils/formatTime";
 
 function RoomDetail({
   room,
   loading,
-  error,
   editMode,
   formData,
   fieldErrors,
@@ -19,9 +19,6 @@ function RoomDetail({
   handleToggleEdit,
   buildings,
 }) {
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!room) return <p>No room found.</p>;
-
   const formatRoomType = (type) => {
     return type
       .replace(/_/g, " ")
@@ -31,7 +28,7 @@ function RoomDetail({
   return (
     <main className="page">
       <NavLink
-        to={`/facilities/${room.buildingId}`}
+        to={`/facilities/${room?.buildingId}`}
         className="transparent-btn back-btn"
       >
         <IoIosArrowBack />
@@ -41,228 +38,239 @@ function RoomDetail({
       <div className="page-title">
         <div className="flex-gap-1">
           <h2>Room Detail</h2>
-          <GenericChip label={`ID: ${room.id}`} />
+          <GenericChip label={`ID: ${room?.id}`} />
         </div>
 
         <p>Manage room details here.</p>
       </div>
 
       {loading && <LoadingSpinner />}
+      {!loading && room ? (
+        <form onSubmit={editMode ? handleSubmit : undefined} id="generic-form">
+          <div className="form-fields">
+            <div
+              className={`form-field ${
+                fieldErrors.buildingId ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <span className="th-icon-label">
+                  <FaBuilding /> Building ID
+                </span>
+              </label>
+              {editMode ? (
+                <>
+                  <select
+                    name="buildingId"
+                    value={formData.buildingId}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select building</option>
+                    {buildings.map((bldg) => (
+                      <option key={bldg.id} value={bldg.id}>
+                        {bldg.code} - {bldg.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.buildingId && (
+                    <p className="error-msg">{fieldErrors.buildingId}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">{room.buildingId}</div>
+              )}
 
-      <form onSubmit={editMode ? handleSubmit : undefined} id="generic-form">
-        <div className="form-fields">
-          <div
-            className={`form-field ${
-              fieldErrors.buildingId ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <span className="th-icon-label">
-                <FaBuilding /> Building ID
-              </span>
-            </label>
-            {editMode ? (
-              <>
-                <select
-                  name="buildingId"
-                  value={formData.buildingId}
+              <div className="readonly-subfield">
+                {(() => {
+                  const selected =
+                    buildings.find(
+                      (b) =>
+                        b.id ===
+                        parseInt(
+                          editMode ? formData.buildingId : room.buildingId
+                        )
+                    ) || {};
+                  return (
+                    <div className="room-detail-bldg-info">
+                      <p>
+                        <strong>Code:</strong> {selected.code || "—"}
+                      </p>
+                      <p>
+                        <strong>Name:</strong> {selected.name || "—"}
+                      </p>
+                      <p>
+                        <strong>Address:</strong> {selected.address || "—"}
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
+            <div
+              className={`form-field ${
+                fieldErrors.number ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <span className="th-icon-label">
+                  <FaDoorOpen /> Number
+                </span>
+              </label>
+              {editMode ? (
+                <>
+                  <input
+                    type="text"
+                    name="number"
+                    value={formData.number}
+                    onChange={handleChange}
+                    required
+                  />
+                  {fieldErrors.number && (
+                    <p className="error-msg">{fieldErrors.number}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">{room.number}</div>
+              )}
+            </div>
+
+            <div
+              className={`form-field ${fieldErrors.type ? "error-field" : ""}`}
+            >
+              <label>Type</label>
+              {editMode ? (
+                <>
+                  <select
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select type</option>
+                    <option value="classroom">Classroom</option>
+                    <option value="science_lab">Science Lab</option>
+                    <option value="computer_lab">Computer Lab</option>
+                    <option value="specialty">Specialty</option>
+                  </select>
+                  {fieldErrors.type && (
+                    <p className="error-msg">{fieldErrors.type}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">
+                  {formatRoomType(room.type)}
+                </div>
+              )}
+            </div>
+
+            <div
+              className={`form-field ${
+                fieldErrors.open_time ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <FaClock /> Open Time
+              </label>
+              {editMode ? (
+                <>
+                  <input
+                    type="time"
+                    name="open_time"
+                    value={formData.open_time}
+                    onChange={handleChange}
+                    required
+                  />
+                  {fieldErrors.open_time && (
+                    <p className="error-msg">{fieldErrors.open_time}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">
+                  {formatTime(room.open_time)}
+                </div>
+              )}
+            </div>
+
+            <div
+              className={`form-field ${
+                fieldErrors.close_time ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <FaClock /> Close Time
+              </label>
+              {editMode ? (
+                <>
+                  <input
+                    type="time"
+                    name="close_time"
+                    value={formData.close_time}
+                    onChange={handleChange}
+                    required
+                  />
+                  {fieldErrors.close_time && (
+                    <p className="error-msg">{fieldErrors.close_time}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">
+                  {formatTime(room.close_time)}
+                </div>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label>Instructions</label>
+              {editMode ? (
+                <textarea
+                  name="instructions"
+                  value={formData.instructions || ""}
                   onChange={handleChange}
-                  required
-                >
-                  <option value="">Select building</option>
-                  {buildings.map((bldg) => (
-                    <option key={bldg.id} value={bldg.id}>
-                      {bldg.code} - {bldg.name}
-                    </option>
-                  ))}
-                </select>
-                {fieldErrors.buildingId && (
-                  <p className="error-msg">{fieldErrors.buildingId}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">{room.buildingId}</div>
-            )}
+                />
+              ) : (
+                <div className="readonly-field">{room.instructions || "—"}</div>
+              )}
+            </div>
 
-            <div className="readonly-subfield">
-              {(() => {
-                const selected =
-                  buildings.find(
-                    (b) =>
-                      b.id ===
-                      parseInt(editMode ? formData.buildingId : room.buildingId)
-                  ) || {};
-                return (
-                  <div className="room-detail-bldg-info">
-                    <p>
-                      <strong>Code:</strong> {selected.code || "—"}
-                    </p>
-                    <p>
-                      <strong>Name:</strong> {selected.name || "—"}
-                    </p>
-                    <p>
-                      <strong>Address:</strong> {selected.address || "—"}
-                    </p>
-                  </div>
-                );
-              })()}
+            <div className="form-field">
+              <label>Created At</label>
+              <div className="readonly-field">{formatDate(room.createdAt)}</div>
+            </div>
+
+            <div className="form-field">
+              <label>Updated At</label>
+              <div className="readonly-field">{formatDate(room.updatedAt)}</div>
             </div>
           </div>
 
-          <div
-            className={`form-field ${fieldErrors.number ? "error-field" : ""}`}
-          >
-            <label>
-              <span className="th-icon-label">
-                <FaDoorOpen /> Number
-              </span>
-            </label>
-            {editMode ? (
-              <>
-                <input
-                  type="text"
-                  name="number"
-                  value={formData.number}
-                  onChange={handleChange}
-                  required
-                />
-                {fieldErrors.number && (
-                  <p className="error-msg">{fieldErrors.number}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">{room.number}</div>
-            )}
-          </div>
-
-          <div
-            className={`form-field ${fieldErrors.type ? "error-field" : ""}`}
-          >
-            <label>Type</label>
-            {editMode ? (
-              <>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select type</option>
-                  <option value="classroom">Classroom</option>
-                  <option value="science_lab">Science Lab</option>
-                  <option value="computer_lab">Computer Lab</option>
-                  <option value="specialty">Specialty</option>
-                </select>
-                {fieldErrors.type && (
-                  <p className="error-msg">{fieldErrors.type}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">{formatRoomType(room.type)}</div>
-            )}
-          </div>
-
-          <div
-            className={`form-field ${
-              fieldErrors.open_time ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <FaClock /> Open Time
-            </label>
-            {editMode ? (
-              <>
-                <input
-                  type="time"
-                  name="open_time"
-                  value={formData.open_time}
-                  onChange={handleChange}
-                  required
-                />
-                {fieldErrors.open_time && (
-                  <p className="error-msg">{fieldErrors.open_time}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">{formatTime(room.open_time)}</div>
-            )}
-          </div>
-
-          <div
-            className={`form-field ${
-              fieldErrors.close_time ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <FaClock /> Close Time
-            </label>
-            {editMode ? (
-              <>
-                <input
-                  type="time"
-                  name="close_time"
-                  value={formData.close_time}
-                  onChange={handleChange}
-                  required
-                />
-                {fieldErrors.close_time && (
-                  <p className="error-msg">{fieldErrors.close_time}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">
-                {formatTime(room.close_time)}
-              </div>
-            )}
-          </div>
-
-          <div className="form-field">
-            <label>Instructions</label>
-            {editMode ? (
-              <textarea
-                name="instructions"
-                value={formData.instructions || ""}
-                onChange={handleChange}
-              />
-            ) : (
-              <div className="readonly-field">{room.instructions || "—"}</div>
-            )}
-          </div>
-
-          <div className="form-field">
-            <label>Created At</label>
-            <div className="readonly-field">{formatDate(room.createdAt)}</div>
-          </div>
-
-          <div className="form-field">
-            <label>Updated At</label>
-            <div className="readonly-field">{formatDate(room.updatedAt)}</div>
-          </div>
-        </div>
-
-        {editMode ? (
-          <>
-            <button className="submit-btn" type="submit">
-              Save Changes
-            </button>
+          {editMode ? (
+            <>
+              <button className="submit-btn" type="submit">
+                Save Changes
+              </button>
+              <button
+                className="transparent-btn"
+                type="button"
+                onClick={handleToggleEdit}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
             <button
-              className="transparent-btn"
+              className="submit-btn"
               type="button"
               onClick={handleToggleEdit}
             >
-              Cancel
+              Edit Room
             </button>
-          </>
-        ) : (
-          <button
-            className="submit-btn"
-            type="button"
-            onClick={handleToggleEdit}
-          >
-            Edit Room
-          </button>
-        )}
-      </form>
+          )}
+        </form>
+      ) : (
+        <NoDataFound />
+      )}
     </main>
   );
 }
