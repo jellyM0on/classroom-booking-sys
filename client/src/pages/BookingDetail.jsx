@@ -524,7 +524,7 @@ function BookingDetail({
             </div>
           </div>
 
-          {!loading && editMode ? (
+          {!loading && booking && editMode ? (
             <>
               <button className="submit-btn" type="submit">
                 Save Changes
