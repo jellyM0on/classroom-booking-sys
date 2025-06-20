@@ -15,6 +15,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import GenericChip from "../components/GenericChip";
 import NoDataFound from "../components/NoDataFound";
+import LoadingSpinner from "../components/LoadingSpinner";
 import Pagination from "../components/Pagination";
 import StatusChip from "../components/StatusChip";
 import formatDate from "../utils/formatDate";
@@ -82,8 +83,6 @@ function BookingManagement({
         <p>Manage booking requests here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
-
       <div className="table-opts">
         <div className="search-field">
           <FaSearch color="rgb(107, 106, 106)" />
@@ -147,6 +146,8 @@ function BookingManagement({
           </div>
         </div>
       </div>
+
+      {loading && <LoadingSpinner />}
 
       {!loading && bookings && bookings.length > 0 && (
         <div id="generic-table-wrapper">
