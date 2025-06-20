@@ -23,10 +23,6 @@ export const getAll = async (req, res) => {
 
     const result = await findAllBuildings(filters, pagination, sort);
 
-    if (!result || result.rows.length === 0) {
-      return res.status(404).json({ message: "No buildings found" });
-    }
-
     return res.status(200).json({
       data: result.rows,
       total: result.count,

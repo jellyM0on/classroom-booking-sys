@@ -9,16 +9,15 @@ import {
 import { MdNumbers, MdOutlineAlternateEmail } from "react-icons/md";
 import { RiUserAddFill } from "react-icons/ri";
 import { NavLink, useNavigate } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NoDataFound from "../components/NoDataFound";
 import Pagination from "../components/Pagination";
 import formatDate from "../utils/formatDate";
 
-// added filter/sort to accept props
 function UserManagement({
   loading,
-  error,
   users,
   handleRowClick,
   page,
@@ -112,7 +111,7 @@ function UserManagement({
 
       {loading && <LoadingSpinner />}
 
-      {!loading && !error && users && users.length > 0 && (
+      {!loading && users && users.length > 0 && (
         <div id="user-management-tbl-wrapper">
           <table cellPadding="8" cellSpacing="0" id="user-management-tbl">
             <thead>
@@ -197,7 +196,7 @@ export default function UserManagementContainer() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
   const pageSize = 10;
   const navigate = useNavigate();
 
@@ -247,7 +246,10 @@ export default function UserManagementContainer() {
       setTotalPages(payload.totalPages);
       setTotal(payload.total);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError({
+        message: err.message || "Something went wrong",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -296,26 +298,30 @@ export default function UserManagementContainer() {
   };
 
   return (
-    // ensure props are passed correctly - filter/sort and search additions
-    <UserManagement
-      users={users}
-      loading={loading}
-      error={error}
-      handleRowClick={handleRowClick}
-      page={page}
-      totalPages={totalPages}
-      pageSize={pageSize}
-      total={total}
-      handlePageChange={handlePageChange}
-      departments={departments}
-      selectedRole={selectedRole}
-      setSelectedRole={setSelectedRole}
-      selectedDept={selectedDept}
-      setSelectedDept={setSelectedDept}
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
-      searchText={searchText}
-      setSearchText={setSearchText}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      <UserManagement
+        users={users}
+        loading={loading}
+        handleRowClick={handleRowClick}
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        total={total}
+        handlePageChange={handlePageChange}
+        departments={departments}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+        selectedDept={selectedDept}
+        setSelectedDept={setSelectedDept}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        searchText={searchText}
+        setSearchText={setSearchText}
+      />
+    </>
   );
 }
