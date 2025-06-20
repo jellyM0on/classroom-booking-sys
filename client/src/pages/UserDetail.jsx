@@ -5,12 +5,12 @@ import { MdOutlineAlternateEmail } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import NoDataFound from "../components/NoDataFound";
 import formatDate from "../utils/formatDate";
 
 function UserDetail({
   user,
   loading,
-  error,
   editMode,
   formData,
   departments,
@@ -19,9 +19,6 @@ function UserDetail({
   handleSubmit,
   handleToggleEdit,
 }) {
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!user) return <p>No user found.</p>;
-
   return (
     <main class="page">
       <NavLink to="/users" className="transparent-btn back-btn">
@@ -32,7 +29,7 @@ function UserDetail({
       <div className="page-title">
         <div className="flex-gap-1">
           <h2> User Detail </h2>
-          <GenericChip label={`ID: ${user.id}`} />
+          <GenericChip label={`ID: ${user?.id}`} />
         </div>
 
         <p>Manage user details here.</p>
@@ -40,149 +37,153 @@ function UserDetail({
 
       {loading && <LoadingSpinner />}
 
-      <form
-        onSubmit={editMode ? handleSubmit : undefined}
-        id="user-detail-form"
-      >
-        <div className="form-fields">
-          <div
-            className={`form-field user-form-field ${
-              fieldErrors.name ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <span className="th-icon-label">
-                <FaUser /> Name
-              </span>
-            </label>
-            {editMode ? (
-              <>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-                {fieldErrors.name && (
-                  <p className="error-msg">{fieldErrors.name}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">{user.name}</div>
-            )}
+      {!loading && user ? (
+        <form
+          onSubmit={editMode ? handleSubmit : undefined}
+          id="user-detail-form"
+        >
+          <div className="form-fields">
+            <div
+              className={`form-field user-form-field ${
+                fieldErrors.name ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <span className="th-icon-label">
+                  <FaUser /> Name
+                </span>
+              </label>
+              {editMode ? (
+                <>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                  {fieldErrors.name && (
+                    <p className="error-msg">{fieldErrors.name}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">{user.name}</div>
+              )}
+            </div>
+
+            <div className="form-field user-form-field">
+              <label>
+                <span className="th-icon-label">
+                  <MdOutlineAlternateEmail /> Email
+                </span>
+              </label>
+              <div className="readonly-field">{user.email}</div>
+            </div>
+
+            <div
+              className={`form-field user-form-field ${
+                fieldErrors.role ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <span className="th-icon-label">
+                  <FaUserTag /> Role
+                </span>
+              </label>
+              {editMode ? (
+                <>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select role</option>
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                  </select>
+                  {fieldErrors.role && (
+                    <p className="error-msg">{fieldErrors.role}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">{user.role}</div>
+              )}
+            </div>
+
+            <div
+              className={`form-field user-form-field ${
+                fieldErrors.department ? "error-field" : ""
+              }`}
+            >
+              <label>
+                <span className="th-icon-label">
+                  <FaBuilding /> Department
+                </span>
+              </label>
+              {editMode ? (
+                <>
+                  <select
+                    name="department"
+                    value={formData.department}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.code} - {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.department && (
+                    <p className="error-msg">{fieldErrors.department}</p>
+                  )}
+                </>
+              ) : (
+                <div className="readonly-field">
+                  {user.department?.name || "—"}
+                </div>
+              )}
+            </div>
+
+            <div className="form-field user-form-field">
+              <label>Created At</label>
+              <div className="readonly-field">{formatDate(user.createdAt)}</div>
+            </div>
+
+            <div className="form-field user-form-field">
+              <label>Updated At</label>
+              <div className="readonly-field">{formatDate(user.updatedAt)}</div>
+            </div>
           </div>
 
-          <div className="form-field user-form-field">
-            <label>
-              <span className="th-icon-label">
-                <MdOutlineAlternateEmail /> Email
-              </span>
-            </label>
-            <div className="readonly-field">{user.email}</div>
-          </div>
-
-          <div
-            className={`form-field user-form-field ${
-              fieldErrors.role ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <span className="th-icon-label">
-                <FaUserTag /> Role
-              </span>
-            </label>
-            {editMode ? (
-              <>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select role</option>
-                  <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
-                </select>
-                {fieldErrors.role && (
-                  <p className="error-msg">{fieldErrors.role}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">{user.role}</div>
-            )}
-          </div>
-
-          <div
-            className={`form-field user-form-field ${
-              fieldErrors.department ? "error-field" : ""
-            }`}
-          >
-            <label>
-              <span className="th-icon-label">
-                <FaBuilding /> Department
-              </span>
-            </label>
-            {editMode ? (
-              <>
-                <select
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select department</option>
-                  {departments.map((dept) => (
-                    <option key={dept.id} value={dept.id}>
-                      {dept.code} - {dept.name}
-                    </option>
-                  ))}
-                </select>
-                {fieldErrors.department && (
-                  <p className="error-msg">{fieldErrors.department}</p>
-                )}
-              </>
-            ) : (
-              <div className="readonly-field">
-                {user.department?.name || "—"}
-              </div>
-            )}
-          </div>
-
-          <div className="form-field user-form-field">
-            <label>Created At</label>
-            <div className="readonly-field">{formatDate(user.createdAt)}</div>
-          </div>
-
-          <div className="form-field user-form-field">
-            <label>Updated At</label>
-            <div className="readonly-field">{formatDate(user.updatedAt)}</div>
-          </div>
-        </div>
-
-        {editMode ? (
-          <>
-            <button className="submit-btn" type="submit">
-              Save Changes
-            </button>
+          {editMode ? (
+            <>
+              <button className="submit-btn" type="submit">
+                Save Changes
+              </button>
+              <button
+                className="transparent-btn"
+                type="button"
+                onClick={handleToggleEdit}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
             <button
-              className="transparent-btn"
+              className="submit-btn"
               type="button"
               onClick={handleToggleEdit}
             >
-              Cancel
+              Edit User
             </button>
-          </>
-        ) : (
-          <button
-            className="submit-btn"
-            type="button"
-            onClick={handleToggleEdit}
-          >
-            Edit User
-          </button>
-        )}
-      </form>
+          )}
+        </form>
+      ) : (
+        <NoDataFound />
+      )}
     </main>
   );
 }

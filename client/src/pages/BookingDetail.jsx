@@ -10,6 +10,7 @@ import { MdEdit, MdOutlinePriorityHigh } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import NoDataFound from "../components/NoDataFound";
 import StatusChip from "../components/StatusChip";
 import formatDate from "../utils/formatDate";
 import { getBookingStatusColor } from "../utils/getBookingStatusColor";
@@ -21,7 +22,6 @@ const currentUid = sessionStorage.getItem("uid");
 function BookingDetail({
   booking,
   loading,
-  error,
   editMode,
   formData,
   handleChange,
@@ -37,10 +37,7 @@ function BookingDetail({
   editingIndex,
   handleScheduleUpdate,
 }) {
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!booking) return <p>No booking found.</p>;
-
-  const isSubmitter = currentUid === booking.submittedBy?.uid;
+  const isSubmitter = currentUid === booking?.submittedBy?.uid;
 
   const formatRoomType = (type) => {
     return type
@@ -58,10 +55,10 @@ function BookingDetail({
         <div>
           <div className="flex-gap-1">
             <h2>Booking Detail</h2>
-            <GenericChip label={`ID: ${booking.id}`} />
+            <GenericChip label={`ID: ${booking?.id}`} />
             <StatusChip
-              label={booking.status}
-              type={getBookingStatusColor(booking.status)}
+              label={booking?.status}
+              type={getBookingStatusColor(booking?.status)}
             />
           </div>
 
@@ -69,7 +66,7 @@ function BookingDetail({
         </div>
         <div>
           <div>
-            {booking.status === "draft" && isSubmitter && (
+            {booking?.status === "draft" && isSubmitter && (
               <button
                 type="button"
                 onClick={onSubmitDraft}
@@ -79,7 +76,7 @@ function BookingDetail({
               </button>
             )}
 
-            {booking.status === "pending" &&
+            {booking?.status === "pending" &&
               (sessionStorage.getItem("role") === "admin" ? (
                 <div className="flex-gap-1">
                   <button
@@ -111,170 +108,122 @@ function BookingDetail({
       </div>
 
       {loading && <LoadingSpinner />}
+      {!loading && booking ? (
+        <form onSubmit={handleSubmit} id="generic-form">
+          <div className="generic-form-section">
+            <h3 className="generic-form-section-title">Details</h3>
+            <div className="form-fields">
+              <div className="form-field">
+                <label>
+                  <FaInfoCircle /> Purpose
+                </label>
+                <input
+                  type="text"
+                  name="purpose"
+                  value={formData.purpose || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  required
+                />
+              </div>
 
-      <form onSubmit={handleSubmit} id="generic-form">
-        <div className="generic-form-section">
-          <h3 className="generic-form-section-title">Details</h3>
-          <div className="form-fields">
-            <div className="form-field">
-              <label>
-                <FaInfoCircle /> Purpose
-              </label>
-              <input
-                type="text"
-                name="purpose"
-                value={formData.purpose || ""}
-                onChange={handleChange}
-                disabled={!editMode}
-                required
-              />
-            </div>
+              <div className="generic-form-section-subrow">
+                {isAdmin && (
+                  <div className="form-field">
+                    <label>Facilitated By</label>
+                    <select
+                      name="facilitated_by"
+                      value={formData.facilitated_by || ""}
+                      onChange={handleChange}
+                      disabled={!editMode}
+                      required
+                    >
+                      <option value="">Select user</option>
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name} ({user.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
-            <div className="generic-form-section-subrow">
-              {isAdmin && (
-                <div className="form-field">
-                  <label>Facilitated By</label>
+                <div className="form-small-field form-field">
+                  <label>
+                    <FaUsers /> Number of Occupants
+                  </label>
+                  <input
+                    type="number"
+                    name="number_of_occupants"
+                    value={formData.number_of_occupants || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                    required
+                    min={1}
+                  />
+                </div>
+
+                <div className="form-small-field form-field">
+                  <label>
+                    <MdOutlinePriorityHigh /> Urgency
+                  </label>
                   <select
-                    name="facilitated_by"
-                    value={formData.facilitated_by || ""}
+                    name="urgency"
+                    value={formData.urgency || ""}
                     onChange={handleChange}
                     disabled={!editMode}
                     required
                   >
-                    <option value="">Select user</option>
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} ({user.email})
-                      </option>
-                    ))}
+                    <option value="">Select urgency</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
                   </select>
                 </div>
-              )}
-
-              <div className="form-small-field form-field">
-                <label>
-                  <FaUsers /> Number of Occupants
-                </label>
-                <input
-                  type="number"
-                  name="number_of_occupants"
-                  value={formData.number_of_occupants || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  required
-                  min={1}
-                />
-              </div>
-
-              <div className="form-small-field form-field">
-                <label>
-                  <MdOutlinePriorityHigh /> Urgency
-                </label>
-                <select
-                  name="urgency"
-                  value={formData.urgency || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  required
-                >
-                  <option value="">Select urgency</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
-                </select>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="generic-form-section">
-          <h3 className="generic-form-section-title">Schedule</h3>
-          <div className="form-fields">
-            <div className="form-field">
-              <label>
-                <FaCalendarAlt /> Schedule Type
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="schedule_type"
-                  value="once"
-                  checked={formData.schedule_type === "once"}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                />{" "}
-                Once
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="schedule_type"
-                  value="repeating"
-                  checked={formData.schedule_type === "repeating"}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                />{" "}
-                Repeating
-              </label>
-            </div>
-
-            {formData.schedule_type === "once" ? (
-              <div className="generic-form-section-subrow">
-                <div className="form-field">
-                  <label>Date</label>
+          <div className="generic-form-section">
+            <h3 className="generic-form-section-title">Schedule</h3>
+            <div className="form-fields">
+              <div className="form-field">
+                <label>
+                  <FaCalendarAlt /> Schedule Type
+                </label>
+                <label>
                   <input
-                    type="date"
-                    name="date"
-                    value={formData.date || ""}
+                    type="radio"
+                    name="schedule_type"
+                    value="once"
+                    checked={formData.schedule_type === "once"}
                     onChange={handleChange}
                     disabled={!editMode}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label>Start Time</label>
+                  />{" "}
+                  Once
+                </label>
+                <label>
                   <input
-                    type="time"
-                    name="start_time"
-                    value={formData.start_time || ""}
+                    type="radio"
+                    name="schedule_type"
+                    value="repeating"
+                    checked={formData.schedule_type === "repeating"}
                     onChange={handleChange}
                     disabled={!editMode}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label>End Time</label>
-                  <input
-                    type="time"
-                    name="end_time"
-                    value={formData.end_time || ""}
-                    onChange={handleChange}
-                    disabled={!editMode}
-                    required
-                  />
-                </div>
+                  />{" "}
+                  Repeating
+                </label>
               </div>
-            ) : (
-              <>
+
+              {formData.schedule_type === "once" ? (
                 <div className="generic-form-section-subrow">
                   <div className="form-field">
-                    <label>Start Date</label>
+                    <label>Date</label>
                     <input
                       type="date"
-                      name="start_date"
-                      value={formData.start_date || ""}
-                      onChange={handleChange}
-                      disabled={!editMode}
-                      required
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label>End Date</label>
-                    <input
-                      type="date"
-                      name="end_date"
-                      value={formData.end_date || ""}
+                      name="date"
+                      value={formData.date || ""}
                       onChange={handleChange}
                       disabled={!editMode}
                       required
@@ -303,85 +252,137 @@ function BookingDetail({
                     />
                   </div>
                 </div>
-                <div className="generic-form-section-subrow">
-                  <div className="form-field">
-                    <label>Interval Type</label>
-                    <select
-                      name="interval_type"
-                      value={formData.interval_type || ""}
-                      onChange={handleChange}
-                      disabled={!editMode}
-                      required
-                    >
-                      <option value="">Select Interval</option>
-                      <option value="daily">Daily</option>
-                      <option value="weekly">Every Week</option>
-                      <option value="biweekly">Every Other Week</option>
-                    </select>
-                  </div>
-
-                  {(formData.interval_type === "weekly" ||
-                    formData.interval_type === "biweekly") && (
+              ) : (
+                <>
+                  <div className="generic-form-section-subrow">
                     <div className="form-field">
-                      <label>Repeating Days</label>
-                      <div className="repeating-days">
-                        {["M", "T", "W", "TH", "F", "S"].map((day) => (
-                          <label key={day}>
-                            <input
-                              type="checkbox"
-                              name="repeating_days"
-                              value={day}
-                              checked={(formData.repeating_days || []).includes(
-                                day
-                              )}
-                              onChange={handleChange}
-                              disabled={!editMode}
-                            />{" "}
-                            {day}
-                          </label>
-                        ))}
-                      </div>
+                      <label>Start Date</label>
+                      <input
+                        type="date"
+                        name="start_date"
+                        value={formData.start_date || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                        required
+                      />
                     </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+                    <div className="form-field">
+                      <label>End Date</label>
+                      <input
+                        type="date"
+                        name="end_date"
+                        value={formData.end_date || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                        required
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>Start Time</label>
+                      <input
+                        type="time"
+                        name="start_time"
+                        value={formData.start_time || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                        required
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>End Time</label>
+                      <input
+                        type="time"
+                        name="end_time"
+                        value={formData.end_time || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="generic-form-section-subrow">
+                    <div className="form-field">
+                      <label>Interval Type</label>
+                      <select
+                        name="interval_type"
+                        value={formData.interval_type || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                        required
+                      >
+                        <option value="">Select Interval</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Every Week</option>
+                        <option value="biweekly">Every Other Week</option>
+                      </select>
+                    </div>
 
-        <div className="generic-form-section">
-          <h3 className="generic-form-section-title">Location</h3>
-          <div className="form-fields">
-            <div className="form-field">
-              <label>
-                <FaBuilding /> Building
-              </label>
-              <select
-                name="building_id"
-                value={formData.building_id || ""}
-                onChange={handleChange}
-                disabled={!editMode}
-                required
-              >
-                <option value="">Select building</option>
-                {buildings.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.code} - {b.name}
-                  </option>
-                ))}
-              </select>
+                    {(formData.interval_type === "weekly" ||
+                      formData.interval_type === "biweekly") && (
+                      <div className="form-field">
+                        <label>Repeating Days</label>
+                        <div className="repeating-days">
+                          {["M", "T", "W", "TH", "F", "S"].map((day) => (
+                            <label key={day}>
+                              <input
+                                type="checkbox"
+                                name="repeating_days"
+                                value={day}
+                                checked={(
+                                  formData.repeating_days || []
+                                ).includes(day)}
+                                onChange={handleChange}
+                                disabled={!editMode}
+                              />{" "}
+                              {day}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
-          <div className="generic-form-section-subrow">
-            <div className="form-field">
-              <label>
-                {!editMode
-                  ? "Room Types"
-                  : "Room Types (Select all that apply)"}
-              </label>
-              <div className="checkbox-group">
-                {["classroom", "science_lab", "computer_lab", "specialty"].map(
-                  (type) => (
+
+          <div className="generic-form-section">
+            <h3 className="generic-form-section-title">Location</h3>
+            <div className="form-fields">
+              <div className="form-field">
+                <label>
+                  <FaBuilding /> Building
+                </label>
+                <select
+                  name="building_id"
+                  value={formData.building_id || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  required
+                >
+                  <option value="">Select building</option>
+                  {buildings.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.code} - {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="generic-form-section-subrow">
+              <div className="form-field">
+                <label>
+                  {!editMode
+                    ? "Room Types"
+                    : "Room Types (Select all that apply)"}
+                </label>
+                <div className="checkbox-group">
+                  {[
+                    "classroom",
+                    "science_lab",
+                    "computer_lab",
+                    "specialty",
+                  ].map((type) => (
                     <label key={type}>
                       <input
                         type="checkbox"
@@ -395,108 +396,110 @@ function BookingDetail({
                         .replace("_", " ")
                         .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </label>
-                  )
+                  ))}
+                </div>
+              </div>
+              <div className="form-field">
+                <label>Room</label>
+                {!editMode && formData.room_id ? (
+                  <div className="readonly-field">
+                    Room {booking.schedules[0].room.number}
+                  </div>
+                ) : (
+                  <select
+                    name="room_id"
+                    value={formData.room_id || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                    required
+                  >
+                    <option value="">Select room</option>
+                    {availableRooms.map((room) => (
+                      <option key={room.id} value={room.id}>
+                        Room {room.number} ({formatRoomType(room.type)})
+                      </option>
+                    ))}
+                  </select>
                 )}
               </div>
             </div>
-            <div className="form-field">
-              <label>Room</label>
-              {!editMode && formData.room_id ? (
-                <div className="readonly-field">
-                  Room {booking.schedules[0].room.number}
-                </div>
-              ) : (
-                <select
-                  name="room_id"
-                  value={formData.room_id || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  required
-                >
-                  <option value="">Select room</option>
-                  {availableRooms.map((room) => (
-                    <option key={room.id} value={room.id}>
-                      Room {room.number} ({formatRoomType(room.type)})
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
           </div>
-        </div>
 
-        <div className="generic-form-section">
-          <h3 className="generic-form-section-title">Submission</h3>
-          <div className="form-fields">
-            <div className="form-field">
+          <div className="generic-form-section">
+            <h3 className="generic-form-section-title">Submission</h3>
+            <div className="form-fields">
+              <div className="form-field">
+                <div className="generic-form-section-subrow">
+                  <div className="form-field">
+                    <label>Submitted By</label>
+                    <input
+                      type="text"
+                      value={booking.submittedBy?.name ?? "N/A"}
+                      disabled
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>Reviewed By</label>
+                    <input
+                      type="text"
+                      value={booking.reviewedBy?.name ?? "N/A"}
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="generic-form-section-subrow">
                 <div className="form-field">
-                  <label>Submitted By</label>
+                  <label>Created At</label>
                   <input
                     type="text"
-                    value={booking.submittedBy?.name ?? "N/A"}
+                    value={formatDate(booking.createdAt)}
                     disabled
                   />
                 </div>
-                <div className="form-field">
-                  <label>Reviewed By</label>
-                  <input
-                    type="text"
-                    value={booking.reviewedBy?.name ?? "N/A"}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="generic-form-section-subrow">
-              <div className="form-field">
-                <label>Created At</label>
-                <input
-                  type="text"
-                  value={formatDate(booking.createdAt)}
-                  disabled
-                />
-              </div>
 
-              <div className="form-field">
-                <label>Updated At</label>
-                <input
-                  type="text"
-                  value={formatDate(booking.updatedAt)}
-                  disabled
-                />
+                <div className="form-field">
+                  <label>Updated At</label>
+                  <input
+                    type="text"
+                    value={formatDate(booking.updatedAt)}
+                    disabled
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {editMode ? (
-          <>
-            <button className="submit-btn" type="submit">
-              Save Changes
-            </button>
-            <button
-              className="transparent-btn"
-              type="button"
-              onClick={handleToggleEdit}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          !editMode &&
-          booking.status === "draft" &&
-          isSubmitter && (
-            <button
-              className="submit-btn"
-              type="button"
-              onClick={handleToggleEdit}
-            >
-              Edit Booking
-            </button>
-          )
-        )}
-      </form>
+          {editMode ? (
+            <>
+              <button className="submit-btn" type="submit">
+                Save Changes
+              </button>
+              <button
+                className="transparent-btn"
+                type="button"
+                onClick={handleToggleEdit}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            !editMode &&
+            booking.status === "draft" &&
+            isSubmitter && (
+              <button
+                className="submit-btn"
+                type="button"
+                onClick={handleToggleEdit}
+              >
+                Edit Booking
+              </button>
+            )
+          )}
+        </form>
+      ) : (
+        <NoDataFound />
+      )}
 
       {booking?.schedules?.length > 0 && (
         <div id="user-management-tbl-wrapper" className="departments-table">

@@ -4,6 +4,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { MdEdit, MdNumbers } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
+import NoDataFound from "../components/NoDataFound";
 
 function Departments({
   formData,
@@ -29,7 +30,7 @@ function Departments({
 
       <div className="page-title">
         <div className="flex-gap-1">
-          <h2> Manage Department</h2>
+          <h2> Manage Departments</h2>
           <GenericChip label={departments.length} />
         </div>
 
@@ -84,37 +85,39 @@ function Departments({
         </button>
       </form>
 
-      <div id="user-management-tbl-wrapper" className="departments-table">
-        <table cellPadding="8" cellSpacing="0" id="user-management-tbl">
-          <thead>
-            <tr>
-              <th>
-                <span className="th-icon-label">
-                  <MdNumbers /> ID
-                </span>
-              </th>
-              <th>
-                <span className="th-icon-label">
-                  <FaCode /> Code
-                </span>
-              </th>
-              <th>
-                <span className="th-icon-label">
-                  <FaBuilding /> Name
-                </span>
-              </th>
-              <th>
-                <span className="th-icon-label">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {departments.length === 0 ? (
+      <div className="page-title" style={{ marginTop: "3rem" }}>
+        <h2>Departments List</h2>
+      </div>
+
+      {departments.length === 0 ? (
+        <NoDataFound />
+      ) : (
+        <div id="user-management-tbl-wrapper" className="departments-table">
+          <table cellPadding="8" cellSpacing="0" id="user-management-tbl">
+            <thead>
               <tr>
-                <td colSpan="4">No departments found.</td>
+                <th>
+                  <span className="th-icon-label">
+                    <MdNumbers /> ID
+                  </span>
+                </th>
+                <th>
+                  <span className="th-icon-label">
+                    <FaCode /> Code
+                  </span>
+                </th>
+                <th>
+                  <span className="th-icon-label">
+                    <FaBuilding /> Name
+                  </span>
+                </th>
+                <th>
+                  <span className="th-icon-label">Actions</span>
+                </th>
               </tr>
-            ) : (
-              departments.map((dept) => (
+            </thead>
+            <tbody>
+              {departments.map((dept) => (
                 <tr key={dept.id}>
                   <td>{dept.id}</td>
 
@@ -136,7 +139,7 @@ function Departments({
                         )}
                       </>
                     ) : (
-                      <GenericChip label={dept.code}/>
+                      <GenericChip label={dept.code} />
                     )}
                   </td>
 
@@ -191,11 +194,11 @@ function Departments({
                     )}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

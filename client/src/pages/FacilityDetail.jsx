@@ -12,6 +12,7 @@ import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
+import NoDataFound from "../components/NoDataFound";
 import formatDate from "../utils/formatDate";
 import formatTime from "../utils/formatTime";
 
@@ -40,9 +41,6 @@ function FacilityDetail({
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!building) return <p>No facility found.</p>;
-
   return (
     <main className="page">
       <NavLink to="/facilities" className="transparent-btn back-btn">
@@ -53,148 +51,157 @@ function FacilityDetail({
       <div className="page-title">
         <div className="flex-gap-1">
           <h2>Facility Detail</h2>
-          <GenericChip label={`ID: ${building.id}`} />
+          <GenericChip label={`ID: ${building?.id}`} />
         </div>
 
         <p>Manage facility details here.</p>
       </div>
 
+      {!building && !loading && <NoDataFound />}
+
       {loading && <LoadingSpinner />}
 
-      <form onSubmit={editMode ? handleSubmit : undefined} id="generic-form">
-        <div className="form-fields">
-          {["code", "name", "address", "total_floors"].map((field) => (
-            <div
-              key={field}
-              className={`form-field ${
-                fieldErrors[field] ? "error-field" : ""
-              }`}
-            >
-              <label>
-                <span className="th-icon-label">
-                  {field === "address" ? (
-                    <FaMapMarkerAlt />
-                  ) : field === "total_floors" ? (
-                    <FaLayerGroup />
-                  ) : (
-                    <FaBuilding />
-                  )}{" "}
-                  {field
-                    .replace("_", " ")
-                    .replace(/\b\w/g, (l) => l.toUpperCase())}
-                </span>
-              </label>
-              {editMode ? (
-                <>
-                  <input
-                    type={field === "total_floors" ? "number" : "text"}
-                    name={field}
-                    value={formData[field]}
-                    onChange={handleChange}
-                    required
-                  />
-                  {fieldErrors[field] && (
-                    <p className="error-msg">{fieldErrors[field]}</p>
-                  )}
-                </>
-              ) : (
-                <div className="readonly-field">{building[field]}</div>
-              )}
-            </div>
-          ))}
-
-          <div className="form-field">
-            <label>Created At</label>
-            <div className="readonly-field">
-              {formatDate(building.createdAt)}
-            </div>
-          </div>
-
-          <div className="form-field">
-            <label>Updated At</label>
-            <div className="readonly-field">
-              {formatDate(building.updatedAt)}
-            </div>
-          </div>
-        </div>
-
-        {editMode ? (
-          <>
-            <button className="submit-btn" type="submit">
-              Save Changes
-            </button>
-            <button
-              className="transparent-btn"
-              type="button"
-              onClick={handleToggleEdit}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <button
-            className="submit-btn"
-            type="button"
-            onClick={handleToggleEdit}
+      {building && !loading && (
+        <>
+          <form
+            onSubmit={editMode ? handleSubmit : undefined}
+            id="generic-form"
           >
-            Edit Facility
-          </button>
-        )}
-      </form>
+            <div className="form-fields">
+              {["code", "name", "address", "total_floors"].map((field) => (
+                <div
+                  key={field}
+                  className={`form-field ${
+                    fieldErrors[field] ? "error-field" : ""
+                  }`}
+                >
+                  <label>
+                    <span className="th-icon-label">
+                      {field === "address" ? (
+                        <FaMapMarkerAlt />
+                      ) : field === "total_floors" ? (
+                        <FaLayerGroup />
+                      ) : (
+                        <FaBuilding />
+                      )}{" "}
+                      {field
+                        .replace("_", " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </span>
+                  </label>
+                  {editMode ? (
+                    <>
+                      <input
+                        type={field === "total_floors" ? "number" : "text"}
+                        name={field}
+                        value={formData[field]}
+                        onChange={handleChange}
+                        required
+                      />
+                      {fieldErrors[field] && (
+                        <p className="error-msg">{fieldErrors[field]}</p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="readonly-field">{building[field]}</div>
+                  )}
+                </div>
+              ))}
 
-      {/* ROOMS SECTION */}
-      <div className="page-title" style={{ marginTop: "3rem" }}>
-        <h2>Facility Rooms</h2>
-      </div>
+              <div className="form-field">
+                <label>Created At</label>
+                <div className="readonly-field">
+                  {formatDate(building.createdAt)}
+                </div>
+              </div>
 
-      <div className="table-opts">
-        <div className="search-field">
-          <FaSearch color="rgb(107, 106, 106)" />
-          <input
-            type="text"
-            placeholder="Search Code..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex-gap-1">
-          <NavLink to="/facilities/add" className="add-btn">
-            <BsBuildingFillAdd />
-            Add Facility
-          </NavLink>
-        </div>
-      </div>
-      <div className="filter-opts">
-        <div className="flex-gap-1 flex-align">
-          <p>FILTER</p>
-          <div className="filter-controls">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-            >
-              <option value="">All Types</option>
-              <option value="classroom">Classroom</option>
-              <option value="comp_lab">Computer Lab</option>
-              <option value="science_lab">Science Lab</option>
-              <option value="specialty">Specialty</option>
-            </select>
+              <div className="form-field">
+                <label>Updated At</label>
+                <div className="readonly-field">
+                  {formatDate(building.updatedAt)}
+                </div>
+              </div>
+            </div>
+
+            {editMode ? (
+              <>
+                <button className="submit-btn" type="submit">
+                  Save Changes
+                </button>
+                <button
+                  className="transparent-btn"
+                  type="button"
+                  onClick={handleToggleEdit}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                className="submit-btn"
+                type="button"
+                onClick={handleToggleEdit}
+              >
+                Edit Facility
+              </button>
+            )}
+          </form>
+
+          {/* ROOMS SECTION */}
+          <div className="page-title" style={{ marginTop: "3rem" }}>
+            <h2>Facility Rooms</h2>
           </div>
-        </div>
-        <div className="flex-gap-1 flex-align">
-          <p>SORT</p>
-          <div className="filter-controls">
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <option value="asc">ASC</option>
-              <option value="desc">DESC</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
-      {!loading && !error && building?.rooms?.length > 0 && (
+          <div className="table-opts">
+            <div className="search-field">
+              <FaSearch color="rgb(107, 106, 106)" />
+              <input
+                type="text"
+                placeholder="Search Code..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex-gap-1">
+              <NavLink to="/facilities/add" className="add-btn">
+                <BsBuildingFillAdd />
+                Add Facility
+              </NavLink>
+            </div>
+          </div>
+          <div className="filter-opts">
+            <div className="flex-gap-1 flex-align">
+              <p>FILTER</p>
+              <div className="filter-controls">
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                >
+                  <option value="">All Types</option>
+                  <option value="classroom">Classroom</option>
+                  <option value="comp_lab">Computer Lab</option>
+                  <option value="science_lab">Science Lab</option>
+                  <option value="specialty">Specialty</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex-gap-1 flex-align">
+              <p>SORT</p>
+              <div className="filter-controls">
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                >
+                  <option value="asc">ASC</option>
+                  <option value="desc">DESC</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {!loading && building?.rooms?.length > 0 && (
         <div id="generic-table-wrapper">
           <table cellPadding="8" cellSpacing="0" id="generic-table">
             <thead>
@@ -267,9 +274,7 @@ function FacilityDetail({
 
       {!loading &&
         !error &&
-        (!building.rooms || building.rooms.length === 0) && (
-          <p>No rooms found.</p>
-        )}
+        (!building.rooms || building.rooms.length === 0) && <NoDataFound />}
     </main>
   );
 }
