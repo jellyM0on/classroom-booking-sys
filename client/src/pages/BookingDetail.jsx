@@ -19,6 +19,9 @@ import { getScheduleStatusColor } from "../utils/getScheduleStatusColor";
 import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
 
+import FloatingConfirmationMessage from "../components/FloatingConfirmationMessage";
+import FloatingDeletionMessage from "../components/FloatingDeletionMessage";
+
 const isAdmin = sessionStorage.getItem("role") === "admin";
 const currentUid = sessionStorage.getItem("uid");
 
@@ -41,6 +44,7 @@ function BookingDetail({
   handleScheduleUpdate,
   handleDeleteBooking,
 }) {
+  const [modal, setModal] = useState(null);
   const isSubmitter = currentUid === booking?.submittedBy?.uid;
 
   const formatRoomType = (type) => {
@@ -51,6 +55,8 @@ function BookingDetail({
 
   return (
     <main className="page">
+      {modal}
+
       <NavLink to="/bookings" className="transparent-btn back-btn">
         <IoIosArrowBack /> Go to Requests
       </NavLink>
@@ -73,7 +79,18 @@ function BookingDetail({
             {booking?.status === "draft" && isSubmitter && (
               <button
                 type="button"
-                onClick={onSubmitDraft}
+                onClick={() =>
+                  setModal(
+                    <FloatingConfirmationMessage
+                      message="Confirm Submission?"
+                      onConfirm={() => {
+                        setModal(null);
+                        onSubmitDraft();
+                      }}
+                      onCancel={() => setModal(null)}
+                    />
+                  )
+                }
                 className="submit-btn"
               >
                 Submit
@@ -85,14 +102,36 @@ function BookingDetail({
                 <div className="flex-gap-1">
                   <button
                     type="button"
-                    onClick={() => onSubmitDraft("approved")}
+                    onClick={() =>
+                      setModal(
+                        <FloatingDeletionMessage
+                          message="Confirm Approval?"
+                          onConfirm={() => {
+                            setModal(null);
+                            onSubmitDraft("approved");
+                          }}
+                          onCancel={() => setModal(null)}
+                        />
+                      )
+                    }
                     className="submit-btn"
                   >
                     Approve
                   </button>
                   <button
                     type="button"
-                    onClick={() => onSubmitDraft("rejected")}
+                    onClick={() =>
+                      setModal(
+                        <FloatingDeletionMessage
+                          message="Confirm Rejection?"
+                          onConfirm={() => {
+                            setModal(null);
+                            onSubmitDraft("rejected");
+                          }}
+                          onCancel={() => setModal(null)}
+                        />
+                      )
+                    }
                     className="reject-btn"
                   >
                     Reject
@@ -101,7 +140,18 @@ function BookingDetail({
               ) : (
                 <button
                   type="button"
-                  onClick={() => onSubmitDraft("cancelled")}
+                  onClick={() =>
+                    setModal(
+                      <FloatingDeletionMessage
+                        message="Confirm Cancellation?"
+                        onConfirm={() => {
+                          setModal(null);
+                          onSubmitDraft("cancelled");
+                        }}
+                        onCancel={() => setModal(null)}
+                      />
+                    )
+                  }
                   className="reject-btn"
                 >
                   Cancel
@@ -502,15 +552,18 @@ function BookingDetail({
                 <button
                   className="reject-btn"
                   type="button"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this booking?"
-                      )
-                    ) {
-                      handleDeleteBooking();
-                    }
-                  }}
+                  onClick={() =>
+                    setModal(
+                      <FloatingDeletionMessage
+                        message="Confirm deletion?"
+                        onConfirm={() => {
+                          setModal(null);
+                          handleDeleteBooking();
+                        }}
+                        onCancel={() => setModal(null)}
+                      />
+                    )
+                  }
                 >
                   Delete Booking
                 </button>
