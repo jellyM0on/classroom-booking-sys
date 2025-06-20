@@ -33,6 +33,12 @@ function BookingsAdd({
   );
   const today = new Date().toISOString().slice(0, 10);
 
+  const formatRoomType = (type) => {
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   return (
     <main className="page">
       {loading && <LoadingSpinner />}
@@ -381,7 +387,7 @@ function BookingsAdd({
                     <option value="">Select available room</option>
                     {availableRooms.map((room) => (
                       <option key={room.id} value={room.id}>
-                        Room {room.number} ({room.type.replace("_", " ")})
+                        Room {room.number} ({formatRoomType(room.type)})
                       </option>
                     ))}
                   </>
