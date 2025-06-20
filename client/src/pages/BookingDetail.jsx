@@ -474,7 +474,7 @@ function BookingDetail({
             </div>
           </div>
 
-          {editMode ? (
+          {!loading && editMode ? (
             <>
               <button className="submit-btn" type="submit">
                 Save Changes
@@ -489,7 +489,7 @@ function BookingDetail({
             </>
           ) : (
             !editMode &&
-            booking.status === "draft" &&
+            booking.status == "draft" &&
             isSubmitter && (
               <div className="flex-gap-1">
                 <button
