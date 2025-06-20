@@ -524,3 +524,12 @@ export const updateBookingStatus = async (id, newStatus, requestingUid) => {
 
   return booking;
 };
+
+export const deleteBookingById = async (bookingId) => {
+  const booking = await Booking.findByPk(bookingId);
+  if (!booking) {
+    throw new Error("Booking not found");
+  }
+  await booking.destroy();
+  return { message: "Booking deleted successfully" };
+};

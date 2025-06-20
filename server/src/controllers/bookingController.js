@@ -9,6 +9,7 @@ import {
   updateBookingStatusToCancelled,
   updateBookingStatusToPending,
   updatePendingBookingWithSchedules,
+  deleteBookingById
 } from "../services/bookingService.js";
 import { formatSequelizeErrors } from "../utils/formatSequelizeErrors.js";
 
@@ -316,5 +317,15 @@ export const updateStatus = async (req, res) => {
       message: "Internal server error",
       error: error.message,
     });
+  }
+};
+
+export const deleteBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await deleteBookingById(id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(404).json({ error: error.message });
   }
 };
