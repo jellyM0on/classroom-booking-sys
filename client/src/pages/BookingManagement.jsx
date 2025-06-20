@@ -82,7 +82,7 @@ function BookingManagement({
         <p>Manage booking requests here.</p>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <LoadingSpinner />}
 
       <div className="table-opts">
         <div className="search-field">
