@@ -42,6 +42,12 @@ function BookingDetail({
 
   const isSubmitter = currentUid === booking.submittedBy?.uid;
 
+  const formatRoomType = (type) => {
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   return (
     <main className="page">
       <NavLink to="/bookings" className="transparent-btn back-btn">
@@ -393,23 +399,28 @@ function BookingDetail({
                 )}
               </div>
             </div>
-
             <div className="form-field">
               <label>Room</label>
-              <select
-                name="room_id"
-                value={formData.room_id || ""}
-                onChange={handleChange}
-                disabled={!editMode}
-                required
-              >
-                <option value="">Select room</option>
-                {availableRooms.map((room) => (
-                  <option key={room.id} value={room.id}>
-                    Room {room.number} ({room.type.replace("_", " ")})
-                  </option>
-                ))}
-              </select>
+              {!editMode && formData.room_id ? (
+                <div className="readonly-field">
+                  Room {booking.schedules[0].room.number}
+                </div>
+              ) : (
+                <select
+                  name="room_id"
+                  value={formData.room_id || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  required
+                >
+                  <option value="">Select room</option>
+                  {availableRooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      Room {room.number} ({formatRoomType(room.type)})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
         </div>
