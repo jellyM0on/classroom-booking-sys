@@ -11,7 +11,6 @@ export default function FloatingConfirmationMessage({
     textAlign: "center",
     width: "90%",
     maxWidth: "400px",
-    borderLeft: type === "danger" ? "5px solid red" : "5px solidrgb(0, 0, 0)",
   };
 
   const overlayStyle = {
@@ -27,31 +26,24 @@ export default function FloatingConfirmationMessage({
     zIndex: 999,
   };
 
-  const buttonStyle = {
-    margin: "10px",
-    padding: "8px 16px",
-    border: "none",
-    borderRadius: "6px",
-    color: "white",
-    cursor: "pointer",
-  };
+  const confirmButtonClass = type === "danger" ? "reject-btn" : "submit-btn";
 
   return (
     <div style={overlayStyle}>
       <div style={boxStyle}>
         <p>{message}</p>
+        <br />
         <div>
           <button
-            style={{
-              ...buttonStyle,
-              backgroundColor: type === "danger" ? "#e53e3e" : "#38a169",
-            }}
+            className={confirmButtonClass}
+            style={{ width: "fit-content" }}
             onClick={onConfirm}
           >
             Confirm
           </button>
           <button
-            style={{ ...buttonStyle, backgroundColor: "#718096" }}
+            className="transparent-btn"
+            style={{ width: "fit-content" }}
             onClick={onCancel}
           >
             Cancel
