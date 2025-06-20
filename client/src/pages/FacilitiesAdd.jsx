@@ -187,7 +187,7 @@ function FacilitiesAdd({
   return (
     <main className="page">
       <NavLink to="/facilities" className="transparent-btn back-btn">
-        <IoIosArrowBack /> Back to Manage Facilities
+        <IoIosArrowBack /> Go to Manage Facilities
       </NavLink>
 
       <div className="page-title">

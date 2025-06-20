@@ -19,7 +19,7 @@ function UserRegistration({
     <main class="page">
       <NavLink to="/users" className="transparent-btn back-btn">
         <IoIosArrowBack />
-        Back to Manage Users
+        Go to Manage Users
       </NavLink>
 
       <div className="page-title">
