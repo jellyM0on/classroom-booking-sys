@@ -9,41 +9,45 @@ import {
 import "./App.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import Navigation from "./components/Navigation";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Navigation from "./components/Navigation";
 import { useAuthToken } from "./hooks/useAuthToken";
+import BookingDetailContainer from "./pages/BookingDetail";
 import BookingManagementContainer from "./pages/BookingManagement";
 import BookingsAddContainer from "./pages/BookingsAdd";
 import DepartmentsContainer from "./pages/DepartmentManagement";
 import FacilitiesAddContainer from "./pages/FacilitiesAdd";
 import FacilityDetailContainer from "./pages/FacilityDetail";
 import FacilityManagementContainer from "./pages/FacilityManagement";
+import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import PageNotFound from "./pages/PageNotFound";
 import UserRegistrationContainer from "./pages/Registration";
 import RoomDetailContainer from "./pages/RoomDetail";
 import UserDetail from "./pages/UserDetail";
 import UserManagementContainer from "./pages/UserManagement";
-import BookingDetailContainer from "./pages/BookingDetail";
-import ForgotPassword from "./pages/ForgotPassword";
-import PageNotFound from "./pages/PageNotFound";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, requireAdmin = false }) {
   const [loading, setLoading] = useState(true);
   const token = useAuthToken(setLoading);
   const location = useLocation();
+  const role = sessionStorage.getItem("role");
 
   if (loading) {
-  return (
-    <div className="fullscreen-spinner">
-      <LoadingSpinner />
-    </div>
-  );
-}
-
+    return (
+      <div className="fullscreen-spinner">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   if (!token) {
     return <Navigate to="/" replace state={{ from: location }} />;
+  }
+
+  if (requireAdmin && role !== "admin") {
+    return <PageNotFound />;
   }
 
   return children;
@@ -54,35 +58,25 @@ function AppContent() {
   const token = useAuthToken(setLoading);
 
   if (loading) {
-  return (
-    <div className="fullscreen-spinner">
-      <LoadingSpinner />
-    </div>
-  );
-}
+    return (
+      <div className="fullscreen-spinner">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <>
       <Header />
       {token && <Navigation />}
       <Routes>
-        <Route 
-          path="/login" 
-          element={
-            <Login />
-          } 
-        />
-        <Route 
-          path="/forgot-password" 
-          element={
-          <ForgotPassword />
-          } 
-        /> 
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/" element={token ? <Home /> : <Login />} />
         <Route
           path="/users/register"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <UserRegistrationContainer />
             </ProtectedRoute>
           }
@@ -90,7 +84,7 @@ function AppContent() {
         <Route
           path="/users"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <UserManagementContainer />
             </ProtectedRoute>
           }
@@ -98,7 +92,7 @@ function AppContent() {
         <Route
           path="/users/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <UserDetail />
             </ProtectedRoute>
           }
@@ -106,7 +100,7 @@ function AppContent() {
         <Route
           path="/users/departments"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <DepartmentsContainer />
             </ProtectedRoute>
           }
@@ -114,7 +108,7 @@ function AppContent() {
         <Route
           path="/facilities"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <FacilityManagementContainer />
             </ProtectedRoute>
           }
@@ -122,7 +116,7 @@ function AppContent() {
         <Route
           path="/facilities/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <FacilityDetailContainer />
             </ProtectedRoute>
           }
@@ -130,7 +124,7 @@ function AppContent() {
         <Route
           path="/rooms/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <RoomDetailContainer />
             </ProtectedRoute>
           }
@@ -138,7 +132,7 @@ function AppContent() {
         <Route
           path="/facilities/add"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin={true}>
               <FacilitiesAddContainer />
             </ProtectedRoute>
           }
@@ -159,26 +153,19 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-         <Route
+        <Route
           path="/bookings/:id"
           element={
             <ProtectedRoute>
-              <BookingDetailContainer/>
+              <BookingDetailContainer />
             </ProtectedRoute>
           }
         />
-        <Route 
-          path="/" 
-          element={
-            <Navigate to={token ? "/home" : "/login"} replace />
-          } 
+        <Route
+          path="/"
+          element={<Navigate to={token ? "/home" : "/login"} replace />}
         />
-        <Route 
-          path="*" 
-          element={
-            <PageNotFound />
-          } 
-        />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Footer />
     </>
