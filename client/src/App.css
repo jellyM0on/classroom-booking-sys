@@ -205,7 +205,7 @@ nav.collapsed .centered-heading {
   gap: 1rem;
   margin-bottom: 0rem;
   padding: 0.75rem 1rem;
-  color: #333; 
+  color: #333;
   font-weight: 500;
 }
 
@@ -541,6 +541,7 @@ a.add-btn {
 
 #user-detail-form .submit-btn,
 #generic-form .submit-btn,
+#generic-form .reject-btn,
 #generic-form .submit-btn-disabled {
   width: fit-content;
 }

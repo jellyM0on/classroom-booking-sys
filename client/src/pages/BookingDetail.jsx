@@ -39,6 +39,7 @@ function BookingDetail({
   editStatus,
   editingIndex,
   handleScheduleUpdate,
+  handleDeleteBooking,
 }) {
   const isSubmitter = currentUid === booking?.submittedBy?.uid;
 
@@ -101,7 +102,7 @@ function BookingDetail({
                 <button
                   type="button"
                   onClick={() => onSubmitDraft("cancelled")}
-                  className="submit-btn"
+                  className="reject-btn"
                 >
                   Cancel
                 </button>
@@ -490,13 +491,30 @@ function BookingDetail({
             !editMode &&
             booking.status === "draft" &&
             isSubmitter && (
-              <button
-                className="submit-btn"
-                type="button"
-                onClick={handleToggleEdit}
-              >
-                Edit Booking
-              </button>
+              <div className="flex-gap-1">
+                <button
+                  className="submit-btn"
+                  type="button"
+                  onClick={handleToggleEdit}
+                >
+                  Edit Booking
+                </button>
+                <button
+                  className="reject-btn"
+                  type="button"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this booking?"
+                      )
+                    ) {
+                      handleDeleteBooking();
+                    }
+                  }}
+                >
+                  Delete Booking
+                </button>
+              </div>
             )
           )}
         </form>
@@ -1078,6 +1096,31 @@ export default function BookingDetailContainer() {
     }
   };
 
+  const handleDeleteBooking = async () => {
+    const token = sessionStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:3000/api/bookings/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to delete booking");
+      }
+
+      window.location.href = "/bookings";
+    } catch (err) {
+      setError({
+        message: err.message || "Failed to delete booking",
+        timestamp: Date.now(),
+      });
+    }
+  };
+
   return (
     <>
       {error?.message && (
@@ -1109,6 +1152,7 @@ export default function BookingDetailContainer() {
         editStatus={editStatus}
         setEditStatus={setEditStatus}
         handleScheduleUpdate={handleScheduleUpdate}
+        handleDeleteBooking={handleDeleteBooking}
       />
     </>
   );

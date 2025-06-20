@@ -1,6 +1,7 @@
 import express from "express";
 import {
   create,
+  deleteBooking,
   getAll,
   getAllSelf,
   getById,
@@ -71,6 +72,14 @@ router.put(
   verifyAdmin,
   verifyBookingStatus(["pending"]),
   updateStatus
+);
+
+router.delete(
+  "/:id",
+  verifyToken,
+  verifySelfBooking,
+  verifyBookingStatus(["draft"]),
+  deleteBooking
 );
 
 export default router;
