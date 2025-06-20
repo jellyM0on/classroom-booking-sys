@@ -8,6 +8,8 @@ import {
 } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { NavLink } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
 
 function FacilitiesAdd({
   facilityType,
@@ -15,8 +17,6 @@ function FacilitiesAdd({
   fieldErrors,
   buildings,
   loading,
-  submitError,
-  submitSuccess,
   handleChange,
   handleSubmit,
   setFacilityType,
@@ -228,11 +228,6 @@ function FacilitiesAdd({
             : renderRoomForm()}
         </div>
 
-        {submitError && <p className="error-msg">{submitError}</p>}
-        {submitSuccess && (
-          <p className="success-msg">Facility added successfully!</p>
-        )}
-
         <button className="submit-btn" type="submit" disabled={loading}>
           {loading
             ? "Submitting..."
@@ -249,8 +244,8 @@ export default function FacilitiesAddContainer() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [buildings, setBuildings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
 
   const fetchBuildings = async () => {
     const token = sessionStorage.getItem("token");
@@ -267,7 +262,10 @@ export default function FacilitiesAddContainer() {
       const payload = await res.json();
       setBuildings(payload.data || []);
     } catch (err) {
-      console.error(err);
+      setError({
+        message: err.message || "Error fetching buildings",
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -277,22 +275,22 @@ export default function FacilitiesAddContainer() {
     }
     setFormData({});
     setFieldErrors({});
-    setSubmitSuccess(false);
-    setSubmitError(null);
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
   }, [facilityType]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setSubmitSuccess(false);
+    setSuccess({ message: "", timestamp: null });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setFieldErrors({});
-    setSubmitError(null);
-    setSubmitSuccess(false);
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
 
     const token = sessionStorage.getItem("token");
 
@@ -320,33 +318,55 @@ export default function FacilitiesAddContainer() {
             formatted[err.path] = err.message;
           }
           setFieldErrors(formatted);
+          setError({
+            message: data?.message || "Submission failed",
+            timestamp: Date.now(),
+          });
         } else {
-          setSubmitError(data?.message || "Submission failed");
+          setError({
+            message: data?.message || "Submission failed",
+            timestamp: Date.now(),
+          });
         }
         return;
       }
 
-      setSubmitSuccess(true);
       setFormData({});
+      setSuccess({
+        message: "Facility added successfully!",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      setSubmitError(err.message || "Unexpected error");
+      setError({
+        message: err.message || "Unexpected error",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <FacilitiesAdd
-      facilityType={facilityType}
-      formData={formData}
-      fieldErrors={fieldErrors}
-      buildings={buildings}
-      loading={loading}
-      submitError={submitError}
-      submitSuccess={submitSuccess}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      setFacilityType={setFacilityType}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+      {success.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+      <FacilitiesAdd
+        facilityType={facilityType}
+        formData={formData}
+        fieldErrors={fieldErrors}
+        buildings={buildings}
+        loading={loading}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        setFacilityType={setFacilityType}
+      />
+    </>
   );
 }

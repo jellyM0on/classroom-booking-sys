@@ -3,6 +3,8 @@ import { FaBuilding, FaUser, FaUserTag } from "react-icons/fa6";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import { NavLink, useParams } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NoDataFound from "../components/NoDataFound";
@@ -200,7 +202,8 @@ export default function UserDetailContainer() {
   const [departments, setDepartments] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
   const [editMode, setEditMode] = useState(false);
 
   const fetchUser = async () => {
@@ -228,7 +231,10 @@ export default function UserDetailContainer() {
       setFormData(initial);
       setInitialData(initial);
     } catch (err) {
-      setError(err.message || "Error fetching user");
+      setError({
+        message: err.message || "Error fetching user",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -249,7 +255,10 @@ export default function UserDetailContainer() {
       const payload = await res.json();
       setDepartments(payload.data || []);
     } catch (err) {
-      console.error(err);
+      setError({
+        message: err.message || "Error fetching departments",
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -282,6 +291,9 @@ export default function UserDetailContainer() {
       department: formData.department,
     };
 
+    setError({ message: "", timestamp: null });
+    setSuccess({ message: "", timestamp: null });
+
     try {
       const res = await fetch(`http://localhost:3000/api/users/admin/${id}`, {
         method: "PUT",
@@ -301,8 +313,15 @@ export default function UserDetailContainer() {
             formatted[err.path] = err.message;
           }
           setFieldErrors(formatted);
+          setError({
+            message: data?.message || "Update failed",
+            timestamp: Date.now(),
+          });
         } else {
-          setError(data?.message || "Update failed");
+          setError({
+            message: data?.message || "Update failed",
+            timestamp: Date.now(),
+          });
         }
         return;
       }
@@ -315,23 +334,43 @@ export default function UserDetailContainer() {
         role: data.role,
         department: data.department?.id || "",
       });
+      setSuccess({
+        message: "User updated successfully",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      setError(err.message || "Update error");
+      setError({
+        message: err.message || "Update error",
+        timestamp: Date.now(),
+      });
     }
   };
 
   return (
-    <UserDetail
-      user={user}
-      loading={loading}
-      error={error}
-      editMode={editMode}
-      formData={formData}
-      departments={departments}
-      fieldErrors={fieldErrors}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleToggleEdit={handleToggleEdit}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      {success.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+
+      <UserDetail
+        user={user}
+        loading={loading}
+        error={error}
+        editMode={editMode}
+        formData={formData}
+        departments={departments}
+        fieldErrors={fieldErrors}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleToggleEdit={handleToggleEdit}
+      />
+    </>
   );
 }

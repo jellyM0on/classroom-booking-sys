@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { MdNumbers } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
 import GenericChip from "../components/GenericChip";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NoDataFound from "../components/NoDataFound";
@@ -16,7 +17,6 @@ import formatDate from "../utils/formatDate";
 
 function FacilityManagement({
   loading,
-  error,
   facilities,
   handleRowClick,
   page,
@@ -78,7 +78,7 @@ function FacilityManagement({
 
       {loading && <LoadingSpinner />}
 
-      {!loading && !error && facilities && facilities.length > 0 && (
+      {!loading && facilities && facilities.length > 0 && (
         <div id="generic-table-wrapper">
           <table cellPadding="8" cellSpacing="0" id="generic-table">
             <thead>
@@ -159,7 +159,7 @@ export default function FacilityManagementContainer() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("ASC");
   const pageSize = 10;
@@ -198,7 +198,10 @@ export default function FacilityManagementContainer() {
       setTotalPages(payload.totalPages);
       setTotal(payload.total);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError({
+        message: err.message || "Something went wrong",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -224,20 +227,26 @@ export default function FacilityManagementContainer() {
   };
 
   return (
-    <FacilityManagement
-      facilities={facilities}
-      loading={loading}
-      error={error}
-      handleRowClick={handleRowClick}
-      page={page}
-      totalPages={totalPages}
-      pageSize={pageSize}
-      total={total}
-      handlePageChange={handlePageChange}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
-    />
+    <>
+      {error.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      <FacilityManagement
+        facilities={facilities}
+        loading={loading}
+        error={error.message}
+        handleRowClick={handleRowClick}
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        total={total}
+        handlePageChange={handlePageChange}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+      />
+    </>
   );
 }
