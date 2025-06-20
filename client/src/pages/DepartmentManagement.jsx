@@ -29,7 +29,7 @@ function Departments({
 
       <div className="page-title">
         <div className="flex-gap-1">
-          <h2> Manage Users</h2>
+          <h2> Manage Department</h2>
           <GenericChip label={departments.length} />
         </div>
 
