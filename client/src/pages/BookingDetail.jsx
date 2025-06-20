@@ -16,6 +16,9 @@ import formatDate from "../utils/formatDate";
 import { getBookingStatusColor } from "../utils/getBookingStatusColor";
 import { getScheduleStatusColor } from "../utils/getScheduleStatusColor";
 
+import FloatingErrorMessage from "../components/FloatingErrorMessage";
+import FloatingSuccessMessage from "../components/FloatingSuccessMessage";
+
 const isAdmin = sessionStorage.getItem("role") === "admin";
 const currentUid = sessionStorage.getItem("uid");
 
@@ -608,7 +611,9 @@ export default function BookingDetailContainer() {
   const [initialFormData, setInitialFormData] = useState({});
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({ message: "", timestamp: null });
+  const [success, setSuccess] = useState({ message: "", timestamp: null });
+
   const [editMode, setEditMode] = useState(false);
   const [users, setUsers] = useState([]);
   const [buildings, setBuildings] = useState([]);
@@ -691,7 +696,10 @@ export default function BookingDetailContainer() {
         end_time: firstSchedule?.end_time || "",
       });
     } catch (err) {
-      setError(err.message || "Error fetching booking");
+      setError({
+        message: err.message || "Error fetching booking",
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
@@ -930,8 +938,15 @@ export default function BookingDetailContainer() {
       if (!res.ok) throw new Error(data.message || "Failed to update booking");
       setBooking(data.data);
       setEditMode(false);
+      setSuccess({
+        message: "Booking updated successfully",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      setError(err.message);
+      setError({
+        message: err.message || "Failed to update booking",
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -1051,30 +1066,50 @@ export default function BookingDetailContainer() {
 
       setBooking({ ...booking, schedules: updatedSchedules });
       setEditingIndex(null);
+      setSuccess({
+        message: "Schedule updated successfully",
+        timestamp: Date.now(),
+      });
     } catch (err) {
-      alert(err.message);
+      setError({
+        message: err.message || "Failed to update schedule",
+        timestamp: Date.now(),
+      });
     }
   };
 
   return (
-    <BookingDetail
-      onSubmitDraft={onSubmitDraft}
-      booking={booking}
-      loading={loading}
-      error={error}
-      editMode={editMode}
-      formData={formData}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleToggleEdit={handleToggleEdit}
-      users={users}
-      buildings={buildings}
-      availableRooms={availableRooms}
-      editingIndex={editingIndex}
-      setEditingIndex={setEditingIndex}
-      editStatus={editStatus}
-      setEditStatus={setEditStatus}
-      handleScheduleUpdate={handleScheduleUpdate}
-    />
+    <>
+      {error?.message && (
+        <FloatingErrorMessage key={error.timestamp} message={error.message} />
+      )}
+
+      {success?.message && (
+        <FloatingSuccessMessage
+          key={success.timestamp}
+          message={success.message}
+        />
+      )}
+
+      <BookingDetail
+        onSubmitDraft={onSubmitDraft}
+        booking={booking}
+        loading={loading}
+        error={error}
+        editMode={editMode}
+        formData={formData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleToggleEdit={handleToggleEdit}
+        users={users}
+        buildings={buildings}
+        availableRooms={availableRooms}
+        editingIndex={editingIndex}
+        setEditingIndex={setEditingIndex}
+        editStatus={editStatus}
+        setEditStatus={setEditStatus}
+        handleScheduleUpdate={handleScheduleUpdate}
+      />
+    </>
   );
 }

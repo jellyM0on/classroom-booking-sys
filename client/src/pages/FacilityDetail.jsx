@@ -273,7 +273,7 @@ function FacilityDetail({
         </div>
       )}
 
-      {!loading && (!building.rooms || building.rooms.length === 0) && (
+      {!loading && building && building?.rooms?.length === 0 && (
         <NoDataFound />
       )}
     </main>
