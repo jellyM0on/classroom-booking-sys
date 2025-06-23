@@ -1,12 +1,10 @@
 # 📚 IskolaRoom: Classroom Booking Management System
 
-## 🧾 Overview
+## Overview
 
 **IskolaRoom** is a full-stack web application designed for managing room reservations across multiple facilities and departments in an educational institution. It incorporates role-based access control, enabling different levels of access for administrators and regular users (students or faculty), and streamlining the process of room booking, approval, and scheduling.
 
----
-
-## 📐 Specifications
+## Specifications
 
 ### ✅ Functional Requirements
 
@@ -40,18 +38,7 @@
 7. **Notifications**
    - Email alerts for account setup, password reset, and booking status updates.
 
----
-
-### ⚙️ Non-Functional Requirements
-
-- **Scalability**: Capable of handling growing users, bookings, and facility data.
-- **Security**: Firebase Authentication with custom claims; backend endpoints protected by token verification.
-- **Usability**: Responsive frontend UI built using React and Tailwind CSS; includes a calendar scheduling interface.
-- **Maintainability**: Modular architecture using Vite, Express, Sequelize, and React.
-
----
-
-## 📋 Business Rules
+## Business Rules
 
 1. **User Invitation**
    - Only admins can register new users; self-registration is not allowed.
@@ -76,75 +63,49 @@
 6. **Time Constraints**
    - Bookings must be scheduled within operational hours (e.g., 08:00–20:00).
 
----
 
 ## ✨ Features
 
-### 🔐 Authentication & Authorization
+### Authentication & Authorization
 - Firebase-powered login system
 - Admin-driven user registration
 - Password reset via email
 
-### 🧭 Dashboard & Navigation
-- Central dashboard with access to all key modules
+### Facility & Room Modules
+- CRUD operations on facilities and rooms
+- Room details include capacity 
 
-### 🏢 Facility & Room Modules
-- Full CRUD operations on facilities and rooms
-- Room details include capacity and available equipment
-
-### 🏛️ Department Module
+### Department Module
 - Create and manage academic departments
 
-### 👥 User Module
+### User Module
 - Admin dashboard for managing users and assigning roles
 
-### 📅 Booking Module
+### Booking Module
 - Calendar view using React Big Calendar
 - Filter bookings by facility, room, date, and time
 - In-line booking form with status tracking and draft editing
 
-### ✅ Admin Booking Management
+### Admin Booking Management
 - List of `Pending` bookings for approval/rejection
 - Email alerts sent on booking status updates
 
-### ⚠️ Validation & Error Handling
+### ⚠Validation & Error Handling
 - Server-side validation of all booking data
 - Friendly, clear error messages on UI
 
----
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer         | Technology                           |
 |---------------|--------------------------------------|
 | **Frontend**  | React, Vite, Tailwind CSS, React Big Calendar, React Router |
 | **Backend**   | Node.js, Express                     |
 | **Database**  | MySQL (via Sequelize ORM)            |
-| **Auth & Hosting** | Firebase Authentication, Firebase Hosting |
-
----
-
-## 📁 Folder Structure Suggestion
-
-/client
-├── public
-├── src
-├── components
-├── pages
-├── hooks
-├── services
-└── App.jsx
-/server
-├── controllers
-├── models
-├── routes
-├── services
-└── index.js
+| **Auth** | Firebase Authentication |
 
 
----
-
-## 🚀 Setup Instructions
+## Setup Instructions
 
 1. **Clone the repository.**
 2. **Navigate to the `/client` and `/server` directories and install dependencies:**
