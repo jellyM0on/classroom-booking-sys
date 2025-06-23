@@ -36,7 +36,7 @@
    - Server-side logic prevents overlapping active bookings for the same room and time slot.
 
 7. **Notifications**
-   - Email alerts for account setup, password reset, and booking status updates.
+   - Email alerts for account setup and password reset
 
 ## Business Rules
 
